@@ -6,3 +6,4 @@ results/
 testing/
 testing*
 *.pyc
+pathogenseq_results/
