@@ -42,7 +42,11 @@ include {RUN_ILLUMINA_QC} from '../subworkflows/local/qc_illumina'
 include {RUN_NANOPORE_QC} from '../subworkflows/local/qc_nanopore'
 include {RUN_ASSEMBLE_SHORT} from '../subworkflows/local/assembly_short'
 include {RUN_ASSEMBLE_LONG} from '../subworkflows/local/assembly_long'
-include {RUN_POLYPOLISH} from '../subworkflows/local/short_reads_polisher'
+include {
+    RUN_POLYPOLISH;
+    RUN_POLCA;
+
+} from '../subworkflows/local/short_reads_polisher'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -162,14 +166,14 @@ workflow PATHOGENSEQ {
             stats = RUN_POLYPOLISH.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLYPOLISH.out.versions)
         }
-        // it is too slow and runs for more than 3 hr but not finish
-       /*  if(!params.skip_short_reads_polish  && !params.skip_polca){
+        // cannot use gzip contig file as input, otherwise it will hang and never finish
+        if(!params.skip_short_reads_polish  && !params.skip_polca){
 
             RUN_POLCA(short_reads, contigs)
-            contigs = RUN_POLCA.out.contigs
-            //stats = RUN_POLCA.out.stats
+            contigs = RUN_POLCA.out.assembly
+            stats = RUN_POLCA.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
-        } */
+        }
     }
 
     CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 

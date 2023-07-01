@@ -25,6 +25,7 @@ process MASURCA_POLCA {
     
     """
     polca.sh \\
+    $args \\
     -a ${assembly} \\
     -r \'$reads\' \\
     -t ${task.cpus}
@@ -32,7 +33,7 @@ process MASURCA_POLCA {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        : \$(echo \$(masurca --version 2>&1) | sed 's/^.*version //;))
+        masurca: \$(echo \$(masurca --version 2>&1) | sed 's/^.*version //;')
     END_VERSIONS
     """
 }

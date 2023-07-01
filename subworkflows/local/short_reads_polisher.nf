@@ -69,14 +69,14 @@ workflow RUN_POLCA{
     main:
         ch_versions = Channel.empty()
         MASURCA_POLCA(reads, assembly)
-        contigs = MASURCA_POLCA.out.assembly
-        //stats = POLCA_STATS(contigs)
+        assembly = MASURCA_POLCA.out.assembly
+        POLCA_STATS(assembly)
 
         ch_versions = ch_versions.mix(MASURCA_POLCA.out.versions.first())
         
     emit:
-        contigs
-        //stats
+        assembly = MASURCA_POLCA.out.assembly
+        stats = POLCA_STATS.out.stats
         versions = ch_versions
 }
 
