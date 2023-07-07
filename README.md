@@ -1,82 +1,97 @@
-# ![nf-core/pathogenseq](docs/images/nf-core-pathogenseq_logo_light.png#gh-light-mode-only) ![nf-core/pathogenseq](docs/images/nf-core-pathogenseq_logo_dark.png#gh-dark-mode-only)
+<!-- # ![nf-core/pathogen](docs/images/nf-core-pathogen_logo.png) -->
 
-[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/pathogenseq/results)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![GitHub Actions CI Status](https://github.com/nf-core/pathogen/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/pathogen/actions?query=workflow%3A%22nf-core+CI%22)
+[![GitHub Actions Linting Status](https://github.com/nf-core/pathogen/workflows/nf-core%20linting/badge.svg)](https://github.com/nf-core/pathogen/actions?query=workflow%3A%22nf-core+linting%22)
+[![AWS CI](https://img.shields.io/badge/CI%20tests-full%20size-FF9900?labelColor=000000&logo=Amazon%20AWS)](https://nf-co.re/pathogen/results)
+[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
 
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A522.10.1-23aa62.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A521.04.0-23aa62.svg?labelColor=000000)](https://www.nextflow.io/)
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf-core/pathogenseq)
 
-[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23pathogenseq-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/pathogenseq)[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)[![Follow on Mastodon](https://img.shields.io/badge/mastodon-nf__core-6364ff?labelColor=FFFFFF&logo=mastodon)](https://mstdn.science/@nf_core)[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
+[![Get help on Slack](http://img.shields.io/badge/slack-nf--core%20%23pathogen-4A154B?labelColor=000000&logo=slack)](https://nfcore.slack.com/channels/pathogen)
+[![Follow on Twitter](http://img.shields.io/badge/twitter-%40nf__core-1DA1F2?labelColor=000000&logo=twitter)](https://twitter.com/nf_core)
+[![Watch on YouTube](http://img.shields.io/badge/youtube-nf--core-FF0000?labelColor=000000&logo=youtube)](https://www.youtube.com/c/nf-core)
 
 ## Introduction
 
-**nf-core/pathogenseq** is a bioinformatics pipeline that ...
+<!-- TODO nf-core: Write a 1-2 sentence summary of what data the pipeline is for and what it does -->
+**nf-core/pathogenseq** is a bioinformatics best-practice analysis pipeline for Pathogen sequence quality checking, quality control, assembly, annotation, predicting mlst, antimicrobial resistance, virulome, and plasmid.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community!
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
+<!-- TODO nf-core: Add full-sized test dataset and amend the paragraph below if applicable -->
+On release, automated continuous integration tests run the pipeline on a full-sized dataset on the AWS cloud infrastructure. This ensures that the pipeline runs on AWS, has sensible resource allocation defaults set to run on real-world datasets, and permits the persistent storage of results to benchmark between pipeline releases and other analysis sources. The results obtained from the full-sized test can be viewed on the [nf-core website](https://nf-co.re/pathogen/results).
+
+## Pipeline summary
+
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+* Short Illumina reads quality checks ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+* Long Nanopore reads quality checks ([`NanoPlot`](https://github.com/wdecoster/NanoPlot))
+* Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
+* Short read assembly with user choice of the assemblers:
+    * [`Skesa`](https://github.com/ncbi/SKESA)
+    * [`Spades`](https://github.com/ablab/spades)
+    * [`Unicycler`](https://github.com/rrwick/Unicycler)
+* Long read assembly with user choice of the assemblers:
+    * [`Flye`](https://github.com/fenderglass/Flye)
+    * [`Miniasm`](https://github.com/lh3/miniasm)
+    * [`Unicycler`](https://github.com/rrwick/Unicycler)
+* Long and short read hybrid assembly with user choilce of assemblers:
+    * [`Spades`](https://github.com/ablab/spades)
+    * [`Unicycler`](https://github.com/rrwick/Unicycler)
+* Long reads assembly polishing using long reads with user choice of the polishing programs:
+    * [`Racon`](https://github.com/isovic/racon)
+    * [`Medaka`](https://github.com/nanoporetech/medaka)
+* Short reads assembly polishing using short reads with user choice of the polishing programs: 
+    * [`Pilon`](https://github.com/broadinstitute/pilon)
+    * [`POLCA`](https://github.com/alekseyzimin/masurca)
+    * [`NextPolish`](https://github.com/Nextomics/NextPolish)
+* Assembled contig annotation with user choice of the annotation tools:
+    * [`Bakta`](https://github.com/oschwengers/bakta)
+    * [`Prokka`](https://github.com/tseemann/prokka)
+* Multilocus sequence typing using [`mlst`](https://github.com/tseemann/mlst)
+* Virulome detection using [`abricate`](https://github.com/tseemann/abricate) with [`VFDB`](http://www.mgc.ac.cn/VFs/main.htm)
+* AMR gene prediction with multiple tools: 
+    * [`Abricate`](https://github.com/tseemann/abricate)
+    * [`Resistance Gene Identifier (RGI)`](https://github.com/arpcard/rgi)
+    * [`sraX`](https://github.com/lgpdevtools/sraX)
+    * The AMR gene detection results are standardized with  [`hAMRonization`](https://github.com/pha4ge/hAMRonization)
+* Typing and reconstruction of plasmid sequences from assembled contigs using [`MOB-suite`](https://github.com/phac-nml/mob-suite)
 
-## Usage
+## Quick Start
 
-> **Note**
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-> to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-> with `-profile test` before running the workflow on actual data.
+1. Install [`Nextflow`](https://www.nextflow.io/docs/latest/getstarted.html#installation) (`>=21.04.0`)
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
 
-First, prepare a samplesheet with your input data that looks as follows:
+3. Download the pipeline and test it on a minimal dataset with a single command:
 
-`samplesheet.csv`:
+    ```console
+    nextflow run xiaoli-dong/pathogen -profile test,<docker/singularity/podman/shifter/charliecloud/conda/institute>
+    ```
 
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-```
+    > * Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+    > * If you are using `singularity` then the pipeline will auto-detect this and attempt to download the Singularity images directly as opposed to performing a conversion from Docker images. If you are persistently observing issues downloading Singularity images directly due to timeout or network issues then please use the `--singularity_pull_docker_container` parameter to pull and convert the Docker image instead. Alternatively, it is highly recommended to use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to pre-download all of the required containers before running the pipeline and to set the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options to be able to store and re-use the images from a central location for future pipeline runs.
+    > * If you are using `conda`, it is highly recommended to use the [`NXF_CONDA_CACHEDIR` or `conda.cacheDir`](https://www.nextflow.io/docs/latest/conda.html) settings to store the environments in a central location for future pipeline runs.
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+4. Start running your own analysis!
 
--->
+    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
 
-Now, you can run the pipeline using:
+    ```console
+    nextflow run xiaoli-dong/pathogen -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> -c conf/example.config -profile singularity
+    ```
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
+## Documentation
 
-```bash
-nextflow run nf-core/pathogenseq \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
-```
-
-> **Warning:**
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those
-> provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
-> see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
-
-For more details, please refer to the [usage documentation](https://nf-co.re/pathogenseq/usage) and the [parameter documentation](https://nf-co.re/pathogenseq/parameters).
-
-## Pipeline output
-
-To see the the results of a test run with a full size dataset refer to the [results](https://nf-co.re/pathogenseq/results) tab on the nf-core website pipeline page.
-For more details about the output files and reports, please refer to the
-[output documentation](https://nf-co.re/pathogenseq/output).
+The nf-core/pathogen pipeline comes with documentation about the pipeline [usage](https://nf-co.re/pathogen/usage), [parameters](https://nf-co.re/pathogen/parameters) and [output](https://nf-co.re/pathogen/output).
 
 ## Credits
 
-nf-core/pathogenseq was originally written by Xiaoli Dong.
+nf-core/pathogen was originally written by Xiaoli Dong.
 
 We thank the following people for their extensive assistance in the development of this pipeline:
 
@@ -86,15 +101,14 @@ We thank the following people for their extensive assistance in the development 
 
 If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
 
-For further information or help, don't hesitate to get in touch on the [Slack `#pathogenseq` channel](https://nfcore.slack.com/channels/pathogenseq) (you can join with [this invite](https://nf-co.re/join/slack)).
+For further information or help, don't hesitate to get in touch on the [Slack `#pathogen` channel](https://nfcore.slack.com/channels/pathogen) (you can join with [this invite](https://nf-co.re/join/slack)).
 
 ## Citations
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use  nf-core/pathogenseq for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+<!-- If you use  nf-core/pathogen for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
 
 <!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
-
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 
 You can cite the `nf-core` publication as follows:
@@ -104,3 +118,13 @@ You can cite the `nf-core` publication as follows:
 > Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
+
+
+## bugs:
+
+> POLCA is not working with sigularity, bwa is not the path
+> nextpolish has no singularity image, need local installation
+>need Tiny in the system perl
+
+## reference
+<!-- >>https://github.com/ablab/graphamr -->
