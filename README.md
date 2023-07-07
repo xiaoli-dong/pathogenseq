@@ -47,9 +47,7 @@ The pipeline currently perfomrs the following:
     * [Polypolish](https://github.com/rrwick/Polypolish)
     * [POLCA](https://github.com/alekseyzimin/masurca)
       
-* Assembled contig annotation with user choice of the annotation tools:
-    * [`Bakta`](https://github.com/oschwengers/bakta)
-    * [`Prokka`](https://github.com/tseemann/prokka)
+* Contig annotation [Bakta](https://github.com/oschwengers/bakta)  
 * Multilocus sequence typing using [`mlst`](https://github.com/tseemann/mlst)
 * Virulome detection using [`abricate`](https://github.com/tseemann/abricate) with [`VFDB`](http://www.mgc.ac.cn/VFs/main.htm)
 * AMR gene prediction with multiple tools: 
