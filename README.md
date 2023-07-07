@@ -56,8 +56,17 @@ The pipeline currently performs the following:
 
 ## Usage
 
- If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with -profile test before running the workflow on actual data.
+If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with -profile test before running the workflow on actual data.
 
+First prepare a samplesheet with your input data that looks as follows:
+```
+sample,fastq_1,fastq_2,long_fastq,fast5,long_mode,genomesize
+sample1,shortreads_1.fastq.gz,shortreads_2.fastq.gz,longreads.fastq.gz,longreads.fast5,hac,5.3m
+sample2,NA,NA,longreads.fastq.gz,longreads.fast5,fast,5.3m
+sample3,NA,NA,longreads.fastq.gz,longreads.fast5,sup,5.3m
+sample1,shortreads_1.fastq.gz,shortreads_2.fastq.gz,NA,NA,NA,NA
+
+```
 
 ## Quick Start
 
