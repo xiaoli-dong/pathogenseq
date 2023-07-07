@@ -100,7 +100,7 @@ The csv format samplesheet has seven required columns:
 ### Run the pipeline:
 
 ```
-#
+# Runing the pipeline from github
 nextflow run xiaoli-dong/pathogenseq \
   -r seven_character_revision_number (e.g: 8657a20)
   --input samplesheet.csv \
