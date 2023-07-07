@@ -28,7 +28,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 The pipeline currently performs the following:
 
 * Sequence quality check and quality control
-  * Short reads
+    * Short reads
     * Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
     * Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
     * Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
