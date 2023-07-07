@@ -87,6 +87,10 @@ nextflow run path_to/pathogenseq/main \
   --input samplesheet.csv \
   -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
   --outdir sample_results
+
+#this commnad will launch the pipeline with ```singularity``` configraton profile.
+nextflow run main.nf -profile singularity --input assets/pathogenseq.csv --outdir test_results --assembly_type long -resume
+
 ```
 ## Quick Start
 
