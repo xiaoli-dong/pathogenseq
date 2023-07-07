@@ -47,15 +47,12 @@ The pipeline currently performs the following:
     * [Polypolish](https://github.com/rrwick/Polypolish)
     * [POLCA](https://github.com/alekseyzimin/masurca)
       
-* Contig annotation [Bakta](https://github.com/oschwengers/bakta)  
-* Multilocus sequence typing using [`mlst`](https://github.com/tseemann/mlst)
-* Virulome detection using [`abricate`](https://github.com/tseemann/abricate) with [`VFDB`](http://www.mgc.ac.cn/VFs/main.htm)
-* AMR gene prediction with multiple tools: 
-    * [`Abricate`](https://github.com/tseemann/abricate)
-    * [`Resistance Gene Identifier (RGI)`](https://github.com/arpcard/rgi)
-    * [`sraX`](https://github.com/lgpdevtools/sraX)
-    * The AMR gene detection results are standardized with  [`hAMRonization`](https://github.com/pha4ge/hAMRonization)
-* Typing and reconstruction of plasmid sequences from assembled contigs using [`MOB-suite`](https://github.com/phac-nml/mob-suite)
+* Contig annotation [Bakta](https://github.com/oschwengers/bakta)
+* Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
+* Scan contig files against traditional PubMLST typing schemes [mlst](https://github.com/tseemann/mlst)
+* Typing and reconstruction of plasmid sequences from assembled contigs [MOB-suite](https://github.com/phac-nml/mob-suite)
+* Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
+
 
 ## Quick Start
 
