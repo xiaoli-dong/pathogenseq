@@ -30,6 +30,7 @@ process MASURCA_POLCA {
     -r \'$reads\' \\
     -t ${task.cpus}
     
+    mv ${assembly}.PolcaCorrected.fa ${prefix}_polca.genome.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -5,6 +5,8 @@ include {TABIX_BGZIP} from  '../../modules/nf-core/tabix/bgzip/main'
 include {MEDAKA} from  '../../modules/nf-core/medaka/main'
 include {SEQKIT_STATS as STATS_MEDAKA} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as STATS_FLYE} from '../../modules/nf-core/seqkit/stats/main'
+include {RESTARTGENOME } from  '../../modules/local/restartgenome'
+//include {DNAAPLER } from  '../../modules/local/dnaapler'
 
 workflow RUN_ASSEMBLE_LONG {   
 
@@ -13,17 +15,33 @@ workflow RUN_ASSEMBLE_LONG {
         short_reads
     main:
         ch_versions = Channel.empty()
+       
+        
         //Flye to be the best-performing bacterial genome assembler in many metrics
         if ( params.long_reads_assembler == 'flye+medaka'){
-            mode = "--nano-raw"
-            FLYE ( long_reads, mode )
+            
+            long_reads.multiMap{
+                it ->
+                long_reads: [it[0], it[1]]
+                modeFlag: modeFlag = (it[0].long_mode == 'sup' || it[0].long_mode == 'hac') ? "--nano-hq" : "--nano-raw" 
+            }.set{
+                input
+            }
+            input.modeFlag.view()
+            FLYE(input.long_reads, input.modeFlag)
             contigs = FLYE.out.fasta
             ch_versions = ch_versions.mix(FLYE.out.versions.first())
             STATS_FLYE(contigs)
+
+            //recenter the genome before medaka hopes to fix the termial errors
+            RESTARTGENOME(FLYE.out.fasta, FLYE.out.txt)
+            ch_versions = ch_versions.mix(RESTARTGENOME.out.versions.first())
+            contigs = RESTARTGENOME.out.fasta
+
             //Medaka cannot accept gzip file as input and it need bgzip files
-            GUNZIP(contigs)
-            TABIX_BGZIP(GUNZIP.out.gunzip)
-            contigs = TABIX_BGZIP.out.output
+            // GUNZIP(contigs)
+            // TABIX_BGZIP(GUNZIP.out.gunzip)
+            // contigs = TABIX_BGZIP.out.output
 
             input = long_reads.join(contigs)
             //file need to be bgzipped
@@ -38,3 +56,56 @@ workflow RUN_ASSEMBLE_LONG {
         versions = ch_versions
         stats
 }
+
+/* process seq2fastaFile{
+    input:
+    tuple val(meta), val(seqid), val(seq)
+    output:
+    tuple val(meta), val(seqid), path("*.fasta"), emit: fasta
+
+    script:
+
+    """
+
+    echo "${seq}" > ${seqid}.fasta
+    
+
+    """
+}
+
+workflow run_dnaA_genome{
+
+    take:
+        assembly
+        
+    main:
+        ch_versions = Channel.empty()
+
+        assembly.map{
+            it ->
+            def meta = it[0]
+            def arr = it[1].splitFasta( record: [id: true, sequence: true])
+            a = []
+            arr.each{
+                n ->
+                a = [meta, n.id, ">"+n.id+"\n" + n.sequence]
+            }
+            a
+        }.set{
+            consensus_seq_ch
+        }
+        consensus_seq_ch.view()
+        seq2fastaFile(consensus_seq_ch)
+        seq2fastaFile.out.view()
+        DNAAPLER(seq2fastaFile.out.fasta)
+        fasta = DNAAPLER.out.fasta
+        fasta.view()
+        
+
+    emit:
+        fasta
+        versions = ch_versions
+
+        
+}
+ */

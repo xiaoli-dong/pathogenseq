@@ -41,10 +41,15 @@ include { INPUT_CHECK } from '../subworkflows/local/input_check'
 include {RUN_ILLUMINA_QC} from '../subworkflows/local/qc_illumina'
 include {RUN_NANOPORE_QC} from '../subworkflows/local/qc_nanopore'
 include {RUN_ASSEMBLE_SHORT} from '../subworkflows/local/assembly_short'
-include {RUN_ASSEMBLE_LONG} from '../subworkflows/local/assembly_long'
+include {
+    RUN_ASSEMBLE_LONG;
+    //run_dnaA_genome;
+} from '../subworkflows/local/assembly_long'
+
 include {
     RUN_POLYPOLISH;
     RUN_POLCA;
+
 
 } from '../subworkflows/local/short_reads_polisher'
 
@@ -104,7 +109,7 @@ workflow PATHOGENSEQ {
     INPUT_CHECK (
         ch_input
     )
-    //ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    ch_software_versions = ch_software_versions.mix(INPUT_CHECK.out.versions)
 
    
 
@@ -174,6 +179,10 @@ workflow PATHOGENSEQ {
             stats = RUN_POLCA.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
+
+        //ignore this for now becasue 1) the dnaaplier report error when the input has no dnaA gene 
+        //run_dnaA_genome(contigs)
+        //run_dnaA_genome.out.fasta.view()
     }
 
     CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
