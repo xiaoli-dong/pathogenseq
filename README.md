@@ -83,11 +83,10 @@ The csv format samplesheet has seven required columns:
 
 Now you can run the pipeline using:
 ```
-nextflow run xiaoli-dong/pathogenseq \
+nextflow run path_to/pathogenseq/main \
   --input samplesheet.csv \
-  -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> \
+  -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
   --outdir sample_results
-
 ```
 ## Quick Start
 
