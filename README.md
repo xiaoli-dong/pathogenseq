@@ -27,34 +27,26 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 The pipeline currently perfomrs the following:
 
-### Sequence quality check and quality control
-* Short reads
-  * Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-  * Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
-  * Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
-* Long reads
-  * Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
-  * Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
-  * Nanopore long read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
-* Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
-* Short read assembly with user choice of the assemblers:
-    * [`Skesa`](https://github.com/ncbi/SKESA)
-    * [`Spades`](https://github.com/ablab/spades)
-    * [`Unicycler`](https://github.com/rrwick/Unicycler)
-* Long read assembly with user choice of the assemblers:
-    * [`Flye`](https://github.com/fenderglass/Flye)
-    * [`Miniasm`](https://github.com/lh3/miniasm)
-    * [`Unicycler`](https://github.com/rrwick/Unicycler)
-* Long and short read hybrid assembly with user choilce of assemblers:
-    * [`Spades`](https://github.com/ablab/spades)
-    * [`Unicycler`](https://github.com/rrwick/Unicycler)
-* Long reads assembly polishing using long reads with user choice of the polishing programs:
-    * [`Racon`](https://github.com/isovic/racon)
-    * [`Medaka`](https://github.com/nanoporetech/medaka)
-* Short reads assembly polishing using short reads with user choice of the polishing programs: 
-    * [`Pilon`](https://github.com/broadinstitute/pilon)
-    * [`POLCA`](https://github.com/alekseyzimin/masurca)
-    * [`NextPolish`](https://github.com/Nextomics/NextPolish)
+* Sequence quality check and quality control
+  * Short reads
+    * Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+    * Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
+    * Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
+    * Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
+  * Long reads
+    * Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
+    * Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
+    * Nanopore long read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
+* Assembly
+  * Short read assembly with user choice of the assemblers ([Spades](https://github.com/ablab/spades) | [Skesa](https://github.com/ncbi/SKESA) | [Unicycler](https://github.com/rrwick/Unicycler) | [megahit](https://github.com/voutcn/megahit) | [shovill](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill) | [shovill_megahit](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill)
+  * Long read assembly is following the steps below:
+    * Nanopore long read de novo assembly ([`Flye`](https://github.com/fenderglass/Flye))
+    * Circular Flye contigs are rotated to start in the center of the contig ([in-house perl script](https://github.com/xiaoli-dong/pathogenseq/blob/main/bin/reset_start_position_for_circular_genome.pl))
+    * Long read polishing and consensus generating ([`Medaka`](https://github.com/nanoporetech/medaka))
+  * Short-read polishing if short read available: 
+    * [Polypolish](https://github.com/rrwick/Polypolish)
+    * [POLCA](https://github.com/alekseyzimin/masurca)
+      
 * Assembled contig annotation with user choice of the annotation tools:
     * [`Bakta`](https://github.com/oschwengers/bakta)
     * [`Prokka`](https://github.com/tseemann/prokka)
