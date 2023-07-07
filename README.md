@@ -54,15 +54,31 @@ By default, the pipeline supports both short and long reads:
 * Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
 * Summarize and generate the analysis report, software version control report
 
-## Usage
+## Quick Start
 
-> **Note**
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-> to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-> with `-profile test` before running the workflow on actual data.
+The workflow uses nextflow to manage compute and software resources, as such nextflow will need to be installed before attempting to run the workflow.
+The workflow can currently be run using either singularity or conda to provide isolation of the required software. Both methods are automated out-of-the-box provided either docker or singularity is installed.
+It is not required to clone or download the git repository in order to run the workflow. 
 
-The pathogenseq pipeline requires user to provide a csv format samplesheet as input
-First prepare a samplesheet with your input data that looks as follows:
+  > **Note**
+  > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
+  > to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
+  > with `-profile test` before running the workflow on actual data.
+ 
+  > Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
+
+### Check workflow options
+To obtain the workflow options, users can run:
+```
+# running from remote
+nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
+
+#with local installation
+nextflow run path_to/pathogenseq --help
+```
+### Prepare required samplesheet input
+The pathogenseq pipeline requires user to provide a csv format samplesheet as input.
+Firstly, you need to prepare a samplesheet with your input data that looks as follows:
 
 ```samplesheet.csv```
 
@@ -81,28 +97,18 @@ The csv format samplesheet has seven required columns:
 * "long_mode" is for user to provide the Nanopore basecalling model (fast|hac|sup)
 * The "genomesize" can take interger numbers or take notatons of "mM" or "gG" such as "5.3m", "1.2g"
 
-Now you can run the pipeline using:
+### Run the pipeline:
 ```
-nextflow run nextflow run xiaoli-dong/pathogenseq \
+nextflow run xiaoli-dong/pathogenseq \
   -r seven_character_revision_number (e.g: 8657a20)
   --input samplesheet.csv \
   -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
   --outdir sample_results
 
 #this commnad will launch the pipeline with ```singularity``` configraton profile.
-nextflow run main.nf -profile singularity --input assets/pathogenseq.csv --outdir test_results --assembly_type long -resume
+nextflow run xiaoli-dong/pathogenseq -profile singularity --input samplesheet.csv --outdir outdir
 
 ```
-## Quick Start
-
-1. Install [`Nextflow`](https://www.nextflow.io/docs/latest/getstarted.html#installation) (`>=21.04.0`)
-  > **Note**
-  > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-  > to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-  > with `-profile test` before running the workflow on actual data.
-
-2. Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
-
 4. Download the pipeline and test it on a minimal dataset with a single command:
 
     ```console
