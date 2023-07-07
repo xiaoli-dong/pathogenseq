@@ -63,14 +63,24 @@ By default, the pipeline supports both short and long reads:
 
 The pathogenseq pipeline requires user to provide a csv format samplesheet as input
 First prepare a samplesheet with your input data that looks as follows:
+
+```samplesheet.csv```
+
 ```
 sample,fastq_1,fastq_2,long_fastq,fast5,long_mode,genomesize
 sample1,shortreads_1.fastq.gz,shortreads_2.fastq.gz,longreads.fastq.gz,longreads.fast5,hac,5.3m
-sample2,NA,NA,longreads.fastq.gz,longreads.fast5,fast,5.3m
+sample2,shortreads.fastq,NA,longreads.fastq.gz,longreads.fast5,fast,5.3m
 sample3,NA,NA,longreads.fastq.gz,longreads.fast5,sup,5.3m
 sample4,shortreads_1.fastq.gz,shortreads_2.fastq.gz,NA,NA,NA,NA
 ```
-Each row in the csv file represents a sample to be processed. 
+The csv format samplesheet has seven required columns:
+* The first row of the csv file is the header describing the columns
+* Each row represents a unique sample to be processed, the first colum is the unique sample id
+* When the information for a particular column is missing, please fill the column with "NA"
+* The "fastq_1" and "fastq_2" columns are reserved for supplying the short sequence files
+* "long_mode" is for user to provide the Nanopore basecalling model (fast|hac|sup)
+* The "genomesize" can take interger numbers or take notatons of "mM" or "gG" such as "5.3m", "1.2g"
+
 ## Quick Start
 
 1. Install [`Nextflow`](https://www.nextflow.io/docs/latest/getstarted.html#installation) (`>=21.04.0`)
