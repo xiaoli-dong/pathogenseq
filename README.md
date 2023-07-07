@@ -25,9 +25,17 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 ## Pipeline summary
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
+The pipeline currently perfomrs the following:
 
-* Short Illumina reads quality checks ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-* Long Nanopore reads quality checks ([`NanoPlot`](https://github.com/wdecoster/NanoPlot))
+### Sequence quality check and quality control
+* Short reads
+  * Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+  * Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
+  * Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
+* Long reads
+  * Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
+  * Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
+  * Nanopore long read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
 * Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
 * Short read assembly with user choice of the assemblers:
     * [`Skesa`](https://github.com/ncbi/SKESA)
