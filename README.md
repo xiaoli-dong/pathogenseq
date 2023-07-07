@@ -52,7 +52,7 @@ The pipeline currently performs the following:
 * Scan contig files against traditional PubMLST typing schemes [mlst](https://github.com/tseemann/mlst)
 * Typing and reconstruction of plasmid sequences from assembled contigs [MOB-suite](https://github.com/phac-nml/mob-suite)
 * Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
-
+* Summarize and generate the analysis report, software version control report
 
 ## Quick Start
 
