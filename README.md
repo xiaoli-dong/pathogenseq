@@ -81,6 +81,14 @@ The csv format samplesheet has seven required columns:
 * "long_mode" is for user to provide the Nanopore basecalling model (fast|hac|sup)
 * The "genomesize" can take interger numbers or take notatons of "mM" or "gG" such as "5.3m", "1.2g"
 
+Now you can run the pipeline using:
+```
+nextflow run xiaoli-dong/pathogenseq \
+  --input samplesheet.csv \
+  -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> \
+  --outdir sample_results
+
+```
 ## Quick Start
 
 1. Install [`Nextflow`](https://www.nextflow.io/docs/latest/getstarted.html#installation) (`>=21.04.0`)
