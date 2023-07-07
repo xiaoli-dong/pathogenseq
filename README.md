@@ -54,6 +54,9 @@ The pipeline currently performs the following:
 * Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
 * Summarize and generate the analysis report, software version control report
 
+## Usage
+It's coming
+
 ## Quick Start
 
 1. Install [`Nextflow`](https://www.nextflow.io/docs/latest/getstarted.html#installation) (`>=21.04.0`)
