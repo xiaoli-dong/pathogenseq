@@ -25,7 +25,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 ## Pipeline summary
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
-The pipeline currently perfomrs the following:
+The pipeline currently performs the following:
 
 * Sequence quality check and quality control
   * Short reads
