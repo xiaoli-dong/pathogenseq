@@ -19,7 +19,7 @@ process SAMPLESHEETCHECK {
 
     script: // This script is bundled with the pipeline, in nf-core/rnaseq/bin/
     """
-    python bin/check_samplesheet.py \\
+    check_samplesheet.py \\
         $samplesheet \\
         samplesheet.valid.csv
 
