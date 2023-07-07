@@ -68,7 +68,7 @@ It is not required to clone or download the git repository in order to run the w
   > Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
 
 ### Check workflow options
-To obtain the workflow options, users can run:
+It is not required to clone or download the git repository in order to run the workflow. To obtain the workflow options, users can run:
 ```
 # running from remote
 nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
@@ -98,7 +98,9 @@ The csv format samplesheet has seven required columns:
 * The "genomesize" can take interger numbers or take notatons of "mM" or "gG" such as "5.3m", "1.2g"
 
 ### Run the pipeline:
+
 ```
+#
 nextflow run xiaoli-dong/pathogenseq \
   -r seven_character_revision_number (e.g: 8657a20)
   --input samplesheet.csv \
@@ -109,27 +111,15 @@ nextflow run xiaoli-dong/pathogenseq \
 nextflow run xiaoli-dong/pathogenseq -profile singularity --input samplesheet.csv --outdir outdir
 
 ```
-4. Download the pipeline and test it on a minimal dataset with a single command:
 
-    ```console
-    nextflow run xiaoli-dong/pathogen -profile test,<docker/singularity/podman/shifter/charliecloud/conda/institute>
-    ```
-
-    > * Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
+> * Please check [nf-core/configs](https://github.com/nf-core/configs#documentation) to see if a custom config file to run nf-core pipelines already exists for your Institute. If so, you can simply use `-profile <institute>` in your command. This will enable either `docker` or `singularity` and set the appropriate execution settings for your local compute environment.
     > * If you are using `singularity` then the pipeline will auto-detect this and attempt to download the Singularity images directly as opposed to performing a conversion from Docker images. If you are persistently observing issues downloading Singularity images directly due to timeout or network issues then please use the `--singularity_pull_docker_container` parameter to pull and convert the Docker image instead. Alternatively, it is highly recommended to use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to pre-download all of the required containers before running the pipeline and to set the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options to be able to store and re-use the images from a central location for future pipeline runs.
     > * If you are using `conda`, it is highly recommended to use the [`NXF_CONDA_CACHEDIR` or `conda.cacheDir`](https://www.nextflow.io/docs/latest/conda.html) settings to store the environments in a central location for future pipeline runs.
 
-5. Start running your own analysis!
-
-    <!-- TODO nf-core: Update the example "typical command" below used to run the pipeline -->
-
-    ```console
-    nextflow run xiaoli-dong/pathogen -profile <docker/singularity/podman/shifter/charliecloud/conda/institute> -c conf/example.config -profile singularity
-    ```
 
 ## Documentation
 
-The nf-core/pathogen pipeline comes with documentation about the pipeline [usage](https://nf-co.re/pathogen/usage), [parameters](https://nf-co.re/pathogen/parameters) and [output](https://nf-co.re/pathogen/output).
+The nf-core/pathogenseq pipeline comes with documentation about the pipeline [usage](https://nf-co.re/pathogenseq/usage), [parameters](https://nf-co.re/pathogenseq/parameters) and [output](https://nf-co.re/pathogenseq/output).
 
 ## Credits
 
