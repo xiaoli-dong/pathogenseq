@@ -130,11 +130,6 @@ pathogenseq was originally written by Xiaoli Dong. Extensive support was provide
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
-
-For further information or help, don't hesitate to get in touch on the [Slack `#pathogen` channel](https://nfcore.slack.com/channels/pathogen) (you can join with [this invite](https://nf-co.re/join/slack)).
 
 ## Citations
 
