@@ -54,6 +54,9 @@ By default, the pipeline supports both short and long reads:
 * Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
 * Summarize and generate the analysis report, software version control report
 
+## pathogenseq pipeline reference database
+databases
+
 ## Quick Start
 
 The workflow uses nextflow to manage compute and software resources, as such nextflow will need to be installed before attempting to run the workflow.
@@ -68,8 +71,6 @@ It is not required to clone or download the git repository in order to run the w
   > Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
 
 
-### pathogenseq pipeline reference database
-databases
 
 ### Check workflow options
 It is not required to clone or download the git repository in order to run the workflow. To obtain the workflow options, users can run:
