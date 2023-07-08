@@ -76,6 +76,10 @@ nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 #with local installation
 nextflow run path_to/pathogenseq --help
 ```
+
+### Required data
+databases
+
 ### Prepare required samplesheet input
 The pathogenseq pipeline requires user to provide a csv format samplesheet as input.
 Firstly, you need to prepare a samplesheet with your input data that looks as follows:
