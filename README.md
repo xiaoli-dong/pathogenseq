@@ -122,10 +122,9 @@ nextflow run xiaoli-dong/pathogenseq -profile singularity --input samplesheet.cs
 The nf-core/pathogenseq pipeline comes with documentation about the pipeline [usage](https://nf-co.re/pathogenseq/usage), [parameters](https://nf-co.re/pathogenseq/parameters) and [output](https://nf-co.re/pathogenseq/output).
 
 ## Credits
-
-nf-core/pathogen was originally written by Xiaoli Dong.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
+pathogenseq was originally written by Xiaoli Dong. Extensive support was provided from other co-authors on the scientific or technical input required for the pipeline:
+* Dr. Matthew Croxen
+* Dr. Tarah Lynch
 
 <!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
