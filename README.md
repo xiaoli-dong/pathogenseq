@@ -54,7 +54,7 @@ By default, the pipeline supports both short and long reads:
 * Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
 * Summarize and generate the analysis report, software version control report
 
-## pathogenseq pipeline reference database
+## Pipeline reference databases
 databases
 
 ## Quick Start
