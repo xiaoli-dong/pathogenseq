@@ -67,6 +67,10 @@ It is not required to clone or download the git repository in order to run the w
  
   > Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
 
+
+### pathogenseq pipeline reference database
+databases
+
 ### Check workflow options
 It is not required to clone or download the git repository in order to run the workflow. To obtain the workflow options, users can run:
 ```
@@ -77,8 +81,6 @@ nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 nextflow run path_to/pathogenseq --help
 ```
 
-### Required data
-databases
 
 ### Prepare required samplesheet input
 The pathogenseq pipeline requires user to provide a csv format samplesheet as input.
