@@ -55,9 +55,9 @@ By default, the pipeline supports both short and long reads:
 * Summarize and generate the analysis report, software version control report
 
 ## Pipeline reference databases
-* Bakta
-* [Kraken2](https://benlangmead.github.io/aws-indexes/k2)
-
+* [Bakta database](https://github.com/oschwengers/bakta#database)
+* [Kraken2 database](https://benlangmead.github.io/aws-indexes/k2)
+* [AMRFinderPlus database](https://github.com/ncbi/amr/wiki/AMRFinderPlus-database)
 ## Quick Start
 
 The workflow uses nextflow to manage compute and software resources, as such nextflow will need to be installed before attempting to run the workflow.
