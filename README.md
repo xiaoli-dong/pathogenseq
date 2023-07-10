@@ -152,6 +152,7 @@ You can cite the `nf-core` publication as follows:
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
 
-
+## notes
+with conda, fastqc 0.11.9--0 is not working. I need to change the version to 0.12.1. 
 ## reference
 <!-- >>https://github.com/ablab/graphamr -->
