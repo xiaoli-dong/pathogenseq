@@ -168,5 +168,6 @@ You can cite the `nf-core` publication as follows:
 
 ## notes
 with conda, fastqc 0.11.9--0 is not working. I need to change the version to 0.12.1. 
+mobsuite is not working with 3.0.3 in conda 
 ## reference
 <!-- >>https://github.com/ablab/graphamr -->
