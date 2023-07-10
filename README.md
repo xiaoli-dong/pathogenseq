@@ -55,7 +55,8 @@ By default, the pipeline supports both short and long reads:
 * Summarize and generate the analysis report, software version control report
 
 ## Pipeline reference databases
-databases
+* Bakta
+* [Kraken2](https://benlangmead.github.io/aws-indexes/k2)
 
 ## Quick Start
 
