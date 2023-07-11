@@ -172,9 +172,9 @@ You can cite the `nf-core` publication as follows:
 >
 > _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
 -->
-## notes
+## Notes
 with conda, fastqc 0.11.9--0 is not working. I need to change the version to 0.12.1. 
 
 mobsuite is not working with 3.0.3 in conda, I need to change the mobsuite version to  3.1.4
-## reference
+## Reference
 <!-- >>https://github.com/ablab/graphamr -->
