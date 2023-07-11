@@ -50,8 +50,8 @@ By default, the pipeline supports both short and long reads:
     - Circular Flye contigs are rotated to start in the center of the contig ([in-house perl script](https://github.com/xiaoli-dong/pathogenseq/blob/main/bin/reset_start_position_for_circular_genome.pl))
     - Long read polishing and consensus generating ([`Medaka`](https://github.com/nanoporetech/medaka))
     - Short-read polishing while short reads are available:
-    - [Polypolish](https://github.com/rrwick/Polypolish)
-    - [POLCA](https://github.com/alekseyzimin/masurca
+      - [Polypolish](https://github.com/rrwick/Polypolish)
+      - [POLCA](https://github.com/alekseyzimin/masurca
 - Genome annotation
   - Gene prediction and annotation ([Bakta](https://github.com/oschwengers/bakta))
   - Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
