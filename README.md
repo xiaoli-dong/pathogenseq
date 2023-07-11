@@ -33,32 +33,32 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 By default, the pipeline supports both short and long reads:
 
-* Sequence quality check and quality control
-  * Short reads
-    * Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-    * Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
-    * Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
-    * Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
-  * Long reads
-    * Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
-    * Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
-    * Nanopore long read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
-* Assembly
-  * Short read assembly with user choice of the assemblers ([Spades](https://github.com/ablab/spades) | [Skesa](https://github.com/ncbi/SKESA) | [Unicycler](https://github.com/rrwick/Unicycler) | [megahit](https://github.com/voutcn/megahit) | [shovill](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill) | [shovill_megahit](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill)
-  * Long read assembly is following the steps below:
-    * Nanopore long read de novo assembly ([`Flye`](https://github.com/fenderglass/Flye))
-    * Circular Flye contigs are rotated to start in the center of the contig ([in-house perl script](https://github.com/xiaoli-dong/pathogenseq/blob/main/bin/reset_start_position_for_circular_genome.pl))
-    * Long read polishing and consensus generating ([`Medaka`](https://github.com/nanoporetech/medaka))
-  * Short-read polishing while short reads are available: 
-    * [Polypolish](https://github.com/rrwick/Polypolish)
-    * [POLCA](https://github.com/alekseyzimin/masurca)
-      
-* Contig annotation [Bakta](https://github.com/oschwengers/bakta)
-* Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
-* Scan contig files against traditional PubMLST typing schemes [mlst](https://github.com/tseemann/mlst)
-* Typing and reconstruction of plasmid sequences from assembled contigs [MOB-suite](https://github.com/phac-nml/mob-suite)
-* Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
-* Summarize and generate the analysis report, software version control report
+- Sequence quality check and quality control
+  - Short reads
+    - Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
+    - Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
+    - Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
+    - Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
+  - Long reads
+    - Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
+    - Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
+    - Nanopore long read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
+- Assembly
+  - Short read assembly with user choice of the assemblers ([Spades](https://github.com/ablab/spades) | [Skesa](https://github.com/ncbi/SKESA) | [Unicycler](https://github.com/rrwick/Unicycler) | [megahit](https://github.com/voutcn/megahit) | [shovill](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill) | [shovill_megahit](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill)
+  - Long read assembly is following the steps below:
+    - Nanopore long read de novo assembly ([`Flye`](https://github.com/fenderglass/Flye))
+    - Circular Flye contigs are rotated to start in the center of the contig ([in-house perl script](https://github.com/xiaoli-dong/pathogenseq/blob/main/bin/reset_start_position_for_circular_genome.pl))
+    - Long read polishing and consensus generating ([`Medaka`](https://github.com/nanoporetech/medaka))
+    - Short-read polishing while short reads are available:
+    - [Polypolish](https://github.com/rrwick/Polypolish)
+    - [POLCA](https://github.com/alekseyzimin/masurca
+- Genome annotation
+  - Gene prediction and annotation ([Bakta](https://github.com/oschwengers/bakta))
+  - Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
+  - Scan contig files against traditional PubMLST typing schemes ([mlst](https://github.com/tseemann/mlst))
+  - Typing and reconstruction of plasmid sequences from assembled contigs ([MOB-suite](https://github.com/phac-nml/mob-suite))
+  - Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
+- Summarize and generate the analysis report, software version control reports
 
 ## Pipeline reference databases
 * [Bakta database](https://github.com/oschwengers/bakta#database)
