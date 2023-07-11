@@ -36,7 +36,7 @@ process POLYPOLISH {
         ${prefix}_filtered_2.sam \\
         >${prefix}_polypolish_polished.genome.fasta
     
-    #gzip ${prefix}_polypolish_polished.genome.fasta
+    
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

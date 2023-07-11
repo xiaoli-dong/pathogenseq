@@ -27,7 +27,7 @@ process RESTARTGENOME {
     reset_start_position_for_circular_genome.pl \\
         -f $fasta \\
         -i $assembly_info \\
-        > $prefix\.restart.fasta
+        > $prefix.restart.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

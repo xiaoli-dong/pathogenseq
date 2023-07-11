@@ -29,8 +29,6 @@ process DNAAPLER {
     dnaapler \\
         chromosome \\
         -i $fasta \\
-        #-o . \\
-        #-f \\
         -p $prefix\_${seqid} 
     
    
