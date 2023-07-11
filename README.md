@@ -51,7 +51,7 @@ By default, the pipeline supports both short and long reads:
     - Long read polishing and consensus generating ([`Medaka`](https://github.com/nanoporetech/medaka))
     - Short-read polishing while short reads are available:
       - [Polypolish](https://github.com/rrwick/Polypolish)
-      - [POLCA](https://github.com/alekseyzimin/masurca
+      - [POLCA](https://github.com/alekseyzimin/masurca)
 - Genome annotation
   - Gene prediction and annotation ([Bakta](https://github.com/oschwengers/bakta))
   - Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
