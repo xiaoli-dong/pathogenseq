@@ -25,6 +25,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool
 <!-- ![pathogenseq width="300"](https://github.com/xiaoli-dong/pathogenseq/assets/52679027/6c791914-dd6a-467c-86d8-93dc61d3d180) -->
 <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/6c791914-dd6a-467c-86d8-93dc61d3d180" width="60%" style="display: block; margin: 0 auto">
 </div>
+
 ## Pipeline summary
 
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
