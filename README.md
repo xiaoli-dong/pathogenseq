@@ -49,7 +49,7 @@ By default, the pipeline supports both short and long reads:
     * Nanopore long read de novo assembly ([`Flye`](https://github.com/fenderglass/Flye))
     * Circular Flye contigs are rotated to start in the center of the contig ([in-house perl script](https://github.com/xiaoli-dong/pathogenseq/blob/main/bin/reset_start_position_for_circular_genome.pl))
     * Long read polishing and consensus generating ([`Medaka`](https://github.com/nanoporetech/medaka))
-  * Short-read polishing if short read available: 
+  * Short-read polishing while short reads are available: 
     * [Polypolish](https://github.com/rrwick/Polypolish)
     * [POLCA](https://github.com/alekseyzimin/masurca)
       
