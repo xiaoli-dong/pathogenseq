@@ -74,19 +74,19 @@ It is not required to clone or download the git repository in order to run the w
 
 
 ### Check workflow options
-It is not required to clone or download the git repository in order to run the workflow. To obtain the workflow options, users can run:
+You can clone or download the pathogenseq from github to local computer or you can directly run the pipeline from github. To check the pipeline command line options:
+
 ```
-# running from remote
+# running directly from github without downloading or cloning
 nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 
-#with local installation
-nextflow run path_to/pathogenseq --help
+# download the pipeine and run the program from the local computer
+nextflow run your_path_to/pathogenseq/main.nf --help
 ```
 
 
 ### Prepare required samplesheet input
-The pathogenseq pipeline requires user to provide a csv format samplesheet as input.
-Firstly, you need to prepare a samplesheet with your input data that looks as follows:
+The pathogenseq pipeline requires user to provide a csv format samplesheet, which contains the sequenence information for each sample, as input. See below for what the samplesheet looks like:
 
 ```samplesheet.csv```
 
@@ -110,26 +110,26 @@ The csv format samplesheet has seven required columns:
 > * If you are using `conda`, it is highly recommended to use the [`NXF_CONDA_CACHEDIR` or `conda.cacheDir`](https://www.nextflow.io/docs/latest/conda.html) settings to store the environments in a central location for future pipeline runs.
 
 ```
-# Runing the pipeline from github
+# Runing the pipeline from remote github
 nextflow run xiaoli-dong/pathogenseq \
   -r seven_character_github_revision_number (e.g: 8657a20)
   --input samplesheet.csv \
   -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
   --outdir results
 
-# you can also download a pathogenseq and run it from local computer
+# run the pipeline with a local clone
 nextflow run your_path_to/pathogenseq/main.nf \
   --input samplesheet.csv \
   -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
   --outdir results
 
-#this commnad will launch the pipeline from local computer and run it with ```singularity``` configraton profile.
+# an example command to launch the pipeline from local computer and run it with ```singularity``` configraton profile.
 nextflow run your_path_to/pathogenseq/main.nf \
   -profile singularity \
   --input samplesheet.csv
   --outdir results_singularity
 
-#this commnad will launch the pipeline from local computer and run it with ```conda``` configraton profile.
+# an example commnad to launch the pipeline from a local clone and run it with ```conda``` configraton profile.
 nextflow run your_path_to/pathogenseq/main.nf \
   -profile conda \
   --input samplesheet.csv
