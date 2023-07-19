@@ -127,7 +127,7 @@ def create_read_channels(LinkedHashMap row) {
 
     // check long_mode
     def long_modes = ["fast", "hac", "sup"]
-    if(! meta.long_mode in long_modes){
+    if(! meta.long_mode.toLowerCase() in long_modes){
         meta.long_mode = 'NA'
     }
     

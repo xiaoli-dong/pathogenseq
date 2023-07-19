@@ -54,6 +54,10 @@ include {
 
 } from '../subworkflows/local/short_reads_polisher'
 
+include {
+    RUN_TBPROFILER_PROFILE_ILLUMINA;
+    RUN_TBPROFILER_PROFILE_NANOPORE;
+} from '../subworkflows/local/resistance_to_anti_tb_drugs'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -88,8 +92,8 @@ include {AMRFINDERPLUS_UPDATE} from '../modules/nf-core/amrfinderplus/update/mai
 include {AMRFINDERPLUS_RUN} from '../modules/nf-core/amrfinderplus/run/main'
 include { MLST } from '../modules/nf-core/mlst/main'
 include { MOBSUITE_RECON } from '../modules/nf-core/mobsuite/recon/main'
-include { ABRICATE_RUN} from '../modules/nf-core//abricate/run/main'
-include { ABRICATE_SUMMARY} from '../modules/nf-core/abricate/summary/main'
+include { ABRICATE_RUN as ABRICATE_RUN_VF} from '../modules/nf-core//abricate/run/main'
+include { ABRICATE_SUMMARY as ABRICATE_SUMMARY_VF} from '../modules/nf-core/abricate/summary/main'
 
 
 /*
@@ -111,8 +115,6 @@ workflow PATHOGENSEQ {
         ch_input
     )
     ch_software_versions = ch_software_versions.mix(INPUT_CHECK.out.versions)
-
-   
 
     reads = INPUT_CHECK.out.reads
     short_reads = INPUT_CHECK.out.shortreads
@@ -146,7 +148,16 @@ workflow PATHOGENSEQ {
         BRACKEN_BRACKEN(KRAKEN2_KRAKEN2.out.report, ch_kraken2_db_file)
         ch_software_versions = ch_software_versions.mix(BRACKEN_BRACKEN.out.versions)
     }
+    //tbprofiler
+     if(!params.skip_tbprofiler ){
+        Channel
+            .value(file( "${params.tbprofiler_db}" ))
+            .set { ch_tbprofiler_db_file }
 
+        RUN_TBPROFILER_PROFILE_ILLUMINA(short_reads, ch_tbprofiler_db_file)
+        RUN_TBPROFILER_PROFILE_NANOPORE(long_reads, ch_tbprofiler_db_file)
+        ch_software_versions = ch_software_versions.mix(RUN_TBPROFILER_PROFILE_ILLUMINA.out.versions)
+     }
     // assembly
     if(!params.skip_short_reads_assembly && params.assembly_type == 'short'){
     
@@ -223,10 +234,10 @@ workflow PATHOGENSEQ {
 
     if(!params.skip_virulome){
         //virulome
-        ABRICATE_RUN(contigs)
-        ch_software_versions = ch_software_versions.mix(ABRICATE_RUN.out.versions)
-        ABRICATE_SUMMARY ( 
-        ABRICATE_RUN.out.report.collect{ meta, report -> report }.map{ report -> [[ id: "virulome"], report]}
+        ABRICATE_RUN_VF(contigs)
+        ch_software_versions = ch_software_versions.mix(ABRICATE_RUN_VF.out.versions)
+        ABRICATE_SUMMARY_VF ( 
+        ABRICATE_RUN_VF.out.report.collect{ meta, report -> report }.map{ report -> [[ id: "virulome"], report]}
         )
     }
     
