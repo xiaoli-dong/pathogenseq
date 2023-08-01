@@ -1,6 +1,6 @@
 process MASURCA_POLCA {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_medium'
 
     
     conda "bioconda::masurca=4.1.0"

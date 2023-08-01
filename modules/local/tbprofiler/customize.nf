@@ -26,7 +26,7 @@ process TBPROFILER_CUSTOMIZE {
     def args = task.ext.args   ?: ''
     prefix   = task.ext.prefix ?: "${meta.id}"
     def input_reads = meta.single_end ? "--read1 $reads" : "--read1 ${reads[0]} --read2 ${reads[1]}"
-    
+    def memory = task.memory.toGiga()
     """
     
     tb-profiler \\
@@ -35,6 +35,8 @@ process TBPROFILER_CUSTOMIZE {
         $args \\
         --prefix ${prefix} \\
         --threads $task.cpus \\
+        --ram $memory \\
+        --temp ./ \\
         $input_reads
 
     cat <<-END_VERSIONS > versions.yml

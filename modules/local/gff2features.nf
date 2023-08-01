@@ -1,7 +1,7 @@
 process GFF2FEATURES{
 
     tag "$meta.id"
-    label 'process_single'
+    label 'process_medium'
 
    
     conda "conda-forge::perl=5.26.2"

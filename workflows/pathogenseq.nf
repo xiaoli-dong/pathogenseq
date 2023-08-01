@@ -86,12 +86,15 @@ include {
 
 include {KRAKEN2_KRAKEN2} from '../modules/nf-core/kraken2/kraken2/main' 
 include {BRACKEN_BRACKEN} from '../modules/nf-core/bracken/bracken/main'
+include { BRACKEN_COMBINEBRACKENOUTPUTS } from '../modules/nf-core/bracken/combinebrackenoutputs/main.nf'
+include { KRAKENTOOLS_COMBINEKREPORTS } from '../modules/nf-core/krakentools/combinekreports/main.nf'
 include { BAKTA_BAKTA } from '../modules/nf-core/bakta/bakta/main' 
 include {GFF2FEATURES as BAKTA_FEATURES} from '../modules/local/gff2features'  
 include {AMRFINDERPLUS_UPDATE} from '../modules/nf-core/amrfinderplus/update/main'
-include {AMRFINDERPLUS_RUN} from '../modules/nf-core/amrfinderplus/run/main'
+include {AMRFINDERPLUS_RUN} from '../modules/local/amrfinderplus/run.nf'
 include { MLST } from '../modules/nf-core/mlst/main'
-include { MOBSUITE_RECON } from '../modules/nf-core/mobsuite/recon/main'
+include { MOBSUITE_RECON } from '../modules/local/mobsuite/recon/main'
+//include { MOBSUITE_RECON } from '../modules/nf-core/mobsuite/recon/main'
 include { ABRICATE_RUN as ABRICATE_RUN_VF} from '../modules/nf-core//abricate/run/main'
 include { ABRICATE_SUMMARY as ABRICATE_SUMMARY_VF} from '../modules/nf-core/abricate/summary/main'
 
@@ -143,9 +146,16 @@ workflow PATHOGENSEQ {
         Channel
             .value(file( "${params.kraken2_db}" ))
             .set { ch_kraken2_db_file }
-        KRAKEN2_KRAKEN2 (short_reads, ch_kraken2_db_file, true, true)
+        KRAKEN2_KRAKEN2 (short_reads, ch_kraken2_db_file, false, true)
+        KRAKENTOOLS_COMBINEKREPORTS ( KRAKEN2_KRAKEN2.out.report.map{ [[id:"kraken2"], it[1]] }.groupTuple())
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2.out.versions)
         BRACKEN_BRACKEN(KRAKEN2_KRAKEN2.out.report, ch_kraken2_db_file)
+        ch_input_for_combinebrackenouputs = BRACKEN_BRACKEN.out.reports
+                                            .map{it[1]}
+                                            .collect()
+                                            .map{ [ [id: 'bracken'], it ] }
+
+        BRACKEN_COMBINEBRACKENOUTPUTS ( ch_input_for_combinebrackenouputs )
         ch_software_versions = ch_software_versions.mix(BRACKEN_BRACKEN.out.versions)
     }
     //tbprofiler
@@ -208,7 +218,7 @@ workflow PATHOGENSEQ {
         BAKTA_BAKTA(contigs, ch_bakta_db_file, [], [])
         BAKTA_FEATURES(BAKTA_BAKTA.out.gff)
         ch_software_versions = ch_software_versions.mix(BAKTA_BAKTA.out.versions)
-        CONCAT_STATS_BAKTA(BAKTA_FEATURES.out.feature_count.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"bakta"], files)}, in_format, out_format ) 
+        CONCAT_STATS_BAKTA(BAKTA_FEATURES.out.feature_count.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"annotation.bakta"], files)}, in_format, out_format ) 
         gff = BAKTA_BAKTA.out.gff 
         ffn = BAKTA_BAKTA.out.ffn
         faa = BAKTA_BAKTA.out.faa
@@ -219,17 +229,20 @@ workflow PATHOGENSEQ {
         AMRFINDERPLUS_UPDATE()
         AMRFINDERPLUS_RUN(contigs, AMRFINDERPLUS_UPDATE.out.db)
         ch_software_versions = ch_software_versions.mix(AMRFINDERPLUS_RUN.out.versions)
-        CONCAT_AMR(AMRFINDERPLUS_RUN.out.report.map { cfg, amr -> amr }.collect().map { files -> tuple([id:"amrfinderplus"], files)}, in_format, out_format ) 
+        CONCAT_AMR(AMRFINDERPLUS_RUN.out.report.map { cfg, amr -> amr }.collect().map { files -> tuple([id:"resistome.amrfinderplus"], files)}, in_format, out_format ) 
     }
     if(!params.skip_mlst){
         MLST (contigs)
         ch_software_versions = ch_software_versions.mix(MLST.out.versions)
-        CONCAT_MLST (MLST.out.tsv.map { cfg, mlst -> mlst }.collect().map { files -> tuple([id:"mlst"], files)}, in_format, out_format ) 
+        //CONCAT_MLST (MLST.out.tsv.map { cfg, mlst -> mlst }.collect().map { files -> tuple([id:"mlst"], files)}, in_format, out_format ) 
+        MLST.out.tsv.map { cfg, mlst -> mlst }.collect().view()
+        CONCAT_MLST (MLST.out.tsv.map { cfg, mlst -> mlst }.collect().map { files -> tuple([id:"mlst.mlst"], files)} , in_format, out_format)
     }
     if(!params.skip_mobsuite){
         MOBSUITE_RECON (contigs )
         ch_software_versions = ch_software_versions.mix(MOBSUITE_RECON.out.versions)
-        CONCAT_MOBSUITE (MOBSUITE_RECON.out.mobtyper_results.map { cfg, plasmid -> plasmid }.collect().map { files -> tuple([id:"mobsuite"], files)}, in_format, out_format ) 
+        CONCAT_MOBSUITE (MOBSUITE_RECON.out.mobtyper_results.map { cfg, plasmid -> plasmid }.collect().map { files -> tuple([id:"plasmid.mobsuite"], files)}, in_format, out_format ) 
+        //CONCAT_MOBSUITE (MOBSUITE_RECON.out.plasmid.map { cfg, plasmid -> plasmid }.collect().map { files -> tuple("mobsuite", files)}, in_format, out_format)
     } 
 
     if(!params.skip_virulome){

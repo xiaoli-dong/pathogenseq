@@ -86,7 +86,7 @@ workflow INPUT_CHECK {
 }
 // Function to get list of [ meta, [ fastq_1, fastq_2 ], long_fastq, fast5 ]
 def create_read_channels(LinkedHashMap row) {
-
+    
     def meta = [:]
     meta.id           = row.sample
     meta.single_end   = !(row.fastq_1 == 'NA') && !(row.fastq_2 == 'NA') ? false : true
@@ -100,11 +100,20 @@ def create_read_channels(LinkedHashMap row) {
         if ( !file(row.fastq_1).exists() ) {
             exit 1, "ERROR: Please check input samplesheet -> Read 1 FastQ file does not exist!\n${row.fastq_1}"
         }
+        
+        if(file(row.fastq_1).size() == 0){
+            exit 1, "ERROR: Please check input samplesheet -> Read 1 FastQ file is empty!\n${row.fastq_1}" 
+        }
+        
         fastq_1 = file(row.fastq_1)
     } else { fastq_1 = 'NA' }
     if ( !(row.fastq_2 == 'NA') ) {
         if ( !file(row.fastq_2).exists() ) {
             exit 1, "ERROR: Please check input samplesheet -> Read 2 FastQ file does not exist!\n${row.fastq_2}"
+        }
+        
+        if(file(row.fastq_2).size() == 0){
+            exit 1, "ERROR: Please check input samplesheet -> Read 1 FastQ file is empty!\n${row.fastq_2}" 
         }
         fastq_2 = file(row.fastq_2)
     } else { fastq_2 = 'NA' }
@@ -114,6 +123,10 @@ def create_read_channels(LinkedHashMap row) {
         if ( !file(row.long_fastq).exists() ) {
             exit 1, "ERROR: Please check input samplesheet -> Long FastQ file does not exist!\n${row.long_fastq}"
         }
+        
+        if(file(row.long_fastq).size() == 0){
+            exit 1, "ERROR: Please check input samplesheet -> Read 1 FastQ file is empty!\n${row.long_fastq}" 
+        }
         long_fastq = file(row.long_fastq)
     } else { long_fastq = 'NA' }
 
@@ -122,6 +135,11 @@ def create_read_channels(LinkedHashMap row) {
         if ( !file(row.fast5).exists() ) {
             exit 1, "ERROR: Please check input samplesheet -> fast5 file does not exist!\n${row.fast5}"
         }
+       
+        if(file(row.fast5).size() == 0){
+            exit 1, "ERROR: Please check input samplesheet -> fast5 file is empty!\n${row.fast5}" 
+        }
+
         fast5 = file(row.fast5)
     } else { fast5 = 'NA' }
 

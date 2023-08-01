@@ -1,11 +1,11 @@
 process AMRFINDERPLUS_RUN {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_single'
 
-    conda "bioconda::ncbi-amrfinderplus=3.10.42"
+    conda "bioconda::ncbi-amrfinderplus=3.11.17"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.10.42--h6e70893_0':
-        'biocontainers/ncbi-amrfinderplus:3.10.42--h6e70893_0' }"
+        'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus%3A3.11.14--h283d18e_1':
+        'biocontainers/ncbi-amrfinderplus%3A3.11.14--h283d18e_1' }"
 
     input:
     tuple val(meta), path(fasta)
@@ -38,9 +38,12 @@ process AMRFINDERPLUS_RUN {
         gzip -c -d $fasta > $fasta_name
     fi
 
-    mkdir amrfinderdb
-    tar xzvf $db -C amrfinderdb
-
+    if [ ! -d amrfinderdb ]
+    then
+        mkdir amrfinderdb
+        tar xzvf $db -C amrfinderdb
+    fi
+    
     amrfinder \\
         $fasta_param $fasta_name \\
         $organism_param \\

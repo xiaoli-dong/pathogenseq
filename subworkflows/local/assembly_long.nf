@@ -23,7 +23,7 @@ workflow RUN_ASSEMBLE_LONG {
             long_reads.multiMap{
                 it ->
                 long_reads: [it[0], it[1]]
-                modeFlag: modeFlag = (it[0].long_mode == 'sup' || it[0].long_mode == 'hac') ? "--nano-hq" : "--nano-raw" 
+                modeFlag: modeFlag = (it[0].long_mode == 'sup' || it[0].long_mode == 'hac' || it[0].long_mode == 'SUP' || it[0].long_mode == 'HAC') ? "--nano-hq" : "--nano-raw" 
             }.set{
                 input
             }

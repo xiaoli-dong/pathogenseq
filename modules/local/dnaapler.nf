@@ -1,6 +1,6 @@
 process DNAAPLER {
     tag "$meta.id"
-    label 'process_single'
+    label 'process_medium'
     errorStrategy 'ignore'
 
     conda "bioconda::dnaapler=0.1.0"

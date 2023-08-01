@@ -51,6 +51,9 @@ def check_samplesheet(file_in, file_out):
 
     sample_mapping_dict = {}
     with open(file_in, "r") as fin:
+        import re
+        regex=re.compile('^#')
+        
 
         ## Check header
         MIN_COLS = 2
@@ -60,9 +63,11 @@ def check_samplesheet(file_in, file_out):
         if header[: len(HEADER)] != HEADER:
             print("ERROR: Please check samplesheet header -> {} != {}".format(",".join(header), ",".join(HEADER)))
             sys.exit(1)
-
+        
         ## Check sample entries
         for line in fin:
+            if re.match(regex, line):
+                continue
             lspl = [x.strip().strip('"') for x in line.strip().split(",")]
 
             # Check valid number of columns per row
@@ -79,7 +84,7 @@ def check_samplesheet(file_in, file_out):
                     "Line",
                     line,
                 )
-            
+            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             ## Check sample name entries
             sample, fastq_1, fastq_2, long_fastq, fast5, long_mode, genomesize = lspl[: len(HEADER)]
             sample = sample.replace(" ", "_")
