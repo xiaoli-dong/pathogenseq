@@ -147,6 +147,20 @@ nextflow run your_path_to/pathogenseq/main.nf \
 ## Pipeline output
 
 This section describes the output produced by the pipeline.
+<table>
+  <tr>
+    <td>
+      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/19111cd5-064d-4594-aa96-6a9d5362cebc">
+    </td>
+    <td>
+      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/a94460ef-243d-42d7-bc78-3848b954b6fa">
+    </td>
+    <td>
+      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/2ae0d5f7-8f9a-4f9b-bf81-a0d9361ba3d6">
+    </td>
+  </tr>
+</table>
+
 
 ## Credits
 pathogenseq was originally written by Xiaoli Dong. Extensive support was provided from other co-authors on the scientific or technical input required for the pipeline:
