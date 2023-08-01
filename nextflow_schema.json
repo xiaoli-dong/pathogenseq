@@ -45,35 +45,6 @@
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
-            "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
-            "properties": {
-                "genome": {
-                    "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
-                },
-                "igenomes_base": {
-                    "type": "string",
-                    "format": "directory-path",
-                    "description": "Directory / URL base for iGenomes references.",
-                    "default": "s3://ngi-igenomes/igenomes",
-                    "fa_icon": "fas fa-cloud-download-alt",
-                    "hidden": true
-                },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
-                }
-            }
-        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -273,9 +244,6 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
-        },
-        {
             "$ref": "#/definitions/institutional_config_options"
         },
         {
@@ -288,52 +256,71 @@
     "properties": {
         "short_reads_qc_tool": {
             "type": "string",
-            "default": "bbduk"
+            "description": "specifies the short reads quality control tools to use - [fastp|bbduk].",
+            "default": "fastp"
         },
         "assembly_type": {
             "type": "string",
+            "description": "conduct short or long reads assembly - [short|long].",
             "default": "short"
         },
         "short_reads_assembler": {
             "type": "string",
-            "default": "skesa"
+            "default": "skesa",
+            "description": "Choose short reads assembler - [spades|skesa|unicycler|megahit|shovill|shovill_megahit|shovill_skesa]",
+            "enum": [
+                "spades",
+                "skesa",
+                "unicycler",
+                "megahit",
+                "shovill_skesa",
+                "shovill_megahit",
+                "shovill"
+            ]
         },
         "long_reads_assembler": {
             "type": "string",
-            "default": "flye+medaka"
+            "default": "flye+medaka",
+            "description": "Choose long reads assembler - [flye+medaka]",
+            "enum": [
+                "flye+medaka"
+            ]
         },
         "skip_short_reads_qc": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_long_reads_qc": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_kraken2": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_short_reads_assembly": {
             "type": "boolean",
             "default": false
         },
         "skip_long_reads_assembly": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
         },
         "skip_hybrid_reads_assembly": {
             "type": "boolean",
             "default": true
         },
         "skip_short_reads_polish": {
-            "type": "boolean"
-        },
-        "skip_pilon": {
             "type": "boolean",
             "default": true
         },
         "skip_polypolish": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
         },
         "skip_polca": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": true
         },
         "annotation_tool": {
             "type": "string",
@@ -352,26 +339,32 @@
             "default": false
         },
         "skip_mlst": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_mobsuite": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_resistome": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_virulome": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_multiqc": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_amr": {
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "skip_tbprofiler": {
             "type": "boolean",
-            "default": "true"
+            "default": true
         },
         "tbprofiler_db": {
             "type": "string",
@@ -379,11 +372,7 @@
         },
         "validationShowHiddenParams": {
             "type": "boolean",
-            "default": "false"
-        },
-        "schema_ignore_params": {
-            "type": "string",
-            "default": "genomes"
+            "default": false
         }
     }
 }
