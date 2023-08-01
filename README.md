@@ -145,8 +145,7 @@ nextflow run your_path_to/pathogenseq/main.nf \
 
 
 ## Pipeline output
-
-This section describes the output produced by the pipeline.
+The screenshot on the left side shows the overall pipeline output arrangement. 
 <table>
   <tr>
     <td>
