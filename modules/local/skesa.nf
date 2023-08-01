@@ -2,11 +2,11 @@ process SKESA {
     tag "$meta.id"
     label 'process_medium'
 
-    
+   
     conda "bioconda::skesa=2.4.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/skesa%3A2.4.0--he1c1bb9_0' :
-        'biocontainers/skesa%3A2.4.0--he1c1bb9_0' }"
+        'https://depot.galaxyproject.org/singularity/skesa:2.4.0--he1c1bb9_0':
+        'biocontainers/skesa:2.4.0--he1c1bb9_0' }"
 
     input:
     tuple val(meta), path(reads)

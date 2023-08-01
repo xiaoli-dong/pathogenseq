@@ -3,9 +3,8 @@ work/
 data/
 results/
 .DS_Store
-.vscode/
 testing/
 testing*
 *.pyc
-pathogenseq_results/
-test_*
+test_results/
+.vscode/
