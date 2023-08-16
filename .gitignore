@@ -8,3 +8,4 @@ testing*
 *.pyc
 test_results/
 .vscode/
+null*
