@@ -1,42 +1,39 @@
-process BRACKEN_BRACKEN {
+process BRACKEN_COMBINEBRACKENOUTPUTS {
     tag "$meta.id"
     label 'process_low'
 
     // WARN: Version information not provided by tool on CLI.
     // Please update version string below when bumping container versions.
-    conda "bioconda::bracken=2.7"
+    conda "bioconda::bracken=2.8"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/bracken:2.7--py39hc16433a_0':
-        'biocontainers/bracken:2.7--py39hc16433a_0' }"
+        'https://depot.galaxyproject.org/singularity/bracken%3A2.8--py39h1f90b4d_1':
+        'biocontainers/bracken:2.8--py39h1f90b4d_1' }"
 
     input:
-    tuple val(meta), path(kraken_report)
-    path database
+    tuple val(meta), path(input)
 
     output:
-    tuple val(meta), path(bracken_report), emit: reports
-    path "versions.yml"          , emit: versions
+    tuple val(meta), path("*.txt"), emit: txt
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ""
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    bracken_report = "${prefix}.tsv"
     // WARN: Version information not provided by tool on CLI.
     // Please update version string below when bumping container versions.
     def VERSION = '2.7'
     """
-    bracken \\
-        ${args} \\
-        -d '${database}' \\
-        -i '${kraken_report}' \\
-        -o '${bracken_report}'
+    combine_bracken_outputs.py \\
+        $args \\
+        --files ${input} \\
+        -o ${prefix}.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        bracken: ${VERSION}
+        combine_bracken_output: ${VERSION}
     END_VERSIONS
     """
 }

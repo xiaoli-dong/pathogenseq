@@ -85,8 +85,8 @@ include {
 } from '../modules/nf-core/csvtk/concat/main'
 
 include {KRAKEN2_KRAKEN2} from '../modules/nf-core/kraken2/kraken2/main' 
-include {BRACKEN_BRACKEN} from '../modules/nf-core/bracken/bracken/main'
-include { BRACKEN_COMBINEBRACKENOUTPUTS } from '../modules/nf-core/bracken/combinebrackenoutputs/main.nf'
+include {BRACKEN_BRACKEN} from '../modules/local/bracken/bracken/main'
+include { BRACKEN_COMBINEBRACKENOUTPUTS } from '../modules/local/bracken/combinebrackenoutputs/main.nf'
 include { KRAKENTOOLS_COMBINEKREPORTS } from '../modules/nf-core/krakentools/combinekreports/main.nf'
 include { BAKTA_BAKTA } from '../modules/nf-core/bakta/bakta/main' 
 include {GFF2FEATURES as BAKTA_FEATURES} from '../modules/local/gff2features'  
