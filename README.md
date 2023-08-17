@@ -38,7 +38,7 @@ By default, the pipeline supports both short and long reads:
     - Short Illumina reads quality checks ([FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
     - Short read quality control ([BBDuk](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/) | [fastp](https://github.com/OpenGene/fastp))
     - Short read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
-    - Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/))
+    - Taxonomic assignment and contamination check ([`Kraken2`](https://ccb.jhu.edu/software/kraken2/), [bracken >=2.8](https://ccb.jhu.edu/software/bracken/))
   - Long reads
     - Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
     - Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
