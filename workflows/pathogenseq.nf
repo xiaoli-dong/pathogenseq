@@ -172,7 +172,13 @@ workflow PATHOGENSEQ {
     if(!params.skip_short_reads_assembly && params.assembly_type == 'short'){
     
         RUN_ASSEMBLE_SHORT ( short_reads)
-        contigs = RUN_ASSEMBLE_SHORT.out.contigs
+        // zero size contig can cause some of the program such as bakta, mobsuite file
+        RUN_ASSEMBLE_SHORT.out.contigs
+                //.filter { meta, contigs -> contigs.size() > 0 }
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+        //contigs = RUN_ASSEMBLE_SHORT.out.contigs
         ch_software_versions = ch_software_versions.mix(RUN_ASSEMBLE_SHORT.out.versions)
         stats = RUN_ASSEMBLE_SHORT.out.stats
           
@@ -182,14 +188,25 @@ workflow PATHOGENSEQ {
         
         //flye with 4x iteration and 1x medaka
         RUN_ASSEMBLE_LONG ( long_reads, short_reads)
-        contigs = RUN_ASSEMBLE_LONG.out.contigs
+        RUN_ASSEMBLE_LONG.out.contigs
+                //sometime, the file has no content but the size is not zero
+                //.filter { meta, contigs -> contigs.size() > 0 }
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+        //contigs = RUN_ASSEMBLE_LONG.out.contigs
         ch_software_versions = ch_software_versions.mix(RUN_ASSEMBLE_LONG.out.versions)
         stats = RUN_ASSEMBLE_LONG.out.stats
        
         if(!params.skip_short_reads_polish  && !params.skip_polypolish){
             // 4x iterations are recommended
             RUN_POLYPOLISH(short_reads, contigs)
-            contigs = RUN_POLYPOLISH.out.assembly
+            RUN_POLYPOLISH.out.assembly
+                //.filter { meta, assembly -> assembly.size() > 0 }
+                .filter { meta, assembly -> assembly.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = RUN_POLYPOLISH.out.assembly
             stats = RUN_POLYPOLISH.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLYPOLISH.out.versions)
         }
@@ -197,7 +214,12 @@ workflow PATHOGENSEQ {
         if(!params.skip_short_reads_polish  && !params.skip_polca){
 
             RUN_POLCA(short_reads, contigs)
-            contigs = RUN_POLCA.out.assembly
+            RUN_POLCA.out.assembly
+                //.filter { meta, assembly -> assembly.size() > 0 }
+                .filter { meta, assembly -> assembly.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = RUN_POLCA.out.assembly
             stats = RUN_POLCA.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
@@ -209,6 +231,8 @@ workflow PATHOGENSEQ {
 
     CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
     // analysis
+
+    //contigs.view()
     
      if(!params.skip_bakta && params.annotation_tool== "bakta"){
         Channel

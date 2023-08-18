@@ -29,14 +29,26 @@ workflow RUN_ASSEMBLE_LONG {
             }
             input.modeFlag.view()
             FLYE(input.long_reads, input.modeFlag)
-            contigs = FLYE.out.fasta
+            FLYE.out.fasta
+                .filter { meta, fasta -> fasta.countFasta() > 0 }
+                .set { contigs }
+            
+            FLYE.out.txt
+                .filter { meta, txt -> txt.countLines() > 0 }
+                .set { txt }
+
+            //contigs = FLYE.out.fasta
             ch_versions = ch_versions.mix(FLYE.out.versions.first())
             STATS_FLYE(contigs)
 
             //recenter the genome before medaka hopes to fix the termial errors
-            RESTARTGENOME(FLYE.out.fasta, FLYE.out.txt)
+            RESTARTGENOME(contigs, txt)
             ch_versions = ch_versions.mix(RESTARTGENOME.out.versions.first())
-            contigs = RESTARTGENOME.out.fasta
+
+            RESTARTGENOME.out.fasta
+                .filter { meta, fasta -> fasta.countFasta() > 0 }
+                .set { contigs }
+            //contigs = RESTARTGENOME.out.fasta
 
             //Medaka cannot accept gzip file as input and it need bgzip files
             // GUNZIP(contigs)

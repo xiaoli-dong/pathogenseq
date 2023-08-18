@@ -32,7 +32,13 @@ workflow RUN_ASSEMBLE_SHORT {
                 .map { meta, reads -> [ meta, reads, [], []] }
                 .set { input }
             SPADES (input, [], [])
-            contigs = SPADES.out.contigs
+
+            //get rid of zero size contig file and avoid the downstream crash
+            SPADES.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = SPADES.out.contigs
             ch_versions = ch_versions.mix(SPADES.out.versions.first())
             STATS_SPADES(contigs)
             stats = STATS_SPADES.out.stats
@@ -42,7 +48,11 @@ workflow RUN_ASSEMBLE_SHORT {
         //default
         else if (params.short_reads_assembler == 'skesa' ) {
             SKESA ( reads )
-            contigs = SKESA.out.contigs
+            SKESA.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = SKESA.out.contigs
             ch_versions = ch_versions.mix(SKESA.out.versions.first())
             STATS_SKESA(contigs)
             stats = STATS_SKESA.out.stats
@@ -54,7 +64,11 @@ workflow RUN_ASSEMBLE_SHORT {
                 .set { input }
             
             UNICYCLER(input)
-            contigs = UNICYCLER.out.scaffolds
+            UNICYCLER.out.scaffolds
+                .filter { meta, scaffolds -> scaffolds.size() > 0 }
+                .set { contigs }
+
+            //contigs = UNICYCLER.out.scaffolds
             ch_versions = ch_versions.mix(UNICYCLER.out.versions.first())
             STATS_UNICYCLER(contigs)
             stats = STATS_UNICYCLER.out.stats
@@ -62,7 +76,11 @@ workflow RUN_ASSEMBLE_SHORT {
         }
         else if (params.short_reads_assembler == 'megahit' ) {
             MEGAHIT ( reads )
-            contigs = MEGAHIT.out.contigs
+            MEGAHIT.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = MEGAHIT.out.contigs
             ch_versions = ch_versions.mix(MEGAHIT.out.versions.first())
             STATS_MEGAHIT(contigs)
             stats = STATS_MEGAHIT.out.stats
@@ -70,7 +88,11 @@ workflow RUN_ASSEMBLE_SHORT {
         }
         else if (params.short_reads_assembler == 'shovill_skesa' ) {
             SHOVILL_SKESA (reads)
-            contigs = SHOVILL_SKESA.out.contigs
+            SHOVILL_SKESA.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = SHOVILL_SKESA.out.contigs
             ch_versions = ch_versions.mix(SHOVILL_SKESA.out.versions.first())
             STATS_SHOVILL_SKESA(contigs)
             stats = STATS_SHOVILL_SKESA.out.stats
@@ -78,7 +100,11 @@ workflow RUN_ASSEMBLE_SHORT {
         }
         else if (params.short_reads_assembler == 'shovill_megahit' ) {
             SHOVILL_MEGAHIT (reads)
-            contigs = SHOVILL_MEGAHIT.out.contigs
+            SHOVILL_MEGAHIT.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = SHOVILL_MEGAHIT.out.contigs
             ch_versions = ch_versions.mix(SHOVILL_MEGAHIT.out.versions.first())
             STATS_SHOVILL_MEGAHIT(contigs)
             stats = STATS_SHOVILL_MEGAHIT.out.stats
@@ -86,7 +112,11 @@ workflow RUN_ASSEMBLE_SHORT {
         }
         else if (params.short_reads_assembler == 'shovill' ) {
             SHOVILL (reads)
-            contigs = SHOVILL.out.contigs
+            SHOVILL.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+
+            //contigs = SHOVILL.out.contigs
             ch_versions = ch_versions.mix(SHOVILL.out.versions.first())
             STATS_SHOVILL(contigs)
             stats = STATS_SHOVILL.out.stats
