@@ -85,8 +85,8 @@ include {
 } from '../modules/nf-core/csvtk/concat/main'
 
 include {KRAKEN2_KRAKEN2} from '../modules/nf-core/kraken2/kraken2/main' 
-include {BRACKEN_BRACKEN} from '../modules/local/bracken/bracken/main'
-include { BRACKEN_COMBINEBRACKENOUTPUTS } from '../modules/local/bracken/combinebrackenoutputs/main.nf'
+// include {BRACKEN_BRACKEN} from '../modules/local/bracken/bracken/main'
+// include { BRACKEN_COMBINEBRACKENOUTPUTS } from '../modules/local/bracken/combinebrackenoutputs/main.nf'
 include { KRAKENTOOLS_COMBINEKREPORTS } from '../modules/nf-core/krakentools/combinekreports/main.nf'
 include { BAKTA_BAKTA } from '../modules/nf-core/bakta/bakta/main' 
 include {GFF2FEATURES as BAKTA_FEATURES} from '../modules/local/gff2features'  
@@ -149,14 +149,16 @@ workflow PATHOGENSEQ {
         KRAKEN2_KRAKEN2 (short_reads, ch_kraken2_db_file, false, true)
         KRAKENTOOLS_COMBINEKREPORTS ( KRAKEN2_KRAKEN2.out.report.map{ [[id:"kraken2"], it[1]] }.groupTuple())
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2.out.versions)
-        BRACKEN_BRACKEN(KRAKEN2_KRAKEN2.out.report, ch_kraken2_db_file)
-        ch_input_for_combinebrackenouputs = BRACKEN_BRACKEN.out.reports
-                                            .map{it[1]}
-                                            .collect()
-                                            .map{ [ [id: 'bracken'], it ] }
 
-        BRACKEN_COMBINEBRACKENOUTPUTS ( ch_input_for_combinebrackenouputs )
-        ch_software_versions = ch_software_versions.mix(BRACKEN_BRACKEN.out.versions)
+        //when the classification at the defined level (default is species) is none, the program will fail. 
+        // BRACKEN_BRACKEN(KRAKEN2_KRAKEN2.out.report, ch_kraken2_db_file)
+        // ch_input_for_combinebrackenouputs = BRACKEN_BRACKEN.out.reports
+        //                                     .map{it[1]}
+        //                                     .collect()
+        //                                     .map{ [ [id: 'bracken'], it ] }
+
+        // BRACKEN_COMBINEBRACKENOUTPUTS ( ch_input_for_combinebrackenouputs )
+        // ch_software_versions = ch_software_versions.mix(BRACKEN_BRACKEN.out.versions)
     }
     //tbprofiler
      if(!params.skip_tbprofiler ){
@@ -297,7 +299,7 @@ workflow PATHOGENSEQ {
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
     //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
-    ch_multiqc_files = ch_multiqc_files.mix(BRACKEN_BRACKEN.out.reports.collect{it[1]}.ifEmpty([]))
+    //ch_multiqc_files = ch_multiqc_files.mix(BRACKEN_BRACKEN.out.reports.collect{it[1]}.ifEmpty([]))
     //ch_multiqc_files.view()
 
     MULTIQC (
