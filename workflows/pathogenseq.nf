@@ -128,14 +128,21 @@ workflow PATHOGENSEQ {
     if(!params.skip_short_reads_qc){
         RUN_ILLUMINA_QC(short_reads)
         ch_software_versions = ch_software_versions.mix(RUN_ILLUMINA_QC.out.versions)
-        short_reads = RUN_ILLUMINA_QC.out.qc_reads
+        //get rid of zero size contig file and avoid the downstream crash
+        RUN_ILLUMINA_QC.out.qc_reads
+                .filter { meta, qc_reads -> qc_reads[0].countFastq() > 0 }
+                .set { short_reads }
+        //short_reads = RUN_ILLUMINA_QC.out.qc_reads
         CONCAT_STATS_SHORT_RAW(RUN_ILLUMINA_QC.out.raw_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id: "short_reads_raw_seqstats"], files)}, in_format, out_format )
         CONCAT_STATS_SHORT_QC(RUN_ILLUMINA_QC.out.qc_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id: "short_reads_qc_seqstats"], files)}, in_format, out_format )
     }
 
     if(!params.skip_long_reads_qc){
         RUN_NANOPORE_QC(long_reads)
-        long_reads = RUN_NANOPORE_QC.out.qc_reads
+        RUN_NANOPORE_QC.out.qc_reads
+                .filter { meta, qc_reads -> qc_reads.countFastq() > 0 }
+                .set { long_reads }
+        //long_reads = RUN_NANOPORE_QC.out.qc_reads
         ch_software_versions = ch_software_versions.mix(RUN_NANOPORE_QC.out.versions)
         
         CONCAT_STATS_LONG_RAW(RUN_NANOPORE_QC.out.raw_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"long_reads_raw_seqstats"], files)}, in_format, out_format )
