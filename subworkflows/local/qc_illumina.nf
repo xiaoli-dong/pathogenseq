@@ -24,10 +24,10 @@ workflow RUN_ILLUMINA_QC {
             BBMAP_BBDUK(reads, [])
             ch_versions = ch_versions.mix(BBMAP_BBDUK.out.versions.first())
             //get rid of zero size contig file and avoid the downstream crash
-            BBMAP_BBDUK.out.reads
+            /* BBMAP_BBDUK.out.reads
                 .filter { meta, reads -> reads.countFastq() > 0 }
-                .set { qc_reads }
-            //qc_reads = BBMAP_BBDUK.out.reads
+                .set { qc_reads } */
+            qc_reads = BBMAP_BBDUK.out.reads
         }
         else if ( params.short_reads_qc_tool == 'fastp'){
             save_trimmed_fail = false
@@ -37,12 +37,13 @@ workflow RUN_ILLUMINA_QC {
             //get rid of zero size contig file and avoid the downstream crash
             
             FASTP.out.reads
-                .filter { meta, reads -> reads[0].countFastq() > 0 }
+                .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
+                //.filter { meta, reads -> reads[0].countFastq() > 0 }
                 .set { qc_reads }
 
             //qc_reads = FASTP.out.reads
         }
-
+    
         FASTQC_QC(qc_reads)
        
         SEQKIT_STATS_SHORT_QC(qc_reads)
