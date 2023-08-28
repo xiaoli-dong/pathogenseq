@@ -97,6 +97,7 @@ include { MOBSUITE_RECON } from '../modules/local/mobsuite/recon/main'
 //include { MOBSUITE_RECON } from '../modules/nf-core/mobsuite/recon/main'
 include { ABRICATE_RUN as ABRICATE_RUN_VF} from '../modules/nf-core//abricate/run/main'
 include { ABRICATE_SUMMARY as ABRICATE_SUMMARY_VF} from '../modules/nf-core/abricate/summary/main'
+include {CHECKM2_PREDICT} from '../modules/local/checkm2/predict.nf'
 
 
 /*
@@ -124,6 +125,7 @@ workflow PATHOGENSEQ {
     long_reads = INPUT_CHECK.out.longreads
     in_format = "tsv"
     out_format = "tsv"
+    contig_file_ext = ".fa.gz"
 
     if(!params.skip_short_reads_qc){
         RUN_ILLUMINA_QC(short_reads)
@@ -194,7 +196,7 @@ workflow PATHOGENSEQ {
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
                 .set { contigs }
 
-        //contigs = RUN_ASSEMBLE_SHORT.out.contigs
+        contig_file_ext = RUN_ASSEMBLE_SHORT.out.contig_file_ext
         ch_software_versions = ch_software_versions.mix(RUN_ASSEMBLE_SHORT.out.versions)
         stats = RUN_ASSEMBLE_SHORT.out.stats
           
@@ -211,6 +213,8 @@ workflow PATHOGENSEQ {
                 .set { contigs }
 
         //contigs = RUN_ASSEMBLE_LONG.out.contigs
+        contig_file_ext = ".fa.gz"
+
         ch_software_versions = ch_software_versions.mix(RUN_ASSEMBLE_LONG.out.versions)
         stats = RUN_ASSEMBLE_LONG.out.stats
        
@@ -225,6 +229,7 @@ workflow PATHOGENSEQ {
             //contigs = RUN_POLYPOLISH.out.assembly
             stats = RUN_POLYPOLISH.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLYPOLISH.out.versions)
+            contig_file_ext = ".fa.gz"
         }
         // cannot use gzip contig file as input, otherwise it will hang and never finish
         if(!params.skip_short_reads_polish  && !params.skip_polca){
@@ -237,6 +242,7 @@ workflow PATHOGENSEQ {
 
             //contigs = RUN_POLCA.out.assembly
             stats = RUN_POLCA.out.stats
+            contig_file_ext = ".fa.gz"
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
 
@@ -248,9 +254,15 @@ workflow PATHOGENSEQ {
     CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
     // analysis
 
-    //contigs.view()
-    
-     if(!params.skip_bakta && params.annotation_tool== "bakta"){
+    // assembly quality checking
+    Channel
+            .value(file( "${params.checkm2_db}" ))
+            .set { ch_checkm2_db }
+    ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}.view()
+
+    CHECKM2_PREDICT(ch_input_checkm2, contig_file_ext, ch_checkm2_db) 
+   
+    if(!params.skip_bakta && params.annotation_tool== "bakta"){
         Channel
         .value(file( "${params.bakta_db}" ))
         .set { ch_bakta_db_file }

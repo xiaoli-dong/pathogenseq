@@ -13,7 +13,7 @@ process MASURCA_POLCA {
     tuple val(meta), path(assembly)
 
     output:
-    tuple val(meta), path("*.fa"), emit: assembly
+    tuple val(meta), path("*.fa.gz"), emit: assembly
     path "versions.yml"           , emit: versions
 
     when:
@@ -30,7 +30,8 @@ process MASURCA_POLCA {
     -r \'$reads\' \\
     -t ${task.cpus}
     
-    mv ${assembly}.PolcaCorrected.fa ${prefix}_polca.genome.fa
+    mv ${assembly}.PolcaCorrected.fa ${prefix}_polca.contigs.fa
+    gzip -n ${prefix}_polca.contigs.fa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

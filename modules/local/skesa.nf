@@ -12,7 +12,7 @@ process SKESA {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path('*genome.fasta'), emit: contigs
+    tuple val(meta), path('*.contigs.fa.gz'), emit: contigs
     path ("versions.yml"), emit: versions
     
     when:
@@ -25,7 +25,8 @@ process SKESA {
     maxmem = task.memory.toGiga()
 
     """
-    skesa $args --reads $input_reads --cores $task.cpus --memory $maxmem --contigs_out ${prefix}.genome.fasta
+    skesa $args --reads $input_reads --cores $task.cpus --memory $maxmem --contigs_out ${prefix}.contigs.fa >& ${prefix}_skesa.log
+    gzip -m ${prefix}.contigs.fa
     
     cat <<-END_VERSIONS > versions.yml
     ${task.process}:

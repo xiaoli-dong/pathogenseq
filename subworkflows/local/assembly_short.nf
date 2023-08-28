@@ -26,7 +26,8 @@ workflow RUN_ASSEMBLE_SHORT {
         reads
     main:
         ch_versions = Channel.empty()
-
+        
+        
         if ( params.short_reads_assembler == 'spades' ){
             reads
                 .map { meta, reads -> [ meta, reads, [], []] }
@@ -39,6 +40,7 @@ workflow RUN_ASSEMBLE_SHORT {
                 .set { contigs }
 
             //contigs = SPADES.out.contigs
+            contig_file_ext = ".fa.gz"
             ch_versions = ch_versions.mix(SPADES.out.versions.first())
             STATS_SPADES(contigs)
             stats = STATS_SPADES.out.stats
@@ -51,7 +53,7 @@ workflow RUN_ASSEMBLE_SHORT {
             SKESA.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
                 .set { contigs }
-
+            contig_file_ext = ".fa.gz"
             //contigs = SKESA.out.contigs
             ch_versions = ch_versions.mix(SKESA.out.versions.first())
             STATS_SKESA(contigs)
@@ -69,6 +71,7 @@ workflow RUN_ASSEMBLE_SHORT {
                 .set { contigs }
 
             //contigs = UNICYCLER.out.scaffolds
+            contig_file_ext = ".fa.gz"
             ch_versions = ch_versions.mix(UNICYCLER.out.versions.first())
             STATS_UNICYCLER(contigs)
             stats = STATS_UNICYCLER.out.stats
@@ -79,7 +82,7 @@ workflow RUN_ASSEMBLE_SHORT {
             MEGAHIT.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
                 .set { contigs }
-
+            contig_file_ext = ".fa.gz"
             //contigs = MEGAHIT.out.contigs
             ch_versions = ch_versions.mix(MEGAHIT.out.versions.first())
             STATS_MEGAHIT(contigs)
@@ -93,6 +96,7 @@ workflow RUN_ASSEMBLE_SHORT {
                 .set { contigs }
 
             //contigs = SHOVILL_SKESA.out.contigs
+            contig_file_ext = ".contigs.fa"
             ch_versions = ch_versions.mix(SHOVILL_SKESA.out.versions.first())
             STATS_SHOVILL_SKESA(contigs)
             stats = STATS_SHOVILL_SKESA.out.stats
@@ -103,7 +107,7 @@ workflow RUN_ASSEMBLE_SHORT {
             SHOVILL_MEGAHIT.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
                 .set { contigs }
-
+            contig_file_ext = ".contigs.fa"
             //contigs = SHOVILL_MEGAHIT.out.contigs
             ch_versions = ch_versions.mix(SHOVILL_MEGAHIT.out.versions.first())
             STATS_SHOVILL_MEGAHIT(contigs)
@@ -115,7 +119,7 @@ workflow RUN_ASSEMBLE_SHORT {
             SHOVILL.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
                 .set { contigs }
-
+            contig_file_ext = ".contigs.fa"
             //contigs = SHOVILL.out.contigs
             ch_versions = ch_versions.mix(SHOVILL.out.versions.first())
             STATS_SHOVILL(contigs)
@@ -127,6 +131,7 @@ workflow RUN_ASSEMBLE_SHORT {
         
     emit:
         contigs
+        contig_file_ext
         stats
         versions = ch_versions
         

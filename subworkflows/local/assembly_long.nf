@@ -27,7 +27,7 @@ workflow RUN_ASSEMBLE_LONG {
             }.set{
                 input
             }
-            input.modeFlag.view()
+            //input.modeFlag.view()
             FLYE(input.long_reads, input.modeFlag)
             FLYE.out.fasta
                 .filter { meta, fasta -> fasta.countFasta() > 0 }
@@ -61,10 +61,12 @@ workflow RUN_ASSEMBLE_LONG {
             contigs = MEDAKA.out.assembly
             STATS_MEDAKA(contigs)
             stats = STATS_MEDAKA.out.stats
+            contig_file_ext = ".fa.gz"
         } 
         
     emit:
         contigs
+        contig_file_ext
         versions = ch_versions
         stats
 }
@@ -106,12 +108,12 @@ workflow run_dnaA_genome{
         }.set{
             consensus_seq_ch
         }
-        consensus_seq_ch.view()
+        //consensus_seq_ch.view()
         seq2fastaFile(consensus_seq_ch)
         seq2fastaFile.out.view()
         DNAAPLER(seq2fastaFile.out.fasta)
         fasta = DNAAPLER.out.fasta
-        fasta.view()
+        //fasta.view()
         
 
     emit:

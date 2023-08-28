@@ -39,7 +39,7 @@ workflow INPUT_CHECK {
         .filter{ meta, reads -> reads[0] != 'NA' && reads[1] != 'NA' }
         .set { shortreads }
     
-    shortreads.view() 
+    //shortreads.view() 
     
 
     reads
@@ -54,7 +54,7 @@ workflow INPUT_CHECK {
         .filter{ meta_long, long_fastq -> long_fastq != 'NA' }
         .set { longreads }
        
-    longreads.view()
+    //longreads.view()
     
     reads
         .map { meta, reads, long_fastq, fast5 -> [ meta, fast5 ] }

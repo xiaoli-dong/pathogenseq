@@ -13,7 +13,7 @@ process POLYPOLISH {
     tuple val(meta), path(sam1), path(sam2)
 
     output:
-    tuple val(meta), path("*.fasta"), emit: assembly
+    tuple val(meta), path("*.fa.gz"), emit: assembly
     path "versions.yml"             , emit: versions
 
     when:
@@ -34,8 +34,9 @@ process POLYPOLISH {
         $assembly \\
         ${prefix}_filtered_1.sam \\
         ${prefix}_filtered_2.sam \\
-        >${prefix}_polypolish_polished.genome.fasta
-    
+        >${prefix}_polypolish_polished.contigs.fa
+
+    gzip -n ${prefix}_polypolish_polished.contigs.fa
     
 
     cat <<-END_VERSIONS > versions.yml
