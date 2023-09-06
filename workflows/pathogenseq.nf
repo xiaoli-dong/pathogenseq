@@ -144,9 +144,9 @@ workflow PATHOGENSEQ {
 
     if(!params.skip_long_reads_qc){
         RUN_NANOPORE_QC(long_reads)
-        
+        RUN_NANOPORE_QC.out.qc_reads.view()
         RUN_NANOPORE_QC.out.qc_reads
-            .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
+            .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
             .set { long_reads }
         
         
@@ -231,7 +231,8 @@ workflow PATHOGENSEQ {
             ch_software_versions = ch_software_versions.mix(RUN_POLYPOLISH.out.versions)
             contig_file_ext = ".fa.gz"
         }
-        // cannot use gzip contig file as input, otherwise it will hang and never finish
+
+        
         if(!params.skip_short_reads_polish  && !params.skip_polca){
 
             RUN_POLCA(short_reads, contigs)

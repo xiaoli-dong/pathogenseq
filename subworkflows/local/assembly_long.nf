@@ -48,21 +48,15 @@ workflow RUN_ASSEMBLE_LONG {
             RESTARTGENOME.out.fasta
                 .filter { meta, fasta -> fasta.countFasta() > 0 }
                 .set { contigs }
-            //contigs = RESTARTGENOME.out.fasta
-
-            //Medaka cannot accept gzip file as input and it need bgzip files
-            // GUNZIP(contigs)
-            // TABIX_BGZIP(GUNZIP.out.gunzip)
-            // contigs = TABIX_BGZIP.out.output
-
+            
             input = long_reads.join(contigs)
-            //file need to be bgzipped
             MEDAKA(input)
             contigs = MEDAKA.out.assembly
             STATS_MEDAKA(contigs)
             stats = STATS_MEDAKA.out.stats
             contig_file_ext = ".fa.gz"
         } 
+        
         
     emit:
         contigs
