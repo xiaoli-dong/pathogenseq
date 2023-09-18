@@ -15,43 +15,19 @@ workflow INPUT_CHECK {
         .map { create_read_channels(it) }
         .set { reads }
 
-   /*  Channel
-        .fromPath( samplesheet )
-        .ifEmpty {exit 1, log.info "Cannot find path file ${samplesheet}"}
-        .splitCsv ( header:true, sep:',' )
-        .map { create_fastq_channels(it) }
-        .set { reads } // channel: [ val(meta), [ reads ] ]
-
- */
     //reads.view()
-    // reconfigure channels
-    reads
-        .map { meta, reads, long_fastq, fast5 -> 
-        
-        def meta_short = [:]
-        meta_short.id         = meta.id
-        //meta_long.single_end = true
-        //meta_long.long_mode = meta.long_mode
-        meta_short.genome_size = meta.genome_size
 
-        [ meta_short, reads ] }
-        .filter{ meta, reads -> reads != 'NA' }
+    reads.map { 
+        meta, reads, long_fastq, fast5 -> [ meta, reads ] }
         .filter{ meta, reads -> reads[0] != 'NA' && reads[1] != 'NA' }
         .set { shortreads }
     
     //shortreads.view() 
     
 
-    reads
-        .map {meta, reads, long_fastq, fast5 -> 
-        def meta_long = [:]
-        meta_long.id         = meta.id
-        meta_long.single_end = true
-        meta_long.long_mode = meta.long_mode
-        meta_long.genome_size = meta.genome_size
-        
-        [ meta_long, long_fastq ] }
-        .filter{ meta_long, long_fastq -> long_fastq != 'NA' }
+    reads.map {
+        meta, reads, long_fastq, fast5 -> [ meta, long_fastq ] }
+        .filter{ meta, long_fastq -> long_fastq != 'NA' }
         .set { longreads }
        
     //longreads.view()
@@ -66,7 +42,6 @@ workflow INPUT_CHECK {
 
     reads
         .map { meta, reads, long_fastq, fast5 -> meta.id }
-        
         .set {ids}
 
     //ids.view()
@@ -90,7 +65,7 @@ def create_read_channels(LinkedHashMap row) {
     def meta = [:]
     meta.id           = row.sample
     meta.single_end   = !(row.fastq_1 == 'NA') && !(row.fastq_2 == 'NA') ? false : true
-    meta.long_mode = row.long_mode == null ? 'NA' : row.long_mode
+    meta.basecaller_mode = row.basecaller_mode == null ? 'NA' : row.basecaller_mode
     meta.genome_size  = row.genomesize == null ? 'NA' : row.genomesize
     
     if( !(row.fastq_1 == 'NA') )
@@ -143,10 +118,10 @@ def create_read_channels(LinkedHashMap row) {
         fast5 = file(row.fast5)
     } else { fast5 = 'NA' }
 
-    // check long_mode
-    def long_modes = ["fast", "hac", "sup"]
-    if(! meta.long_mode.toLowerCase() in long_modes){
-        meta.long_mode = 'NA'
+    // check basecaller_mode
+    def basecaller_modes = ["fast", "hac", "sup"]
+    if(! meta.basecaller_mode.toLowerCase() in basecaller_modes){
+        meta.basecaller_mode = 'NA'
     }
     
     // prepare output // currently does not allow single end data!

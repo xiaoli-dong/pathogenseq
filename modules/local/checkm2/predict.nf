@@ -34,11 +34,11 @@ process CHECKM2_PREDICT {
         --output-directory ./output \\
         --database_path $db \\
         -t $task.cpus 
-    mv ./output/quality_report.tsv checkm2_quality_report.tsv
+    mv ./output/quality_report.tsv ${prefix}.quality_report.tsv
     
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        : \$(echo \$(checkm2 --version 2>&1))
+        checkm2: \$(echo \$(checkm2 --version 2>&1))
     END_VERSIONS
     """
 

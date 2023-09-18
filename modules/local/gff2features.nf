@@ -13,7 +13,7 @@ process GFF2FEATURES{
     tuple val(meta), path(gff)
 
     output:
-    tuple val(meta), path('*.tsv'), emit: feature_count
+    tuple val(meta), path('*.tsv'), emit: tsv //feature_count
     path "versions.yml"           , emit: versions
 
     when:

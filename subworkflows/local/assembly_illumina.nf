@@ -10,25 +10,20 @@ include {SEQKIT_STATS as STATS_UNICYCLER} from '../../modules/nf-core/seqkit/sta
 include {SEQKIT_STATS as STATS_SKESA} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as STATS_MEGAHIT} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as STATS_SPADES} from '../../modules/nf-core/seqkit/stats/main'
+include {
+    CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM;
+} from '../../modules/nf-core/csvtk/concat/main'
 
-include { SHOVILL as SHOVILL_SKESA} from '../../modules/nf-core/shovill/main'
-include {SEQKIT_STATS as STATS_SHOVILL_SKESA} from '../../modules/nf-core/seqkit/stats/main'
-
-include { SHOVILL as SHOVILL_MEGAHIT} from '../../modules/nf-core/shovill/main'
-include {SEQKIT_STATS as STATS_SHOVILL_MEGAHIT} from '../../modules/nf-core/seqkit/stats/main'
-
-include { SHOVILL as SHOVILL} from '../../modules/nf-core/shovill/main'
-include {SEQKIT_STATS as STATS_SHOVILL} from '../../modules/nf-core/seqkit/stats/main'
-
-workflow RUN_ASSEMBLE_SHORT {   
+workflow ASSEMBLE_ILLUMINA {   
 
     take:
         reads
     main:
         ch_versions = Channel.empty()
+        in_format = "tsv"
+        out_format = "tsv"
         
-        
-        if ( params.short_reads_assembler == 'spades' ){
+        if ( params.illumina_reads_assembler == 'spades' ){
             reads
                 .map { meta, reads -> [ meta, reads, [], []] }
                 .set { input }
@@ -48,7 +43,7 @@ workflow RUN_ASSEMBLE_SHORT {
 
         } 
         //default
-        else if (params.short_reads_assembler == 'skesa' ) {
+        else if (params.illumina_reads_assembler == 'skesa' ) {
             SKESA ( reads )
             SKESA.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
@@ -60,7 +55,7 @@ workflow RUN_ASSEMBLE_SHORT {
             stats = STATS_SKESA.out.stats
             ch_versions = ch_versions.mix(STATS_SKESA.out.versions.first())
         }
-        else if (params.short_reads_assembler == 'unicycler' ) {
+        else if (params.illumina_reads_assembler == 'unicycler' ) {
             reads
                 .map { meta, reads -> [ meta, reads, [] ] }
                 .set { input }
@@ -77,7 +72,7 @@ workflow RUN_ASSEMBLE_SHORT {
             stats = STATS_UNICYCLER.out.stats
             ch_versions = ch_versions.mix(STATS_UNICYCLER.out.versions.first())
         }
-        else if (params.short_reads_assembler == 'megahit' ) {
+        else if (params.illumina_reads_assembler == 'megahit' ) {
             MEGAHIT ( reads )
             MEGAHIT.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
@@ -89,45 +84,7 @@ workflow RUN_ASSEMBLE_SHORT {
             stats = STATS_MEGAHIT.out.stats
             ch_versions = ch_versions.mix(STATS_MEGAHIT.out.versions.first())
         }
-        else if (params.short_reads_assembler == 'shovill_skesa' ) {
-            SHOVILL_SKESA (reads)
-            SHOVILL_SKESA.out.contigs
-                .filter { meta, contigs -> contigs.countFasta() > 0 }
-                .set { contigs }
-
-            //contigs = SHOVILL_SKESA.out.contigs
-            contig_file_ext = ".contigs.fa"
-            ch_versions = ch_versions.mix(SHOVILL_SKESA.out.versions.first())
-            STATS_SHOVILL_SKESA(contigs)
-            stats = STATS_SHOVILL_SKESA.out.stats
-            ch_versions = ch_versions.mix(STATS_SHOVILL_SKESA.out.versions.first())
-        }
-        else if (params.short_reads_assembler == 'shovill_megahit' ) {
-            SHOVILL_MEGAHIT (reads)
-            SHOVILL_MEGAHIT.out.contigs
-                .filter { meta, contigs -> contigs.countFasta() > 0 }
-                .set { contigs }
-            contig_file_ext = ".contigs.fa"
-            //contigs = SHOVILL_MEGAHIT.out.contigs
-            ch_versions = ch_versions.mix(SHOVILL_MEGAHIT.out.versions.first())
-            STATS_SHOVILL_MEGAHIT(contigs)
-            stats = STATS_SHOVILL_MEGAHIT.out.stats
-            ch_versions = ch_versions.mix(STATS_SHOVILL_MEGAHIT.out.versions.first())
-        }
-        else if (params.short_reads_assembler == 'shovill' ) {
-            SHOVILL (reads)
-            SHOVILL.out.contigs
-                .filter { meta, contigs -> contigs.countFasta() > 0 }
-                .set { contigs }
-            contig_file_ext = ".contigs.fa"
-            //contigs = SHOVILL.out.contigs
-            ch_versions = ch_versions.mix(SHOVILL.out.versions.first())
-            STATS_SHOVILL(contigs)
-            stats = STATS_SHOVILL.out.stats
-            ch_versions = ch_versions.mix(STATS_SHOVILL.out.versions.first())
-        }
-
-
+        CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
         
     emit:
         contigs

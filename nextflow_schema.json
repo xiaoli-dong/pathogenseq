@@ -31,6 +31,20 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "platform": {
+                    "type": "string",
+                    "fa_icon": "fas fa-hdd",
+                    "description": "NGS platform used to sequence the samples.",
+                    "enum": [
+                        "illumina",
+                        "nanopore"
+                    ]
+                },
+                "igenomes_ignore": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-hdd",
+                    "description": "Whether ignore igenome configuration loading."
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -42,6 +56,152 @@
                     "type": "string",
                     "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
                     "fa_icon": "fas fa-file-signature"
+                }
+            }
+        },
+        "illumina_options": {
+            "title": "illumina_options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Illumina data analysis options",
+            "required": [
+                "illumina_reads_qc_tool",
+                "illumina_reads_assembler"
+            ],
+            "properties": {
+                "illumina_reads_qc_tool": {
+                    "type": "string",
+                    "default": "fastp",
+                    "enum": [
+                        "fastp",
+                        "bbduk"
+                    ]
+                },
+                "illumina_reads_assembler": {
+                    "type": "string",
+                    "default": "unicycler",
+                    "enum": [
+                        "megahit",
+                        "spades",
+                        "skesa",
+                        "unicycler"
+                    ]
+                },
+                "skip_illumina_reads_qc": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_illumina_reads_assembly": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "nanopore_options": {
+            "title": "nanopore_optionss",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Nanopore reads data analysis options",
+            "properties": {
+                "nanopore_reads_assembler": {
+                    "type": "string",
+                    "default": "flye+medaka"
+                },
+                "skip_polypolish": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_polca": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_nanopore_reads_qc": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_nanopore_reads_assembly": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_illumina_reads_polish": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "annotation_options": {
+            "title": "annotation_optionss",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": [
+                "illumina_reads_qc_tool",
+                "illumina_reads_assembler"
+            ],
+            "properties": {
+                "bakta_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/bakta/db"
+                },
+                "checkm2_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/CheckM2_database/uniref100.KO.1.dmnd"
+                },
+                "amrfinderplus_db": {
+                    "type": "string",
+                    "default": null
+                },
+                "skip_checkm2": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_bakta": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_mlst": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_mobsuite": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_virulome": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_multiqc": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_amr": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "taxonomy_options": {
+            "title": "annotation_options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": [
+                "illumina_reads_qc_tool",
+                "illumina_reads_assembler"
+            ],
+            "properties": {
+                "skip_illumina_kraken2": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_nanopore_kraken2": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "kraken2_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926"
                 }
             }
         },
@@ -244,6 +404,18 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
+            "$ref": "#/definitions/illumina_options"
+        },
+        {
+            "$ref": "#/definitions/nanopore_options"
+        },
+        {
+            "$ref": "#/definitions/annotation_options"
+        },
+        {
+            "$ref": "#/definitions/taxonomy_options"
+        },
+        {
             "$ref": "#/definitions/institutional_config_options"
         },
         {
@@ -252,127 +424,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "short_reads_qc_tool": {
-            "type": "string",
-            "description": "specifies the short reads quality control tools to use - [fastp|bbduk].",
-            "default": "fastp"
-        },
-        "assembly_type": {
-            "type": "string",
-            "description": "conduct short or long reads assembly - [short|long].",
-            "default": "short"
-        },
-        "short_reads_assembler": {
-            "type": "string",
-            "default": "skesa",
-            "description": "Choose short reads assembler - [spades|skesa|unicycler|megahit|shovill|shovill_megahit|shovill_skesa]",
-            "enum": [
-                "spades",
-                "skesa",
-                "unicycler",
-                "megahit",
-                "shovill_skesa",
-                "shovill_megahit",
-                "shovill"
-            ]
-        },
-        "long_reads_assembler": {
-            "type": "string",
-            "default": "flye+medaka",
-            "description": "Choose long reads assembler - [flye+medaka]",
-            "enum": [
-                "flye+medaka"
-            ]
-        },
-        "skip_short_reads_qc": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_long_reads_qc": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_kraken2": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_short_reads_assembly": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_long_reads_assembly": {
-            "type": "boolean",
-            "default": true
-        },
-        "skip_hybrid_reads_assembly": {
-            "type": "boolean",
-            "default": true
-        },
-        "skip_short_reads_polish": {
-            "type": "boolean",
-            "default": true
-        },
-        "skip_polypolish": {
-            "type": "boolean",
-            "default": true
-        },
-        "skip_polca": {
-            "type": "boolean",
-            "default": true
-        },
-        "annotation_tool": {
-            "type": "string",
-            "default": "bakta"
-        },
-        "kraken2_db": {
-            "type": "string",
-            "default": "/nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926"
-        },
-        "bakta_db": {
-            "type": "string",
-            "default": "/nfs/APL_Genomics/db/prod/bakta/db"
-        },
-        "skip_bakta": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_mlst": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_mobsuite": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_resistome": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_virulome": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_multiqc": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_amr": {
-            "type": "boolean",
-            "default": false
-        },
-        "skip_tbprofiler": {
-            "type": "boolean",
-            "default": true
-        },
-        "tbprofiler_db": {
-            "type": "string",
-            "default": "/nfs/APL_Genomics/db/prod/tbprofiler/tbdb"
-        },
-        "validationShowHiddenParams": {
-            "type": "boolean",
-            "default": false
-        }
-    }
+    ]
 }

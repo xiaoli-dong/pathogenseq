@@ -9,12 +9,11 @@ process POLYPOLISH {
         'biocontainers/polypolish:0.5.0--hdbdd923_4' }"
 
     input:
-    tuple val(meta), path(assembly)
+    tuple val(meta), path(contigs)
     tuple val(meta), path(sam1), path(sam2)
 
     output:
-    tuple val(meta), path("*.fa.gz"), emit: assembly
-    //tuple val(meta), path("*.fa"), emit: assembly
+    tuple val(meta), path("*.fa.gz"), emit: contigs
     path "versions.yml"             , emit: versions
 
     when:
@@ -32,7 +31,7 @@ process POLYPOLISH {
         --out2 ${prefix}_filtered_2.sam
 
     polypolish \\
-        $assembly \\
+        $contigs \\
         ${prefix}_filtered_1.sam \\
         ${prefix}_filtered_2.sam \\
         >${prefix}.contigs.fa

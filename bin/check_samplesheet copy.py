@@ -42,7 +42,7 @@ def print_error(error, context="Line", context_str=""):
 def check_samplesheet(file_in, file_out):
     """
     This function checks that the samplesheet follows the following structure:
-    sample,fastq_1,fastq_2,long_fastq,fast5,basecaller_mode,genomesize
+    sample,fastq_1,fastq_2,long_fastq,fast5,long_mode,genomesize
     SAMEA6451102,read_1.fastq.gz,read_2.fastq.gz,longread.fastq.gz,NA,fast,NA
 
     For an example see:
@@ -58,7 +58,7 @@ def check_samplesheet(file_in, file_out):
         ## Check header
         MIN_COLS = 2
         # TODO nf-core: Update the column names for the input samplesheet
-        HEADER = ["sample", "fastq_1", "fastq_2", "long_fastq", "fast5", "basecaller_mode", "genomesize"]
+        HEADER = ["sample", "fastq_1", "fastq_2", "long_fastq", "fast5", "long_mode", "genomesize"]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
         if header[: len(HEADER)] != HEADER:
             print("ERROR: Please check samplesheet header -> {} != {}".format(",".join(header), ",".join(HEADER)))
@@ -86,7 +86,7 @@ def check_samplesheet(file_in, file_out):
                 )
             print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             ## Check sample name entries
-            sample, fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize = lspl[: len(HEADER)]
+            sample, fastq_1, fastq_2, long_fastq, fast5, long_mode, genomesize = lspl[: len(HEADER)]
             sample = sample.replace(" ", "_")
             if not sample:
                 print_error("Sample entry has not been specified!", "Line", line)
@@ -116,8 +116,8 @@ def check_samplesheet(file_in, file_out):
                         line,
                     )
              ## Check basecalling mode
-            if basecaller_mode:
-                if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in ["fast", "hac", "sup"]:
+            if long_mode:
+                if long_mode.upper() != 'NA' and long_mode.lower() not in ["fast", "hac", "sup"]:
                     print_error(
                         "Long read bascaling mode can only be NA, fast, sup, or hac !",
                         "Line",
@@ -138,11 +138,11 @@ def check_samplesheet(file_in, file_out):
             ## Auto-detect paired-end/single-end
             sample_info = []  ## [single_end, fastq_1, fastq_2]
             if sample and fastq_1 and fastq_2:  ## Paired-end short reads
-                #sample_info = ["0", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
-                sample_info = ["False", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
+                #sample_info = ["0", fastq_1, fastq_2, long_fastq, fast5, long_mode, genomesize]
+                sample_info = ["False", fastq_1, fastq_2, long_fastq, fast5, long_mode, genomesize]
             elif sample and fastq_1 and not fastq_2:  ## Single-end short reads
-                #sample_info = ["1", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
-                sample_info = ["True", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
+                #sample_info = ["1", fastq_1, fastq_2, long_fastq, fast5, long_mode, genomesize]
+                sample_info = ["True", fastq_1, fastq_2, long_fastq, fast5, long_mode, genomesize]
             else:
                 print_error("Invalid combination of columns provided!", "Line", line)
 
@@ -162,7 +162,7 @@ def check_samplesheet(file_in, file_out):
         out_dir = os.path.dirname(file_out)
         make_dir(out_dir)
         with open(file_out, "w") as fout:
-            fout.write(",".join(["sample", "single_end", "fastq_1", "fastq_2", "long_fastq", "fast5", "basecaller_mode", "genomesize"]) + "\n")
+            fout.write(",".join(["sample", "single_end", "fastq_1", "fastq_2", "long_fastq", "fast5", "long_mode", "genomesize"]) + "\n")
             for sample in sorted(sample_mapping_dict.keys()):
 
                 ## Check that multiple runs of the same sample are of the same datatype

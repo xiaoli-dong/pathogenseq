@@ -97,7 +97,7 @@ The pathogenseq pipeline requires user to provide a csv format samplesheet, whic
 ```samplesheet.csv```
 
 ```
-sample,fastq_1,fastq_2,long_fastq,fast5,long_mode,genomesize
+sample,fastq_1,fastq_2,long_fastq,fast5,basecaller_mode,genomesize
 sample1,shortreads_1.fastq.gz,shortreads_2.fastq.gz,longreads.fastq.gz,longreads.fast5,hac,5.3m
 sample2,shortreads.fastq,NA,longreads.fastq.gz,longreads.fast5,fast,5.3m
 sample3,NA,NA,longreads.fastq.gz,longreads.fast5,sup,5.3m
@@ -108,7 +108,7 @@ The csv format samplesheet has seven required columns:
 * Each row represents a unique sample to be processed, the first colum is the unique sample id
 * When the information for a particular column is missing, please fill the column with "NA"
 * The "fastq_1" and "fastq_2" columns are reserved for supplying the short sequence files
-* "long_mode" is for user to provide the Nanopore basecalling model (fast|hac|sup)
+* "basecaller_mode" is for user to provide the Nanopore basecalling model (fast|hac|sup)
 * The "genomesize" can take interger numbers or take notatons of "mM" or "gG" such as "5.3m", "1.2g"
 
 ### Run the pipeline:

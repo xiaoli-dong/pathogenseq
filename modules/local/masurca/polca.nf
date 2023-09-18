@@ -10,10 +10,10 @@ process MASURCA_POLCA {
 
     input:
     tuple val(meta), path(reads)
-    tuple val(meta), path(fasta)
+    tuple val(meta), path(contigs)
 
     output:
-    tuple val(meta), path("*.fa.gz"), emit: assembly
+    tuple val(meta), path("*.fa.gz"), emit: contigs
     path "versions.yml"           , emit: versions
 
     when:
@@ -22,14 +22,14 @@ process MASURCA_POLCA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def gzipped = fasta.toString().endsWith('.gz')
-    def outfile = gzipped ? file(fasta.baseName).baseName : fasta.baseName
+    def gzipped = contigs.toString().endsWith('.gz')
+    def outfile = gzipped ? file(contigs.baseName).baseName : contigs.baseName
     def command = gzipped ? 'zcat' : 'cat'
     
     // cannot use gzip contig file as  for polca, otherwise it will hang and never finish
 
     """
-    $command $fasta > ${outfile}.fixed.fa
+    $command $contigs > ${outfile}.fixed.fa
 
     polca.sh \\
     $args \\

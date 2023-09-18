@@ -35,14 +35,24 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { PATHOGENSEQ } from './workflows/pathogenseq'
+//include { PATHOGENSEQ } from './workflows/pathogenseq'
+if (params.platform == 'illumina') {
+    include { ILLUMINA } from './workflows/illumina'
+} else if (params.platform == 'nanopore') {
+    include { NANOPORE } from './workflows/nanopore'
+}
 
 //
 // WORKFLOW: Run main nf-core/pathogenseq analysis pipeline
 //
 workflow NFCORE_PATHOGENSEQ {
-    PATHOGENSEQ ()
-}
+    if (params.platform == 'nanopore'){
+        NANOPORE ()
+    }
+    else if (params.platform == 'illumina') {
+        ILLUMINA ()
+    } 
+}   
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
