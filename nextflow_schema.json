@@ -151,7 +151,15 @@
                     "type": "string",
                     "default": null
                 },
+                "gambit_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/gambit"
+                },
                 "skip_checkm2": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "skip_gambit": {
                     "type": "boolean",
                     "default": false
                 },

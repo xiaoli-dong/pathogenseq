@@ -2,6 +2,7 @@
 include {NANOPLOT as NANOPLOT_RAW} from '../../modules/nf-core/nanoplot/main' 
 include {NANOPLOT as NANOPLOT_QC}  from '../../modules/nf-core/nanoplot/main'
 include {PORECHOP_PORECHOP}  from '../../modules/nf-core/porechop/porechop/main.nf'  
+include {CHOPPER}  from '../../modules/local/chopper/main.nf'  
 include {SEQKIT_STATS as SEQKIT_STATS_RAW} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as SEQKIT_STATS_QC} from '../../modules/nf-core/seqkit/stats/main'
 include {
@@ -25,10 +26,11 @@ workflow QC_NANOPORE {
         
         // QC
         PORECHOP_PORECHOP(reads)
-        qc_reads = PORECHOP_PORECHOP.out.reads
         ch_versions = ch_versions.mix(PORECHOP_PORECHOP.out.versions.first())
+        CHOPPER(PORECHOP_PORECHOP.out.reads)
+        qc_reads = CHOPPER.out.fastq //gzip compressed
+        ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
         SEQKIT_STATS_QC(qc_reads)
-
         //qc_reads.view()
         NANOPLOT_QC(qc_reads)
         

@@ -56,6 +56,8 @@ include { KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA } 
 
 //MODULES: local modules
 include {CHECKM2_PREDICT} from '../modules/local/checkm2/predict.nf'
+include { GAMBIT_QUERY }    from '../modules/local/gambit/query/main'
+include { GAMBIT_TREE       }       from '../modules/local/gambit/tree/main'
 
 
 /*
@@ -186,6 +188,18 @@ workflow NANOPORE {
         if(! params.skip_checkm2){
             ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}//.view()
             CHECKM2_PREDICT(ch_input_checkm2, contig_file_ext, PREPARE_REFERENCES.out.ch_checkm2_db) 
+        
+        }
+
+        if(! params.skip_gambit){
+            ch_input_gambit_query = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gambit"], files)}.view()
+            GAMBIT_QUERY(ch_input_gambit_query, PREPARE_REFERENCES.out.ch_gambit_db)
+            
+            ch_input_gambit_tree = contigs.map { cfg, contigs -> contigs }.collect()
+                 .filter{contigs -> contigs.size() >= 3}
+                 .map{files -> tuple([id:"gambit"], files)}.view()
+           
+            GAMBIT_TREE(ch_input_gambit_tree)  
         
         }
 
