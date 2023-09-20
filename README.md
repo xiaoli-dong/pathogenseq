@@ -51,8 +51,8 @@ By default, the pipeline supports both short and long reads:
       - [Polypolish](https://github.com/rrwick/Polypolish)
       - [POLCA](https://github.com/alekseyzimin/masurca)
 - Assembly quality check
-  - Rapid assessment of genome assembly quality using machine learning ([CheckM2](https://github.com/chklovski/CheckM2))
-  - Rapid taxonomic identification of microbial pathogens ([gambit](https://github.com/jlumpe/gambit))
+  - Rapid assessment of genome assembly completeness and contamination using machine learning approach ([CheckM2](https://github.com/chklovski/CheckM2))
+  - Rapid taxonomic identification of microbial pathogens from assemblies and also the assement of the sample relatedness ([gambit](https://github.com/jlumpe/gambit))
 - Genome annotation
   - Gene prediction and annotation ([Bakta](https://github.com/oschwengers/bakta))
   - Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
