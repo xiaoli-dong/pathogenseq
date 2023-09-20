@@ -22,13 +22,8 @@
 
 The pipeline is built using [Nextflow](https://www.nextflow.io), a workflow tool to run tasks across multiple compute infrastructures in a very portable manner. It uses Docker/Singularity containers making installation trivial and results highly reproducible. <!-- The [Nextflow DSL2](https://www.nextflow.io/docs/latest/dsl2.html) implementation of this pipeline uses one container per process which makes it much easier to maintain and update software dependencies. Where possible, these processes have been submitted to and installed from [nf-core/modules](https://github.com/nf-core/modules) in order to make them available to all nf-core pipelines, and to everyone within the Nextflow community! -->
 
-
-<!-- ![pathogenseq width="300"](https://github.com/xiaoli-dong/pathogenseq/assets/52679027/6c791914-dd6a-467c-86d8-93dc61d3d180) -->
 <p align="center">
-<img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/6c791914-dd6a-467c-86d8-93dc61d3d180" width="80%">
-</p>
-<p align="center">
-![pathogenseq](https://github.com/xiaoli-dong/pathogenseq/assets/52679027/4a48c218-6fd7-4a2e-8775-677f9a66ab54)
+<img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/4a48c218-6fd7-4a2e-8775-677f9a66ab54">
 </p>
 ## Pipeline summary
 
