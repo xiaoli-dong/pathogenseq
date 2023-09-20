@@ -12,7 +12,7 @@ process GAMBIT_TREE {
   
 
     output:
-    tuple val(meta), path("*.csv") , emit: csv
+    tuple val(meta), path("*.newick") , emit: newick //tree
     path "versions.yml"                 , emit: versions
 
     when:

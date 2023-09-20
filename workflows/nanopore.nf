@@ -182,7 +182,7 @@ workflow NANOPORE {
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
         
-       CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"contigs.seqstats"], files)}, in_format, out_format ) 
+       CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.seqstats"], files)}, in_format, out_format ) 
         // analysis
 
         if(! params.skip_checkm2){
@@ -192,12 +192,12 @@ workflow NANOPORE {
         }
 
         if(! params.skip_gambit){
-            ch_input_gambit_query = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gambit"], files)}.view()
+            ch_input_gambit_query = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gambit_query"], files)}.view()
             GAMBIT_QUERY(ch_input_gambit_query, PREPARE_REFERENCES.out.ch_gambit_db)
             
             ch_input_gambit_tree = contigs.map { cfg, contigs -> contigs }.collect()
                  .filter{contigs -> contigs.size() >= 3}
-                 .map{files -> tuple([id:"gambit"], files)}.view()
+                 .map{files -> tuple([id:"gambit_tree"], files)}.view()
            
             GAMBIT_TREE(ch_input_gambit_tree)  
         

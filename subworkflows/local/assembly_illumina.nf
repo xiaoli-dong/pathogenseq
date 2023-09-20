@@ -10,9 +10,6 @@ include {SEQKIT_STATS as STATS_UNICYCLER} from '../../modules/nf-core/seqkit/sta
 include {SEQKIT_STATS as STATS_SKESA} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as STATS_MEGAHIT} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as STATS_SPADES} from '../../modules/nf-core/seqkit/stats/main'
-include {
-    CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM;
-} from '../../modules/nf-core/csvtk/concat/main'
 
 workflow ASSEMBLE_ILLUMINA {   
 
@@ -84,7 +81,7 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_MEGAHIT.out.stats
             ch_versions = ch_versions.mix(STATS_MEGAHIT.out.versions.first())
         }
-        CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
+        
         
     emit:
         contigs

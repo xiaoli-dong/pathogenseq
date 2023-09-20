@@ -58,6 +58,7 @@ include { PREPARE_REFERENCES          } from '../subworkflows/local/prepare_refe
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include {KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA} from '../modules/nf-core/kraken2/kraken2/main' 
 include { KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA} from '../modules/nf-core/krakentools/combinekreports/main'
+include { CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; } from '../../modules/nf-core/csvtk/concat/main'
 
 //
 // MODULE: local modules
@@ -130,7 +131,8 @@ workflow ILLUMINA {
         contig_file_ext = ASSEMBLE_ILLUMINA.out.contig_file_ext
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_ILLUMINA.out.versions)
         stats = ASSEMBLE_ILLUMINA.out.stats
-        
+        CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
+       
         if(! params.skip_checkm2){
             ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}.view()
             CHECKM2_PREDICT(ch_input_checkm2, contig_file_ext, PREPARE_REFERENCES.out.ch_checkm2_db) 
