@@ -42,9 +42,10 @@ By default, the pipeline supports both short and long reads:
   - Long reads
     - Nanopore long read quality checks ([NanoPlot](https://github.com/wdecoster/NanoPlot))
     - Nanopore long read adapter trimming ([Porechop](https://github.com/rrwick/Porechop))
+    - Nanopore long read quality and length filter ([chopper](https://github.com/wdecoster/chopper))
     - Nanopore long read statistics ([seqkit stats](https://bioinf.shenwei.me/seqkit/usage/#stats))
 - Assembly
-  - Short read assembly with user choice of the assemblers ([Spades](https://github.com/ablab/spades) | [Skesa](https://github.com/ncbi/SKESA) | [Unicycler](https://github.com/rrwick/Unicycler) | [megahit](https://github.com/voutcn/megahit) | [shovill](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill) | [shovill_megahit](https://github.com/tseemann/shovill) | [shovill_skesa](https://github.com/tseemann/shovill)
+  - Short read assembly with user choice of the assemblers ([Spades](https://github.com/ablab/spades) | [Skesa](https://github.com/ncbi/SKESA) | [Unicycler](https://github.com/rrwick/Unicycler) | [megahit](https://github.com/voutcn/megahit))
   - Long read assembly is following the steps below:
     - Nanopore long read de novo assembly ([`Flye`](https://github.com/fenderglass/Flye))
     - Circular Flye contigs are rotated to start in the center of the contig ([in-house perl script](https://github.com/xiaoli-dong/pathogenseq/blob/main/bin/reset_start_position_for_circular_genome.pl))
@@ -52,6 +53,9 @@ By default, the pipeline supports both short and long reads:
     - Short-read polishing while short reads are available:
       - [Polypolish](https://github.com/rrwick/Polypolish)
       - [POLCA](https://github.com/alekseyzimin/masurca)
+- Assembly quality check
+  - Rapid assessment of genome assembly quality using machine learning ([CheckM2](https://github.com/chklovski/CheckM2))
+  - Rapid taxonomic identification of microbial pathogens ([gambit](https://github.com/jlumpe/gambit))
 - Genome annotation
   - Gene prediction and annotation ([Bakta](https://github.com/oschwengers/bakta))
   - Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
@@ -64,6 +68,9 @@ By default, the pipeline supports both short and long reads:
 * [Bakta database](https://github.com/oschwengers/bakta#database)
 * [Kraken2 database](https://benlangmead.github.io/aws-indexes/k2)
 * [AMRFinderPlus database](https://github.com/ncbi/amr/wiki/AMRFinderPlus-database)
+* [CheckM2 database](https://github.com/chklovski/CheckM2)
+* [gambit database](https://github.com/jlumpe/gambit)
+  
 ## Quick Start
 
 The workflow uses nextflow to manage compute and software resources, as such nextflow will need to be installed before attempting to run the workflow.
