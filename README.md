@@ -125,13 +125,15 @@ nextflow run xiaoli-dong/pathogenseq \
   -r seven_character_github_revision_number (e.g: 8657a20)
   --input samplesheet.csv \
   -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
-  --outdir results
+  --outdir results \
+  --platform <illumina|nanopore>
 
 # run the pipeline with a local clone
 nextflow run your_path_to/pathogenseq/main.nf \
   --input samplesheet.csv \
   -profile <docker|singularity|podman|shifter|charliecloud|conda/institute> \
-  --outdir results
+  --outdir results \
+  --platform <illumina|nanopore>
 
 # an example command to launch the pipeline from local computer and run it with ```singularity``` configraton profile.
 nextflow run your_path_to/pathogenseq/main.nf \
@@ -142,8 +144,9 @@ nextflow run your_path_to/pathogenseq/main.nf \
 # an example commnad to launch the pipeline from a local clone and run it with ```conda``` configraton profile.
 nextflow run your_path_to/pathogenseq/main.nf \
   -profile conda \
-  --input samplesheet.csv
-  --outdir results_conda
+  --input samplesheet.csv \
+  --outdir results_conda \
+  --platform <illumina|nanopore>
 ```
 >* Notes: Please provide pipeline parameters via the CLI or Nextflow -params-file option. Custom config files including those provided by the -c Nextflow option can be used to provide any configuration except for parameters; see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
