@@ -150,16 +150,21 @@ nextflow run your_path_to/pathogenseq/main.nf \
 
 ## Pipeline output
 The screenshot on the left side shows the overall pipeline output arrangement. 
+
 <table>
   <tr>
     <td>
-      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/19111cd5-064d-4594-aa96-6a9d5362cebc">
+      <p>Fig 1. Pathogenseq output top level layout</p>
+      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/21962cad-fb90-47ab-b264-1875402fb118">
     </td>
     <td>
-      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/a94460ef-243d-42d7-bc78-3848b954b6fa">
+       <p>Fig 2. Pathogenseq output top level layout</p>
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/1ccbb832-6b97-4ab4-bde1-d5ecdebd3fbe">
     </td>
+    
     <td>
-      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/2ae0d5f7-8f9a-4f9b-bf81-a0d9361ba3d6">
+       <p>Fig 3. Pathogenseq output top level layout</p>
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/59ecc195-2b3c-4b78-951b-38e7595c85fd">
     </td>
   </tr>
 </table>
