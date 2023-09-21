@@ -149,8 +149,6 @@ nextflow run your_path_to/pathogenseq/main.nf \
 
 
 ## Pipeline output
-The screenshot on the left side shows the overall pipeline output arrangement. 
-
 <table>
   <tr valign="top">
     <td>
@@ -158,17 +156,38 @@ The screenshot on the left side shows the overall pipeline output arrangement.
       <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/21962cad-fb90-47ab-b264-1875402fb118">
     </td>
     <td>
-       <p>Fig 2. Pathogenseq output top level layout</p>
+       <p>Fig 2. Pathogenseq pipeline_info directory layout</p>
      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/1ccbb832-6b97-4ab4-bde1-d5ecdebd3fbe">
     </td>
     <td>
-       <p>Fig 3. Pathogenseq output top level layout</p>
+       <p>Fig 3. Pathogenseq report directory layout</p>
      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/59ecc195-2b3c-4b78-951b-38e7595c85fd">
     </td>
    
   </tr>
 </table>
+From the above screenshots, you can see:
 
+* Results of each sample included in the analysis go to its own directry. 
+* pipeline_info directory contains software version control information, nextflow workflow report, resource usage report, task report. 
+* report directory contains the summoary files of each analysis task
+
+
+<table>
+  <caption>Example pathogenseq data analysis outputs contained in a particalur sample direcotry </caption>
+  <tr valign="top">
+    <td>
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/dab5e966-ed04-4ded-b6ea-150c3eac2bb3">
+    </td>
+    <td>
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/a28c416f-1805-4537-9d38-a2f774456635">
+    </td>
+     <td>
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/18342ca1-347b-4e1e-8c79-c4d94eef2659">
+    </td>
+  </tr>
+</table>
+ 
 
 ## Credits
 pathogenseq was originally written by Xiaoli Dong. Extensive support was provided from other co-authors on the scientific or technical input required for the pipeline:
