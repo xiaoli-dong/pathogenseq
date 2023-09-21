@@ -177,7 +177,7 @@ From the above screenshots, you can see:
 
 
 <table>
-  <caption>Example pathogenseq data analysis outputs contained in a particalur sample direcotry </caption>
+  <caption>Example pathogenseq data analysis outputs contained in a particalur sample directory </caption>
   <tr valign="top">
     <td>
      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/dab5e966-ed04-4ded-b6ea-150c3eac2bb3">
