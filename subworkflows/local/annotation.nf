@@ -46,7 +46,7 @@ workflow ANNOTATION {
         if(!params.skip_mlst){
             MLST (contigs)
             ch_software_versions = ch_software_versions.mix(MLST.out.versions)
-            MLST.out.tsv.map { cfg, mlst -> mlst }.collect().view()
+            MLST.out.tsv.map { cfg, mlst -> mlst }.collect()//.view()
             CSVTK_CONCAT_MLST (MLST.out.tsv.map { cfg, mlst -> mlst }.collect().map { files -> tuple([id:"mlst.mlst"], files)} , in_format, out_format)
         }
         if(!params.skip_mobsuite){

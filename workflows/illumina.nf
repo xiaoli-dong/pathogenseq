@@ -58,14 +58,17 @@ include { PREPARE_REFERENCES          } from '../subworkflows/local/prepare_refe
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include {KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA} from '../modules/nf-core/kraken2/kraken2/main' 
 include { KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA} from '../modules/nf-core/krakentools/combinekreports/main'
-include { CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; } from '../../modules/nf-core/csvtk/concat/main'
+include { CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; } from '../modules/nf-core/csvtk/concat/main'
 
 //
 // MODULE: local modules
 //
 include { CHECKM2_PREDICT   }       from '../modules/local/checkm2/predict.nf'
 include { GAMBIT_QUERY      }       from '../modules/local/gambit/query/main'
-include { GAMBIT_TREE       }       from '../modules/local/gambit/tree/main'
+include { 
+    GAMBIT_QUERY as GAMBIT_QUERY_COLLECT;
+    GAMBIT_QUERY as GAMBIT_QUERY;
+ }    from '../modules/local/gambit/query/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -140,15 +143,16 @@ workflow ILLUMINA {
         }
 
         if(! params.skip_gambit){
-            ch_input_gambit_query = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gambit"], files)}.view()
-            GAMBIT_QUERY(ch_input_gambit_query, PREPARE_REFERENCES.out.ch_gambit_db)
+            GAMBIT_QUERY(contigs, PREPARE_REFERENCES.out.ch_gambit_db)
+            
+            ch_input_gambit_query_collect = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gambit_query"], files)}.view()
+            GAMBIT_QUERY_COLLECT(ch_input_gambit_query_collect, PREPARE_REFERENCES.out.ch_gambit_db)
             
             ch_input_gambit_tree = contigs.map { cfg, contigs -> contigs }.collect()
                  .filter{contigs -> contigs.size() >= 3}
-                 .map{files -> tuple([id:"gambit"], files)}.view()
+                 .map{files -> tuple([id:"gambit_tree"], files)}.view()
            
             GAMBIT_TREE(ch_input_gambit_tree)  
-        
         }
 
         ANNOTATION(contigs, PREPARE_REFERENCES.out.ch_bakta_db, PREPARE_REFERENCES.out.ch_amrfinderplus_db)

@@ -13,10 +13,10 @@ process MOBSUITE_RECON {
     tuple val(meta), path(fasta)
 
     output:
-    tuple val(meta), path("results/*chromosome.fasta")    , emit: chromosome, optional: true
-    tuple val(meta), path("results/*contig_report.txt")   , emit: contig_report, optional: true
-    tuple val(meta), path("results/*plasmid_*.fasta")     , emit: plasmids        , optional: true
-    tuple val(meta), path("results/*mobtyper_results.txt"), emit: mobtyper_results, optional: true
+    tuple val(meta), path("*chromosome.fasta")    , emit: chromosome, optional: true
+    tuple val(meta), path("*contig_report.txt")   , emit: contig_report, optional: true
+    tuple val(meta), path("*plasmid_*.fasta")     , emit: plasmids        , optional: true
+    tuple val(meta), path("*mobtyper_results.txt"), emit: mobtyper_results, optional: true
     path "versions.yml"                                  , emit: versions
 
     when:
@@ -38,6 +38,9 @@ process MOBSUITE_RECON {
         --num_threads $task.cpus \\
         --outdir results \\
         --prefix $prefix
+    
+    mv results/* .
+    
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
