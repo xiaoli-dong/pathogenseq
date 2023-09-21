@@ -138,8 +138,9 @@ nextflow run your_path_to/pathogenseq/main.nf \
 # an example command to launch the pipeline from local computer and run it with ```singularity``` configraton profile.
 nextflow run your_path_to/pathogenseq/main.nf \
   -profile singularity \
-  --input samplesheet.csv
-  --outdir results_singularity
+  --input samplesheet.csv \
+  --outdir results_singularity \
+  --platform <illumina|nanopore>
 
 # an example commnad to launch the pipeline from a local clone and run it with ```conda``` configraton profile.
 nextflow run your_path_to/pathogenseq/main.nf \
