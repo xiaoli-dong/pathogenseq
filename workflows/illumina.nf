@@ -64,11 +64,11 @@ include { CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; } from '../modules/nf-core/csv
 // MODULE: local modules
 //
 include { CHECKM2_PREDICT   }       from '../modules/local/checkm2/predict.nf'
-include { GAMBIT_QUERY      }       from '../modules/local/gambit/query/main'
 include { 
     GAMBIT_QUERY as GAMBIT_QUERY_COLLECT;
     GAMBIT_QUERY as GAMBIT_QUERY;
  }    from '../modules/local/gambit/query/main'
+include { GAMBIT_TREE       }       from '../modules/local/gambit/tree/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
