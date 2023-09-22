@@ -174,10 +174,10 @@ From the above screenshots, you can see:
 
 * Results of each sample included in the analysis go to its own directry. 
 * pipeline_info directory contains software version control information, nextflow workflow report, resource usage report, task report. 
-* report directory contains the summoary files of each analysis task
+* report directory contains the summary files of each analysis task
 
 <table >
-  <caption>Example pathogenseq data analysis outputs contained in a particalur sample directory </caption>
+  <caption>Example pathogenseq data analysis outputs for a particalur sample</caption>
   <tr valign="top">
     <td>
      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/ace1cbc3-ccd3-4cf3-a2ef-dc36c9651bf2" width="120%">
