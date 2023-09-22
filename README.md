@@ -157,7 +157,7 @@ nextflow run your_path_to/pathogenseq/main.nf \
   <tr valign="top">
     <td>
       <p>Fig 1. Pathogenseq output top level layout</p>
-      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/21962cad-fb90-47ab-b264-1875402fb118">
+      <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/5e6d5e43-fda1-43bc-b5c4-d844e8f1a7cf">
     </td>
     <td>
        <p>Fig 2. Pathogenseq pipeline_info directory layout</p>
@@ -176,18 +176,14 @@ From the above screenshots, you can see:
 * pipeline_info directory contains software version control information, nextflow workflow report, resource usage report, task report. 
 * report directory contains the summoary files of each analysis task
 
-
-<table>
+<table >
   <caption>Example pathogenseq data analysis outputs contained in a particalur sample directory </caption>
   <tr valign="top">
     <td>
-     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/dab5e966-ed04-4ded-b6ea-150c3eac2bb3">
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/ace1cbc3-ccd3-4cf3-a2ef-dc36c9651bf2" width="120%">
     </td>
     <td>
-     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/a28c416f-1805-4537-9d38-a2f774456635">
-    </td>
-     <td>
-     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/18342ca1-347b-4e1e-8c79-c4d94eef2659">
+     <img src="https://github.com/xiaoli-dong/pathogenseq/assets/52679027/2422bf48-3089-4e68-8472-5573c2329929" width="120%">
     </td>
   </tr>
 </table>
