@@ -39,7 +39,8 @@ include { ANNOTATION                    } from '../subworkflows/local/annotation
 include { ASSEMBLE_NANOPORE             } from '../subworkflows/local/assembly_nanopore'
 
 include { RUN_POLYPOLISH; RUN_POLCA;    } from '../subworkflows/local/polisher_illumina'
-
+include { DEPTH_ILLUMINA    }       from '../subworkflows/local/depth_illumina'
+include { DEPTH_NANOPORE   }       from '../subworkflows/local/depth_nanopore'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -187,6 +188,27 @@ workflow NANOPORE {
         
        CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.seqstats"], files)}, in_format, out_format ) 
         // analysis
+
+        if(! params.skip_depth_and_coverage){
+
+            illumina_reads.join(contigs).multiMap{
+                it ->
+                reads: [it[0], it[1]]
+                contigs: [it[0], it[2]]
+            }.set{
+                ch_input_depth_illumina
+            }
+            DEPTH_ILLUMINA(ch_input_depth_illumina.reads, ch_input_depth_illumina.contigs)
+
+            nanopore_reads.join(contigs).multiMap{
+                it ->
+                reads: [it[0], it[1]]
+                contigs: [it[0], it[2]]
+            }.set{
+                ch_input_depth_nanopore
+            }
+            DEPTH_NANOPORE(ch_input_depth_nanopore.reads, ch_input_depth_nanopore.contigs)
+        }
 
         if(! params.skip_checkm2){
             ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}//.view()

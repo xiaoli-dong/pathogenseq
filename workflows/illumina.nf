@@ -44,7 +44,8 @@ include {QC_ILLUMINA} from '../subworkflows/local/qc_illumina'
 include {ASSEMBLE_ILLUMINA} from '../subworkflows/local/assembly_illumina'
 include {ANNOTATION} from '../subworkflows/local/annotation'
 include { PREPARE_REFERENCES          } from '../subworkflows/local/prepare_references'
-
+include { DEPTH_ILLUMINA    }       from '../subworkflows/local/depth_illumina'
+/*
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -136,6 +137,18 @@ workflow ILLUMINA {
         stats = ASSEMBLE_ILLUMINA.out.stats
         CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
        
+        illumina_reads.join(contigs).view()
+        if(! params.skip_depth_and_coverage){
+            illumina_reads.join(contigs).multiMap{
+                it ->
+                reads: [it[0], it[1]]
+                contigs: [it[0], it[2]]
+            }.set{
+                ch_input_depth
+            }
+            DEPTH_ILLUMINA(ch_input_depth)
+        }
+
         if(! params.skip_checkm2){
             ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}.view()
             CHECKM2_PREDICT(ch_input_checkm2, contig_file_ext, PREPARE_REFERENCES.out.ch_checkm2_db) 

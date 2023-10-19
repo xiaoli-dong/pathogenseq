@@ -1,2 +1,2 @@
-sample,fastq_1,fastq_2,long_fastq,fast5,basecaller_mode,genomesize
-SAMEA6451102,/nfs/Genomics_DEV/projects/xdong/deve/testdata/pathogenseq/ERR5386391_1.fastq.gz,/nfs/Genomics_DEV/projects/xdong/deve/testdata/pathogenseq/ERR5386391_2.fastq.gz,/nfs/Genomics_DEV/projects/xdong/deve/testdata/pathogenseq/ERR8282806.fastq.gz,NA,hac,5.3m
+sample,fastq_1,fastq_2,long_fastq,basecaller_mode
+SAMEA6451102,/nfs/Genomics_DEV/projects/xdong/deve/testdata/pathogenseq/ERR5386391_1.fastq.gz,/nfs/Genomics_DEV/projects/xdong/deve/testdata/pathogenseq/ERR5386391_2.fastq.gz,/nfs/Genomics_DEV/projects/xdong/deve/testdata/pathogenseq/ERR8282806.fastq.gz,NA

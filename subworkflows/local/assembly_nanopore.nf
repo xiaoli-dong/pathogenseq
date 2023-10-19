@@ -1,6 +1,6 @@
 
 include {FLYE} from  '../../modules/nf-core/flye/main'
-include {MEDAKA} from  '../../modules/nf-core/medaka/main'
+include {MEDAKA} from  '../../modules/local/medaka/main'
 include {SEQKIT_STATS as SEQKIT_STATS_MEDAKA} from '../../modules/nf-core/seqkit/stats/main'
 include {SEQKIT_STATS as SEQKIT_STATS_FLYE} from '../../modules/nf-core/seqkit/stats/main'
 include {RESTARTGENOME } from  '../../modules/local/restartgenome'
@@ -17,10 +17,25 @@ workflow ASSEMBLE_NANOPORE {
         //Flye to be the best-performing bacterial genome assembler in many metrics
         if ( params.nanopore_reads_assembler == 'flye+medaka'){
             
+           /*  nanopore_reads.multiMap{
+                it ->
+                nanopore_reads: [it[0], it[1]]
+                modeFlag: modeFlag = (
+                    it[0].basecaller_mode == 'sup' 
+                    || it[0].basecaller_mode == 'hac' 
+                    || it[0].basecaller_mode == 'SUP' 
+                    || it[0].basecaller_mode == 'HAC'
+                ) ? "--nano-hq" : "--nano-raw" 
+            }.set{
+                input
+            } */
             nanopore_reads.multiMap{
                 it ->
                 nanopore_reads: [it[0], it[1]]
-                modeFlag: modeFlag = (it[0].basecaller_mode == 'sup' || it[0].basecaller_mode == 'hac' || it[0].basecaller_mode == 'SUP' || it[0].basecaller_mode == 'HAC') ? "--nano-hq" : "--nano-raw" 
+                modeFlag: modeFlag = (
+                    it[0].basecaller_mode =~ '_sup_' 
+                    || it[0].basecaller_mode =~ '_hac_' 
+                ) ? "--nano-hq" : "--nano-raw" 
             }.set{
                 input
             }
@@ -46,8 +61,20 @@ workflow ASSEMBLE_NANOPORE {
                 .filter { meta, fasta -> fasta.countFasta() > 0 }
                 .set { contigs }
             
-            input = nanopore_reads.join(contigs)
-            MEDAKA(input)
+            //input = nanopore_reads.join(contigs)
+            //nanopore_reads.join(contigs).view()
+            nanopore_reads.join(contigs).multiMap{
+                it ->
+                long_reads_and_assembly: [it[0], it[1], it[2]]
+                modeFlag: it[0].basecaller_mode 
+            }.set{
+                ch_input_medaka
+            }
+            ch_input_medaka.long_reads_and_assembly.view()
+            ch_input_medaka.modeFlag.view()
+
+            MEDAKA(ch_input_medaka.long_reads_and_assembly, ch_input_medaka.modeFlag)
+
             contigs = MEDAKA.out.assembly
             SEQKIT_STATS_MEDAKA(contigs)
             stats = SEQKIT_STATS_MEDAKA.out.stats

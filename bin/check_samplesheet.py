@@ -42,12 +42,56 @@ def print_error(error, context="Line", context_str=""):
 def check_samplesheet(file_in, file_out):
     """
     This function checks that the samplesheet follows the following structure:
-    sample,fastq_1,fastq_2,long_fastq,fast5,basecaller_mode,genomesize
-    SAMEA6451102,read_1.fastq.gz,read_2.fastq.gz,longread.fastq.gz,NA,fast,NA
+    sample,fastq_1,fastq_2,long_fastq,basecaller_mode
+    SAMEA6451102,read_1.fastq.gz,read_2.fastq.gz,longread.fastq.gz,r1041_e82_400bps_hac_v4.2.0
 
     For an example see:
     https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
     """
+    medaka_current_models = [
+       
+         # r1041 e82 (kit14) consensus
+        'r1041_e82_400bps_hac_v4.2.0',
+        'r1041_e82_400bps_sup_v4.2.0',
+    ]
+    medaka_archived_models = [
+        # r9 consensus
+        'r941_sup_plant_g610',
+        'r941_min_fast_g507', 'r941_prom_fast_g507',
+        'r941_min_fast_g303', 'r941_min_high_g303', 'r941_min_high_g330',
+        'r941_prom_fast_g303', 'r941_prom_high_g303', 'r941_prom_high_g330',
+        'r941_min_high_g344', 'r941_min_high_g351', 'r941_min_high_g360',
+        'r941_prom_high_g344', 'r941_prom_high_g360', 'r941_prom_high_g4011',
+        # r10 consensus
+        'r10_min_high_g303', 'r10_min_high_g340',
+        'r103_min_high_g345', 'r103_min_high_g360', 'r103_prom_high_g360',
+        'r103_fast_g507', 'r103_hac_g507', 'r103_sup_g507',
+        # r104 e81 consensus
+        'r104_e81_fast_g5015', 'r104_e81_sup_g5015', 'r104_e81_hac_g5015',
+        'r104_e81_sup_g610',
+       
+        # r1041 e82 consensus
+        'r1041_e82_400bps_hac_g615',  'r1041_e82_400bps_fast_g615',
+        'r1041_e82_400bps_fast_g632', 'r1041_e82_260bps_fast_g632',
+        'r1041_e82_400bps_hac_g632', 'r1041_e82_400bps_sup_g615',
+        'r1041_e82_260bps_hac_g632', 'r1041_e82_260bps_sup_g632',
+        'r1041_e82_400bps_hac_v4.0.0', 'r1041_e82_400bps_sup_v4.0.0',
+        'r1041_e82_260bps_hac_v4.0.0', 'r1041_e82_260bps_sup_v4.0.0',
+        'r1041_e82_260bps_hac_v4.1.0', 'r1041_e82_260bps_sup_v4.1.0',
+        'r1041_e82_400bps_hac_v4.1.0', 'r1041_e82_400bps_sup_v4.1.0',
+        
+        # rle consensus
+        'r941_min_high_g340_rle',
+        # r9 consensus
+        'r941_min_hac_g507', 'r941_min_sup_g507',
+        'r941_prom_hac_g507', 'r941_prom_sup_g507',
+        
+        # r941 e81 consensus
+        'r941_e81_fast_g514', 'r941_e81_hac_g514', 'r941_e81_sup_g514'
+       
+    ]
+    
+    medaka_allowed_models = sorted(medaka_current_models + medaka_archived_models)
 
     sample_mapping_dict = {}
     with open(file_in, "r") as fin:
@@ -58,7 +102,7 @@ def check_samplesheet(file_in, file_out):
         ## Check header
         MIN_COLS = 2
         # TODO nf-core: Update the column names for the input samplesheet
-        HEADER = ["sample", "fastq_1", "fastq_2", "long_fastq", "fast5", "basecaller_mode", "genomesize"]
+        HEADER = ["sample", "fastq_1", "fastq_2", "long_fastq", "basecaller_mode"]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
         if header[: len(HEADER)] != HEADER:
             print("ERROR: Please check samplesheet header -> {} != {}".format(",".join(header), ",".join(HEADER)))
@@ -84,9 +128,9 @@ def check_samplesheet(file_in, file_out):
                     "Line",
                     line,
                 )
-            print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            
             ## Check sample name entries
-            sample, fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize = lspl[: len(HEADER)]
+            sample, fastq_1, fastq_2, long_fastq, basecaller_mode = lspl[: len(HEADER)]
             sample = sample.replace(" ", "_")
             if not sample:
                 print_error("Sample entry has not been specified!", "Line", line)
@@ -105,48 +149,26 @@ def check_samplesheet(file_in, file_out):
                             "Line",
                             line,
                         )
-            ## Check Fast5 file extension
-            if fast5:
-                if fast5.find(" ") != -1:
-                    print_error("Fast5 file contains spaces!", "Line", line)
-                elif not fast5.upper() == 'NA' and not fast5.endswith(".fast5"):
-                    print_error(
-                        "Fast5 file does not have extension '.fast5'!",
-                        "Line",
-                        line,
-                    )
-             ## Check basecalling mode
+
+            ## Check basecalling mode
             if basecaller_mode:
-                if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in ["fast", "hac", "sup"]:
+                #if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in ["fast", "hac", "sup"]:
+                if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in medaka_allowed_models:
+                    modelStr = ' '.join(medaka_allowed_models)
                     print_error(
-                        "Long read bascaling mode can only be NA, fast, sup, or hac !",
+                        f"Long read bascaling mode is not valid, it can only be one of: {modelStr}",
                         "Line",
                         line,
                     )
-            ## Check Fast5 file extension
-            if genomesize:
-                import re
-                pattern = re.compile("^\d+(\.\d+)?[gmGM]?$")
-                if genomesize.upper() != 'NA' and not pattern.match(genomesize):
-                    print_error(
-                        "Genome size are not in expected format for example, 5m, 2.6g or  4900968 !",
-                        "Line",
-                        line,
-                    )
-
-
+            
             ## Auto-detect paired-end/single-end
             sample_info = []  ## [single_end, fastq_1, fastq_2]
             if sample and fastq_1 and fastq_2:  ## Paired-end short reads
-                #sample_info = ["0", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
-                sample_info = ["False", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
+                sample_info = ["False", fastq_1, fastq_2, long_fastq, basecaller_mode]
             elif sample and fastq_1 and not fastq_2:  ## Single-end short reads
-                #sample_info = ["1", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
-                sample_info = ["True", fastq_1, fastq_2, long_fastq, fast5, basecaller_mode, genomesize]
+                sample_info = ["True", fastq_1, fastq_2, long_fastq, basecaller_mode]
             else:
                 print_error("Invalid combination of columns provided!", "Line", line)
-
-            
 
             ## Create sample mapping dictionary = { sample: [ single_end, fastq_1, fastq_2 ] }
             if sample not in sample_mapping_dict:
@@ -162,7 +184,7 @@ def check_samplesheet(file_in, file_out):
         out_dir = os.path.dirname(file_out)
         make_dir(out_dir)
         with open(file_out, "w") as fout:
-            fout.write(",".join(["sample", "single_end", "fastq_1", "fastq_2", "long_fastq", "fast5", "basecaller_mode", "genomesize"]) + "\n")
+            fout.write(",".join(["sample", "single_end", "fastq_1", "fastq_2", "long_fastq", "basecaller_mode"]) + "\n")
             for sample in sorted(sample_mapping_dict.keys()):
 
                 ## Check that multiple runs of the same sample are of the same datatype
