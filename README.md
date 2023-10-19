@@ -101,19 +101,19 @@ The pathogenseq pipeline requires user to provide a csv format samplesheet, whic
 ```samplesheet.csv```
 
 ```
-sample,fastq_1,fastq_2,long_fastq,fast5,basecaller_mode,genomesize
-sample1,shortreads_1.fastq.gz,shortreads_2.fastq.gz,longreads.fastq.gz,longreads.fast5,hac,5.3m
-sample2,shortreads.fastq,NA,longreads.fastq.gz,longreads.fast5,fast,5.3m
-sample3,NA,NA,longreads.fastq.gz,longreads.fast5,sup,5.3m
-sample4,shortreads_1.fastq.gz,shortreads_2.fastq.gz,NA,NA,NA,NA
+sample,fastq_1,fastq_2,long_fastq,basecaller_mode
+sample1,shortreads_1.fastq.gz,shortreads_2.fastq.gz,longreads.fastq.gz,r1041_e82_400bps_hac_v4.2.0
+sample2,shortreads.fastq,NA,longreads.fastq.gz,r1041_e82_400bps_sup_v4.2.0
+sample3,NA,NA,longreads.fastq.gz,NA
+sample4,shortreads_1.fastq.gz,shortreads_2.fastq.gz,NA
 ```
-The csv format samplesheet has seven required columns:
+The csv format samplesheet has five required columns:
 * The first row of the csv file is the header describing the columns
 * Each row represents a unique sample to be processed, the first colum is the unique sample id
 * When the information for a particular column is missing, please fill the column with "NA"
 * The "fastq_1" and "fastq_2" columns are reserved for supplying the short sequence files
-* "basecaller_mode" is for user to provide the Nanopore basecalling model (fast|hac|sup)
-* The "genomesize" can take interger numbers or take notatons of "mM" or "gG" such as "5.3m", "1.2g"
+* "basecaller_mode" is for user to provide the Nanopore basecalling model, for example: r1041_e82_400bps_hac_v4.2.0
+
 
 ### Run the pipeline:
 > * If you are using `singularity` then the pipeline will auto-detect this and attempt to download the Singularity images directly as opposed to performing a conversion from Docker images. If you are persistently observing issues downloading Singularity images directly due to timeout or network issues then please use the `--singularity_pull_docker_container` parameter to pull and convert the Docker image instead. Alternatively, it is highly recommended to use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to pre-download all of the required containers before running the pipeline and to set the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options to be able to store and re-use the images from a central location for future pipeline runs.
