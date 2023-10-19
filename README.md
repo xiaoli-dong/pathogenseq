@@ -112,7 +112,7 @@ The csv format samplesheet has five required columns:
 * Each row represents a unique sample to be processed, the first colum is the unique sample id
 * When the information for a particular column is missing, please fill the column with "NA"
 * The "fastq_1" and "fastq_2" columns are reserved for supplying the short sequence files
-* "basecaller_mode" is for user to provide the Nanopore basecalling model, for example: r1041_e82_400bps_hac_v4.2.0
+* "basecaller_mode" is for user to provide the Nanopore basecalling model, for example: r1041_e82_400bps_hac_v4.2.0. The availble models can be accessed from [medaka github](https://github.com/nanoporetech/medaka/blob/master/medaka/options.py)
 
 
 ### Run the pipeline:
