@@ -21,12 +21,12 @@ process MEDAKA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    
+    def m_option = mode != "NA" ? "-m ${mode}" : ''
     """
     medaka_consensus \\
         -t $task.cpus \\
         $args \\
-        -m ${mode} \\
+        ${m_option} \\
         -i $reads \\
         -d $assembly \\
         -o ./

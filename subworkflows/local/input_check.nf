@@ -96,7 +96,7 @@ def create_read_channels(LinkedHashMap row) {
         long_fastq = file(row.long_fastq)
     } else { long_fastq = 'NA' }
 
-    // check basecaller_mode
+   /*  // check basecaller_mode
     //def basecaller_modes = ["fast", "hac", "sup"]
     def medaka_current_models = [
        
@@ -145,7 +145,7 @@ def create_read_channels(LinkedHashMap row) {
     if(! meta.basecaller_mode.toLowerCase() in medaka_allowed_models){
         meta.basecaller_mode = 'r1041_e82_400bps_sup_v4.2.0'
     }
-    
+     */
     // prepare output // currently does not allow single end data!
     if ( meta.single_end ) {
         array = [ meta, fastq_1 , long_fastq]

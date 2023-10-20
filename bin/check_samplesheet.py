@@ -100,7 +100,7 @@ def check_samplesheet(file_in, file_out):
         
 
         ## Check header
-        MIN_COLS = 2
+        MIN_COLS = 5
         # TODO nf-core: Update the column names for the input samplesheet
         HEADER = ["sample", "fastq_1", "fastq_2", "long_fastq", "basecaller_mode"]
         header = [x.strip('"') for x in fin.readline().strip().split(",")]
