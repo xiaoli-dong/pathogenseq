@@ -59,7 +59,10 @@ include { DEPTH_ILLUMINA    }       from '../subworkflows/local/depth_illumina'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 include {KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA} from '../modules/nf-core/kraken2/kraken2/main' 
 include { KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA} from '../modules/nf-core/krakentools/combinekreports/main'
-include { CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; } from '../modules/nf-core/csvtk/concat/main'
+include {
+    CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; 
+    CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;    
+} from '../modules/nf-core/csvtk/concat/main'
 
 //
 // MODULE: local modules
@@ -147,6 +150,8 @@ workflow ILLUMINA {
                 ch_input_depth
             }
             DEPTH_ILLUMINA(ch_input_depth)
+            CSVTK_CONCAT_DEPTH_ILLUMINA(DEPTH_ILLUMINA.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_illumina"], files)}, in_format, out_format ) 
+
         }
 
         if(! params.skip_checkm2){

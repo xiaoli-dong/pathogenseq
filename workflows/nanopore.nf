@@ -51,7 +51,12 @@ include { DEPTH_NANOPORE   }       from '../subworkflows/local/depth_nanopore'
 // MODULE: Installed directly from nf-core/modules
 //
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
-include { CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; } from '../modules/nf-core/csvtk/concat/main'
+include { 
+    CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; 
+    CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_NANOPORE;
+    CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;    
+} from '../modules/nf-core/csvtk/concat/main'
+
 include { KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA } from '../modules/nf-core/kraken2/kraken2/main' 
 include { KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA } from '../modules/nf-core/krakentools/combinekreports/main.nf'
 
@@ -199,6 +204,7 @@ workflow NANOPORE {
                 ch_input_depth_illumina
             }
             DEPTH_ILLUMINA(ch_input_depth_illumina.reads, ch_input_depth_illumina.contigs)
+            CSVTK_CONCAT_DEPTH_ILLUMINA(DEPTH_ILLUMINA.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_illumina"], files)}, in_format, out_format ) 
 
             nanopore_reads.join(contigs).multiMap{
                 it ->
@@ -208,6 +214,9 @@ workflow NANOPORE {
                 ch_input_depth_nanopore
             }
             DEPTH_NANOPORE(ch_input_depth_nanopore.reads, ch_input_depth_nanopore.contigs)
+            CSVTK_CONCAT_DEPTH_NANOPORE(DEPTH_NANOPORE.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_nanopore"], files)}, in_format, out_format ) 
+
+
         }
 
         if(! params.skip_checkm2){

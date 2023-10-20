@@ -2,7 +2,7 @@ include { MINIMAP2_ALIGN as MINIMAP2_ALIGN_DEPTH_NANOPORE } from '../../modules/
 include { SAMTOOLS_SORT as SAMTOOLS_SORT_DEPTH_NANOPORE } from '../../modules/nf-core/samtools/sort/main'
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_DEPTH_NANOPORE } from '../../modules/nf-core/samtools/index/main'
 include { SAMTOOLS_COVERAGE as SAMTOOLS_COVERAGE_DEPTH_NANOPORE } from '../../modules/nf-core/samtools/coverage/main'
-
+include { MAPPINGREPORT as MAPPINGREPORT_NANOPORE } from '../../modules/local/mappingreport'
 workflow DEPTH_NANOPORE {   
 
     take:
@@ -26,10 +26,12 @@ workflow DEPTH_NANOPORE {
         SAMTOOLS_INDEX_DEPTH_NANOPORE(SAMTOOLS_SORT_DEPTH_NANOPORE.out.bam)
         SAMTOOLS_COVERAGE_DEPTH_NANOPORE(SAMTOOLS_SORT_DEPTH_NANOPORE.out.bam.join(SAMTOOLS_INDEX_DEPTH_NANOPORE.out.bai))
         ch_versions = ch_versions.mix(SAMTOOLS_COVERAGE_DEPTH_NANOPORE.out.versions.first())
-        
+        MAPPINGREPORT_NANOPORE(SAMTOOLS_COVERAGE_DEPTH_NANOPORE.out.coverage)
 
     emit:
-        coverage = SAMTOOLS_COVERAGE_DEPTH_NANOPORE.out.coverage
+
+        contig_coverage = SAMTOOLS_COVERAGE_DEPTH_NANOPORE.out.coverage
+        sample_coverage = MAPPINGREPORT_NANOPORE.out.tsv
         versions = ch_versions
        
 
