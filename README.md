@@ -86,7 +86,7 @@ It is not required to clone or download the git repository in order to run the w
 ### Check workflow options
 You can clone or download the pathogenseq from github to local computer or you can directly run the pipeline from github. To check the pipeline command line options:
 
-```
+```{r df-drop-ok, class.source="bg-success"}
 # running directly from github without downloading or cloning
 nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 
