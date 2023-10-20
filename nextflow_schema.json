@@ -456,9 +456,6 @@
             "$ref": "#/definitions/nanopore_options"
         },
         {
-            "$ref": "#/definitions/annotation_options"
-        },
-        {
             "$ref": "#/definitions/taxonomy_options"
         },
         {
