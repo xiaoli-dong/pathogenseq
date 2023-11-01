@@ -11,11 +11,11 @@ process SHOVILL {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("contigs.fa")                         , emit: contigs
+    tuple val(meta), path("*contigs.fa.gz")                         , emit: contigs
     tuple val(meta), path("shovill.corrections")                , emit: corrections
     tuple val(meta), path("shovill.log")                        , emit: log
     tuple val(meta), path("{skesa,spades,megahit,velvet}.fasta"), emit: raw_contigs
-    tuple val(meta), path("contigs.{fastg,gfa,LastGraph}")      , optional:true, emit: gfa
+    tuple val(meta), path("*contigs.{fastg,gfa,LastGraph}.gz")      , optional:true, emit: gfa
     path "versions.yml"                                         , emit: versions
 
     when:
@@ -23,6 +23,8 @@ process SHOVILL {
 
     script:
     def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
+
     def memory = task.memory.toGiga()
     """
     shovill \\
@@ -33,6 +35,11 @@ process SHOVILL {
         --ram $memory \\
         --outdir ./ \\
         --force
+
+    mv contigs.fa ${prefix}.contigs.fa
+    gzip -n ${prefix}.contigs.fa
+    mv contigs.gfa ${prefix}.contigs.gfa
+    gzip -n ${prefix}.contigs.gfa
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

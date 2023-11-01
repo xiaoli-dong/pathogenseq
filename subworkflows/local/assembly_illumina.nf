@@ -5,7 +5,7 @@ include { SPADES } from '../../modules/nf-core/spades/main'
 include { UNICYCLER } from '../../modules/nf-core/unicycler/main'
 include { MEGAHIT } from '../../modules/nf-core/megahit/main'
 include { SKESA } from '../../modules/local/skesa'
-include { SHOVILL } from '../../modules/nf-core/shovill/main'
+include { SHOVILL } from '../../modules/local/shovill/main'
 include { 
     SEQKIT_STATS as STATS_UNICYCLER;
     SEQKIT_STATS as STATS_SKESA;
