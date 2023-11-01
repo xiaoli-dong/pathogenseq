@@ -1,6 +1,6 @@
 process CHECKM2_PREDICT {
     tag "$meta.id"
-    label 'process_single'
+    label 'process_high'
 
     
     conda "bioconda::checkm2=1.0.1"

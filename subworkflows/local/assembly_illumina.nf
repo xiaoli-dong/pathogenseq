@@ -5,11 +5,14 @@ include { SPADES } from '../../modules/nf-core/spades/main'
 include { UNICYCLER } from '../../modules/nf-core/unicycler/main'
 include { MEGAHIT } from '../../modules/nf-core/megahit/main'
 include { SKESA } from '../../modules/local/skesa'
-
-include {SEQKIT_STATS as STATS_UNICYCLER} from '../../modules/nf-core/seqkit/stats/main'
-include {SEQKIT_STATS as STATS_SKESA} from '../../modules/nf-core/seqkit/stats/main'
-include {SEQKIT_STATS as STATS_MEGAHIT} from '../../modules/nf-core/seqkit/stats/main'
-include {SEQKIT_STATS as STATS_SPADES} from '../../modules/nf-core/seqkit/stats/main'
+include { SHOVILL } from '../../modules/nf-core/shovill/main'
+include { 
+    SEQKIT_STATS as STATS_UNICYCLER;
+    SEQKIT_STATS as STATS_SKESA;
+    SEQKIT_STATS as STATS_MEGAHIT;
+    SEQKIT_STATS as STATS_SPADES;
+    SEQKIT_STATS as STATS_SHOVILL;
+} from '../../modules/nf-core/seqkit/stats/main'
 
 workflow ASSEMBLE_ILLUMINA {   
 
@@ -80,6 +83,18 @@ workflow ASSEMBLE_ILLUMINA {
             STATS_MEGAHIT(contigs)
             stats = STATS_MEGAHIT.out.stats
             ch_versions = ch_versions.mix(STATS_MEGAHIT.out.versions.first())
+        }
+        else if (params.illumina_reads_assembler == 'shovill' ) {
+            SHOVILL ( reads )
+            SHOVILL.out.contigs
+                .filter { meta, contigs -> contigs.countFasta() > 0 }
+                .set { contigs }
+            contig_file_ext = ".fa.gz"
+            //contigs = MEGAHIT.out.contigs
+            ch_versions = ch_versions.mix(SHOVILL.out.versions.first())
+            STATS_SHOVILL(contigs)
+            stats = STATS_SHOVILL.out.stats
+            ch_versions = ch_versions.mix(STATS_SHOVILL.out.versions.first())
         }
         
         

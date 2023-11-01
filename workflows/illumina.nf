@@ -4,7 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 def valid_params = [
-    illumina_reads_assembler : ['unicycler', 'spades', 'skesa','megahit']
+    illumina_reads_assembler : ['unicycler', 'spades', 'skesa','megahit', 'shovill']
 ]
 
 

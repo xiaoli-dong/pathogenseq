@@ -174,10 +174,16 @@ def check_samplesheet(file_in, file_out):
             if sample not in sample_mapping_dict:
                 sample_mapping_dict[sample] = [sample_info]
             else:
-                if sample_info in sample_mapping_dict[sample]:
-                    print_error("Samplesheet contains duplicate rows!", "Line", line)
-                else:
-                    sample_mapping_dict[sample].append(sample_info)
+                 print_error(
+                    "Samplesheet contains duplicate entries in the 'sample' column!",
+                    "Line",
+                    line
+                )
+
+            """ if sample_info in sample_mapping_dict[sample]:
+                print_error("Samplesheet contains duplicate rows!", "Line", line)
+            else:
+                sample_mapping_dict[sample].append(sample_info) """
 
     ## Write validated samplesheet with appropriate columns
     if len(sample_mapping_dict) > 0:
@@ -192,7 +198,8 @@ def check_samplesheet(file_in, file_out):
                     print_error("Multiple runs of a sample must be of the same datatype!", "Sample: {}".format(sample))
 
                 for idx, val in enumerate(sample_mapping_dict[sample]):
-                    fout.write(",".join(["{}_T{}".format(sample, idx + 1)] + val) + "\n")
+                    #fout.write(",".join(["{}_T{}".format(sample, idx + 1)] + val) + "\n"),
+                    fout.write(",".join(["{}".format(sample)] + val) + "\n")
     else:
         print_error("No entries to process!", "Samplesheet: {}".format(file_in))
 

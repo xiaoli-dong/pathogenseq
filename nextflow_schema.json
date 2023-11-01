@@ -83,13 +83,14 @@
                 "illumina_reads_assembler": {
                     "type": "string",
                     "default": "unicycler",
-                    "description": "Specifies the illumina reads assembly tool to use - available options are 'megahit|spades|skesa|unicycler'.",
+                    "description": "Specifies the illumina reads assembly tool to use - available options are 'megahit|spades|skesa|unicycler|shovill'.",
                     "fa_icon": "fas fa-cut",
                     "enum": [
                         "megahit",
                         "spades",
                         "skesa",
-                        "unicycler"
+                        "unicycler",
+                        "shovill"
                     ]
                 },
                 "skip_illumina_reads_qc": {
@@ -454,9 +455,6 @@
         },
         {
             "$ref": "#/definitions/nanopore_options"
-        },
-        {
-            "$ref": "#/definitions/taxonomy_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"
