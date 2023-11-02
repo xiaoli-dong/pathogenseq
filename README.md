@@ -2,16 +2,7 @@
   <foreignObject width="100%" height="100%">
     <div xmlns="http://www.w3.org/1999/xhtml">
       <style>
-        @keyframes hi  {
-            0% { transform: rotate( 0.0deg) }
-           10% { transform: rotate(14.0deg) }
-           20% { transform: rotate(-8.0deg) }
-           30% { transform: rotate(14.0deg) }
-           40% { transform: rotate(-4.0deg) }
-           50% { transform: rotate(10.0deg) }
-           60% { transform: rotate( 0.0deg) }
-          100% { transform: rotate( 0.0deg) }
-        }
+       
         .container {
           background-color: black;
 
