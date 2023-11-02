@@ -1,16 +1,3 @@
-<svg fill="none" viewBox="0 0 600 300" width="600" height="300" xmlns="http://www.w3.org/2000/svg">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <style>
-        .container {
-          display: flex;
-          width: 100%;
-          height: 300px;
-          background-color: black;
-          color: white;
-        }
-      </style>
- <div class="container">     
 <!-- # ![nf-core/pathogen](docs/images/nf-core-pathogen_logo.png) -->
 
 <!-- [![GitHub Actions CI Status](https://github.com/nf-core/pathogen/workflows/nf-core%20CI/badge.svg)](https://github.com/nf-core/pathogen/actions?query=workflow%3A%22nf-core+CI%22)
@@ -306,7 +293,3 @@ with conda, fastqc 0.11.9--0 is not working. I need to change the version to 0.1
 mobsuite is not working with 3.0.3 in conda, I need to change the mobsuite version to  3.1.4
 ## Reference
 <!-- >>https://github.com/ablab/graphamr -->
-
-</div>
-</foreignObject>
-</svg>
