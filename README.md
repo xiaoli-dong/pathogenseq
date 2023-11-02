@@ -92,10 +92,9 @@ You can clone or download the pathogenseq from github to local computer or you c
 nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 
 # download the pipeine and run the program from the local computer
-nextflow run your_path_to/pathogenseq/main.nf --help
+$nextflow run main.nf --help
 N E X T F L O W  ~  version 23.04.1
-Launching `main.nf` [happy_linnaeus] DSL2 - revision: 4ef093f544
-WARN: Access to undefined parameter `show_hidden_params` -- Initialise it to a default value eg. `params.show_hidden_params = some_value`
+Launching `main.nf` [loving_nightingale] DSL2 - revision: 4ef093f544
 
 
 ------------------------------------------------------
@@ -104,11 +103,11 @@ WARN: Access to undefined parameter `show_hidden_params` -- Initialise it to a d
   |\ | |__  __ /  ` /  \ |__) |__         }  {
   | \| |       \__, \__/ |  \ |___     \`-._,-`-,
                                         `._,._,'
-  nf-core/pathogenseq v1.0.1
+  xiaoli-dong/pathogenseq v1.0.2
 ------------------------------------------------------
 Typical pipeline command:
 
-  nextflow run nf-core/pathogenseq --input samplesheet.csv --outdir results --platform illumina -profile singularity
+  nextflow run xiaoli-dong/pathogenseq --input samplesheet.csv --outdir results --platform illumina -profile singularity
 
 Input/output options
   --input                        [string]  Path to comma-separated samplesheet file containing information about the samples in the experiment.
@@ -122,8 +121,8 @@ Input/output options
 
 illumina_options
   --illumina_reads_qc_tool       [string]  Specifies the reads triming and qc tool to use - available options are 'fastp|bbduk'. [default: fastp]
-  --illumina_reads_assembler     [string]  Specifies the illumina reads assembly tool to use - available options are 'megahit|spades|skesa|unicycler'. 
-                                           [default: unicycler] 
+  --illumina_reads_assembler     [string]  Specifies the illumina reads assembly tool to use - available options are 
+                                           'megahit|spades|skesa|unicycler|shovill'. [default: unicycler] 
   --skip_illumina_reads_qc       [boolean] Skip illumina read quality control step. [default: false]
   --skip_illumina_reads_assembly [boolean] Skip illumina read assembly step. [default: false]
   --skip_illumina_kraken2        [boolean] Skip kraken2 with illumina reads step. [default: false]
@@ -156,13 +155,84 @@ annotation_options
 
 !! Hiding 22 params, use --show_hidden_params to show them !!
 ------------------------------------------------------
-If you use nf-core/pathogenseq for your analysis please cite:
+If you use xiaoli-dong/pathogenseq for your analysis please cite:
 
 * The nf-core framework
   https://doi.org/10.1038/s41587-020-0439-x
 
 * Software dependencies
-  https://github.com/nf-core/pathogenseq/blob/master/CITATIONS.md
+  https://github.com/xiaoli-dong/pathogenseq/blob/master/CITATIONS.md
+------------------------------------------------------
+(nf-core) [xiaolidong@uxaplgnmxapp02 pathogenseq]$ nextflow run main.nf --help
+N E X T F L O W  ~  version 23.04.1
+Launching `main.nf` [nostalgic_banach] DSL2 - revision: 4ef093f544
+
+
+------------------------------------------------------
+                                        ,--./,-.
+        ___     __   __   __   ___     /,-._.--~'
+  |\ | |__  __ /  ` /  \ |__) |__         }  {
+  | \| |       \__, \__/ |  \ |___     \`-._,-`-,
+                                        `._,._,'
+  xiaoli-dong/pathogenseq v1.0.2
+------------------------------------------------------
+Typical pipeline command:
+
+  nextflow run xiaoli-dong/pathogenseq --input samplesheet.csv --outdir results --platform illumina -profile singularity
+
+Input/output options
+  --input                        [string]  Path to comma-separated samplesheet file containing information about the samples in the experiment.
+  --outdir                       [string]  The output directory where the results will be saved. You have to use absolute paths to storage on Cloud 
+                                           infrastructure. 
+  --platform                     [string]  Specifies the platform used to generate the sequences - available options are 'illumina|nanopore'. [default: 
+                                           illumina] 
+  --igenomes_ignore              [boolean] Whether ignore igenome configuration loading.
+  --email                        [string]  Email address for completion summary.
+  --multiqc_title                [string]  MultiQC report title. Printed as page header, used for filename if not otherwise specified.
+
+illumina_options
+  --illumina_reads_qc_tool       [string]  Specifies the reads triming and qc tool to use - available options are 'fastp|bbduk'. [default: fastp]
+  --illumina_reads_assembler     [string]  Specifies the illumina reads assembly tool to use - available options are 
+                                           'megahit|spades|skesa|unicycler|shovill'. [default: unicycler] 
+  --skip_illumina_reads_qc       [boolean] Skip illumina read quality control step. [default: false]
+  --skip_illumina_reads_assembly [boolean] Skip illumina read assembly step. [default: false]
+  --skip_illumina_kraken2        [boolean] Skip kraken2 with illumina reads step. [default: false]
+
+nanopore_options
+  --skip_nanopore_kraken2        [boolean] Skip kraken2 with nanopore reads step. [default: true]
+  --nanopore_reads_assembler     [string]  Specifies the nanopore reads assembly tool to use - available options are 'flye+medaka'. [default: 
+                                           flye+medaka] 
+  --skip_polypolish              [boolean] Skip contig polish steps with illumina reads using polypolish tool. [default: false]
+  --skip_polca                   [boolean] Skip contig polish steps with illumina reads using polca tool. [default: false]
+  --skip_nanopore_reads_qc       [boolean] Skip nanopore read quality control step. [default: false]
+  --skip_nanopore_reads_assembly [boolean] Skip nanopore read assembly step. [default: false]
+  --skip_illumina_reads_polish   [boolean] Skip contig polishing steps with illumina reads. [default: false]
+
+annotation_options
+  --bakta_db                     [string]  Path to bakta database. [default: /nfs/APL_Genomics/db/prod/bakta/db]
+  --checkm2_db                   [string]  Path to checkm2 database. [default: /nfs/APL_Genomics/db/prod/CheckM2_database/uniref100.KO.1.dmnd]
+  --amrfinderplus_db             [string]  null
+  --kraken2_db                   [string]  Specify path to kraken2 database [default: /nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926]
+  --gambit_db                    [string]  Path to gambit database. [default: /nfs/APL_Genomics/db/prod/gambit]
+  --skip_checkm2                 [boolean] Skip checkm2 step. [default: false]
+  --skip_gambit                  [boolean] Skip gambit step. [default: false]
+  --skip_bakta                   [boolean] Skip bakta step. [default: false]
+  --skip_mlst                    [boolean] Skip mlst step. [default: false]
+  --skip_mobsuite                [boolean] Skip skip_mobsuite step. [default: false]
+  --skip_virulome                [boolean] Skip virulome step. [default: false]
+  --skip_multiqc                 [boolean] null [default: false]
+  --skip_amr                     [boolean] Skip amr step. [default: false]
+  --skip_depth_and_coverage      [boolean] Skip assembly depth calculation step. [default: false]
+
+!! Hiding 22 params, use --show_hidden_params to show them !!
+------------------------------------------------------
+If you use xiaoli-dong/pathogenseq for your analysis please cite:
+
+* The nf-core framework
+  https://doi.org/10.1038/s41587-020-0439-x
+
+* Software dependencies
+  https://github.com/xiaoli-dong/pathogenseq/blob/master/CITATIONS.md
 ------------------------------------------------------
 ```
 
