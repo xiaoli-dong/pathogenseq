@@ -225,6 +225,29 @@ nextflow run your_path_to/pathogenseq/main.nf \
 ```
 >* Notes: Please provide pipeline parameters via the CLI or Nextflow -params-file option. Custom config files including those provided by the -c Nextflow option can be used to provide any configuration except for parameters; see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
 
+```
+# an example command to launch the pipeline from local computer and run it with ```singularity``` and a local configraton profile.
+nextflow run your_path_to/pathogenseq/main.nf \
+  -profile singularity \
+  -c my.config \
+  --outdir results_singularity \
+  --platform <illumina|nanopore> \
+  --illumina_reads_assembler shovill
+
+## content of the my.config file
+params {
+    config_profile_name        = 'myconfig'
+    config_profile_description = 'this is a demo'
+
+    // resource configuration
+    max_cpus   = 8
+    max_memory = '36.GB'
+    max_time   = '12.h'
+    // Input data
+    input = './samplesheet.csv'
+}
+
+```
 
 ## Pipeline output
 <table>
