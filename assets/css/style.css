@@ -7,7 +7,9 @@
     <title>Site not found &middot; GitHub Pages</title>
     <style type="text/css" media="screen">
       body {
-        background-color: #f1f1f1;
+        #background-color: #f1f1f1;
+        background-color: #000000;
+        
         margin: 0;
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
          color: #FF0000; 
