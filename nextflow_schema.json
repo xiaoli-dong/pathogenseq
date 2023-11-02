@@ -134,13 +134,13 @@
                 "skip_polypolish": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Skip assembly polish step with illumina reads with polypolish tool.",
+                    "description": "Skip contig polish steps with illumina reads using polypolish tool.",
                     "fa_icon": "fas fa-cut"
                 },
                 "skip_polca": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Skip assembly polish step with illumina reads with polca tool.",
+                    "description": "Skip contig polish steps with illumina reads using polca tool.",
                     "fa_icon": "fas fa-cut"
                 },
                 "skip_nanopore_reads_qc": {
@@ -158,7 +158,7 @@
                 "skip_illumina_reads_polish": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Skip assembly polish step with illumina reads steps.",
+                    "description": "Skip contig polishing steps with illumina reads.",
                     "fa_icon": "fas fa-cut"
                 }
             }
