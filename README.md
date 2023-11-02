@@ -2,21 +2,14 @@
   <foreignObject width="100%" height="100%">
     <div xmlns="http://www.w3.org/1999/xhtml">
       <style>
-       
         .container {
-          background-color: black;
-
+          display: flex;
           width: 100%;
           height: 300px;
-
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          background-color: black;
           color: white;
-
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
         }
- </style>
+      </style>
  <div class="container">     
 <!-- # ![nf-core/pathogen](docs/images/nf-core-pathogen_logo.png) -->
 
