@@ -7,12 +7,22 @@ include { MEGAHIT } from '../../modules/nf-core/megahit/main'
 include { SKESA } from '../../modules/local/skesa'
 include { SHOVILL } from '../../modules/local/shovill/main'
 include { 
-    SEQKIT_STATS as STATS_UNICYCLER;
-    SEQKIT_STATS as STATS_SKESA;
-    SEQKIT_STATS as STATS_MEGAHIT;
-    SEQKIT_STATS as STATS_SPADES;
-    SEQKIT_STATS as STATS_SHOVILL;
-} from '../../modules/nf-core/seqkit/stats/main'
+    ASSEMBYSTATS as STATS_UNICYCLER;
+    ASSEMBYSTATS as STATS_SKESA;
+    ASSEMBYSTATS as STATS_MEGAHIT;
+    ASSEMBYSTATS as STATS_SPADES;
+    ASSEMBYSTATS as STATS_SHOVILL;
+} from '../../modules/local/assemblystats'
+
+include {
+
+    FORMATCSV as STATS_UNICYCLER_REFORMAT;
+    FORMATCSV as STATS_SKESA_REFORMAT;
+    FORMATCSV as STATS_MEGAHIT_REFORMAT;
+    FORMATCSV as STATS_SPADES_REFORMAT;
+    FORMATCSV as STATS_SHOVILL_REFORMAT;
+
+} from '../../modules/local/formatcsv'
 
 workflow ASSEMBLE_ILLUMINA {   
 
@@ -41,6 +51,10 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_SPADES.out.stats
             ch_versions = ch_versions.mix(STATS_SPADES.out.versions.first())
 
+            STATS_SPADES_REFORMAT(stats)
+            stats = STATS_SPADES_REFORMAT.out.tsv
+            ch_versions = ch_versions.mix(STATS_SPADES_REFORMAT.out.versions.first())
+
         } 
         //default
         else if (params.illumina_reads_assembler == 'skesa' ) {
@@ -54,6 +68,11 @@ workflow ASSEMBLE_ILLUMINA {
             STATS_SKESA(contigs)
             stats = STATS_SKESA.out.stats
             ch_versions = ch_versions.mix(STATS_SKESA.out.versions.first())
+            
+            STATS_SKESA_REFORMAT(stats)
+            stats = STATS_SKESA_REFORMAT.out.tsv
+            ch_versions = ch_versions.mix(STATS_SKESA_REFORMAT.out.versions.first())
+
         }
         else if (params.illumina_reads_assembler == 'unicycler' ) {
             reads
@@ -71,6 +90,10 @@ workflow ASSEMBLE_ILLUMINA {
             STATS_UNICYCLER(contigs)
             stats = STATS_UNICYCLER.out.stats
             ch_versions = ch_versions.mix(STATS_UNICYCLER.out.versions.first())
+
+            STATS_UNICYCLER_REFORMAT(stats)
+            stats = STATS_UNICYCLER_REFORMAT.out.tsv
+            ch_versions = ch_versions.mix(STATS_UNICYCLER_REFORMAT.out.versions.first())
         }
         else if (params.illumina_reads_assembler == 'megahit' ) {
             MEGAHIT ( reads )
@@ -83,6 +106,11 @@ workflow ASSEMBLE_ILLUMINA {
             STATS_MEGAHIT(contigs)
             stats = STATS_MEGAHIT.out.stats
             ch_versions = ch_versions.mix(STATS_MEGAHIT.out.versions.first())
+
+            STATS_MEGAHIT_REFORMAT(stats)
+            stats = STATS_MEGAHIT_REFORMAT.out.tsv
+            ch_versions = ch_versions.mix(STATS_MEGAHIT_REFORMAT.out.versions.first())
+
         }
         else if (params.illumina_reads_assembler == 'shovill' ) {
             SHOVILL ( reads )
@@ -95,6 +123,10 @@ workflow ASSEMBLE_ILLUMINA {
             STATS_SHOVILL(contigs)
             stats = STATS_SHOVILL.out.stats
             ch_versions = ch_versions.mix(STATS_SHOVILL.out.versions.first())
+
+            STATS_SHOVILL_REFORMAT(stats)
+            stats = STATS_SHOVILL_REFORMAT.out.tsv
+            ch_versions = ch_versions.mix(STATS_SHOVILL_REFORMAT.out.versions.first())
         }
         
         

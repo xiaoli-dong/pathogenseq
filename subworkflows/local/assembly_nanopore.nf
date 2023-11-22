@@ -1,10 +1,22 @@
 
 include {FLYE} from  '../../modules/nf-core/flye/main'
 include {MEDAKA} from  '../../modules/local/medaka/main'
-include {SEQKIT_STATS as SEQKIT_STATS_MEDAKA} from '../../modules/nf-core/seqkit/stats/main'
-include {SEQKIT_STATS as SEQKIT_STATS_FLYE} from '../../modules/nf-core/seqkit/stats/main'
+
+include {
+    ASSEMBYSTATS as STATS_MEDAKA;
+    ASSEMBYSTATS as STATS_FLYE;
+
+} from '../../modules/local/assemblystats'
+
+include {
+
+    FORMATCSV as STATS_MEDAKA_REFORMAT;
+    FORMATCSV as STATS_FLYE_REFORMAT;
+    
+} from '../../modules/local/formatcsv'
+
+
 include {RESTARTGENOME } from  '../../modules/local/restartgenome'
-//include {DNAAPLER } from  '../../modules/local/dnaapler'
 
 workflow ASSEMBLE_NANOPORE {   
 
@@ -17,18 +29,7 @@ workflow ASSEMBLE_NANOPORE {
         //Flye to be the best-performing bacterial genome assembler in many metrics
         if ( params.nanopore_reads_assembler == 'flye+medaka'){
             
-           /*  nanopore_reads.multiMap{
-                it ->
-                nanopore_reads: [it[0], it[1]]
-                modeFlag: modeFlag = (
-                    it[0].basecaller_mode == 'sup' 
-                    || it[0].basecaller_mode == 'hac' 
-                    || it[0].basecaller_mode == 'SUP' 
-                    || it[0].basecaller_mode == 'HAC'
-                ) ? "--nano-hq" : "--nano-raw" 
-            }.set{
-                input
-            } */
+          
             nanopore_reads.multiMap{
                 it ->
                 nanopore_reads: [it[0], it[1]]
@@ -51,7 +52,10 @@ workflow ASSEMBLE_NANOPORE {
 
             //contigs = FLYE.out.fasta
             ch_versions = ch_versions.mix(FLYE.out.versions.first())
-            SEQKIT_STATS_FLYE(contigs)
+            //SEQKIT_STATS_FLYE(contigs)
+            STATS_FLYE(contigs)
+            STATS_FLYE_REFORMAT(STATS_FLYE.out.stats)
+            stats = STATS_FLYE_REFORMAT.out.tsv
 
             //recenter the genome before medaka hopes to fix the termial errors
             RESTARTGENOME(contigs, txt)
@@ -76,8 +80,10 @@ workflow ASSEMBLE_NANOPORE {
             MEDAKA(ch_input_medaka.long_reads_and_assembly, ch_input_medaka.modeFlag)
 
             contigs = MEDAKA.out.assembly
-            SEQKIT_STATS_MEDAKA(contigs)
-            stats = SEQKIT_STATS_MEDAKA.out.stats
+            //SEQKIT_STATS_MEDAKA(contigs)
+            STATS_MEDAKA(contigs)
+            STATS_MEDAKA_REFORMAT(STATS_MEDAKA.out.stats)
+            stats = STATS_MEDAKA_REFORMAT.out.tsv
             contig_file_ext = ".fa.gz"
         } 
         

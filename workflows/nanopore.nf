@@ -191,7 +191,7 @@ workflow NANOPORE {
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
         
-       CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.seqstats"], files)}, in_format, out_format ) 
+       CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
         // analysis
 
         if(! params.skip_depth_and_coverage){

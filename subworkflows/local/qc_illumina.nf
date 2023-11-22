@@ -9,7 +9,7 @@ include {FASTP} from '../../modules/nf-core/fastp/main'
 include {
     SEQKIT_STATS as SEQKIT_STATS_INPUT_ILLUMINA;
     SEQKIT_STATS as SEQKIT_STATS_QC_ILLUMINA;
-} from '../../modules/nf-core/seqkit/stats/main'
+} from '../../modules/local/seqkit/stats/main'
 
 include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_INPUT;

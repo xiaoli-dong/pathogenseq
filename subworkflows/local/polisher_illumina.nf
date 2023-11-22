@@ -1,13 +1,35 @@
-include {MINIMAP2_ALIGN as MINIMAP2_ALIGN1} from '../../modules/local/minimap2/align/main'
-include {MINIMAP2_ALIGN as MINIMAP2_ALIGN2} from '../../modules/local/minimap2/align/main'
-include {SAMTOOLS_VIEW as SAMTOOLS_VIEW1} from '../../modules/nf-core/samtools/view/main'
-include {SAMTOOLS_VIEW as SAMTOOLS_VIEW2} from '../../modules/nf-core/samtools/view/main'
+include {
+    MINIMAP2_ALIGN as MINIMAP2_ALIGN1;
+    MINIMAP2_ALIGN as MINIMAP2_ALIGN2;
+} from '../../modules/local/minimap2/align/main'
+
+include {
+    SAMTOOLS_VIEW as SAMTOOLS_VIEW1;
+    SAMTOOLS_VIEW as SAMTOOLS_VIEW2;
+} from '../../modules/nf-core/samtools/view/main'
+
 include {POLYPOLISH} from '../../modules/local/polypolish'
 include {MASURCA_POLCA} from '../../modules/local/masurca/polca'
-include {SEQKIT_STATS as SEQKIT_STATS_POLYPOLISH} from '../../modules/nf-core/seqkit/stats/main'
-include {SEQKIT_STATS as SEQKIT_STATS_POLCA} from '../../modules/nf-core/seqkit/stats/main'
-include{SAMTOOLS_SORT as SAMTOOLS_SORT1} from '../../modules/nf-core/samtools/sort/main'
-include{SAMTOOLS_SORT as SAMTOOLS_SORT2} from '../../modules/nf-core/samtools/sort/main'
+
+include{
+    SAMTOOLS_SORT as SAMTOOLS_SORT1;
+    SAMTOOLS_SORT as SAMTOOLS_SORT2;
+
+} from '../../modules/nf-core/samtools/sort/main'
+
+include {
+    ASSEMBYSTATS as STATS_POLYPOLISH;
+    ASSEMBYSTATS as STATS_POLCA;
+
+} from '../../modules/local/assemblystats'
+
+include {
+
+    FORMATCSV as STATS_POLYPOLISH_REFORMAT;
+    FORMATCSV as STATS_POLCA_REFORMAT;
+    
+} from '../../modules/local/formatcsv'
+
 
 workflow RUN_POLYPOLISH {   
 
@@ -55,12 +77,14 @@ workflow RUN_POLYPOLISH {
         POLYPOLISH(contigs, sam1.join(sam2))
         ch_versions = ch_versions.mix(POLYPOLISH.out.versions.first())
         contigs = POLYPOLISH.out.contigs
-        SEQKIT_STATS_POLYPOLISH(contigs)
+        STATS_POLYPOLISH(contigs)
+        STATS_POLYPOLISH_REFORMAT(STATS_POLYPOLISH.out.stats)
+        stats = STATS_POLYPOLISH_REFORMAT.out.tsv
 
     emit:
         contigs = POLYPOLISH.out.contigs
         versions = ch_versions
-        stats = SEQKIT_STATS_POLYPOLISH.out.stats
+        stats
 
 }
 
@@ -73,12 +97,13 @@ workflow RUN_POLCA{
         ch_versions = Channel.empty()
         MASURCA_POLCA(reads, contigs)
         contigs = MASURCA_POLCA.out.contigs
-        SEQKIT_STATS_POLCA(contigs)
-
+        STATS_POLCA(contigs)
+        STATS_POLCA_REFORMAT(STATS_POLCA.out.stats)
+        stats = STATS_POLCA_REFORMAT.out.tsv
         ch_versions = ch_versions.mix(MASURCA_POLCA.out.versions.first())
         
     emit:
         contigs = MASURCA_POLCA.out.contigs
-        stats = SEQKIT_STATS_POLCA.out.stats
+        stats
         versions = ch_versions
 }

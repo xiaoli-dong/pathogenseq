@@ -6,9 +6,11 @@ include { MLST } from '../../modules/nf-core/mlst/main'
 include { MOBSUITE_RECON } from '../../modules/local/mobsuite/recon/main'
 include { ABRICATE_RUN as ABRICATE_RUN_VF} from '../../modules/nf-core//abricate/run/main'
 include { ABRICATE_SUMMARY as ABRICATE_SUMMARY_VF} from '../../modules/nf-core/abricate/summary/main'
+include { CSVTK_FILTER2 } from '../../modules/local/csvtk/filter2/main'
 include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_BAKTA;
-    CSVTK_CONCAT as CSVTK_CONCAT_MOBSUITE;
+    CSVTK_CONCAT as CSVTK_CONCAT_MOBTYPER_RESULTS;
+    CSVTK_CONCAT as CSVTK_CONCAT_CONTIG_REPORT;
     CSVTK_CONCAT as CSVTK_CONCAT_AMR;
     CSVTK_CONCAT as CSVTK_CONCAT_MLST;
 } from '../../modules/nf-core/csvtk/concat/main'
@@ -52,9 +54,28 @@ workflow ANNOTATION {
         if(!params.skip_mobsuite){
             MOBSUITE_RECON (contigs )
             ch_software_versions = ch_software_versions.mix(MOBSUITE_RECON.out.versions)
-            CSVTK_CONCAT_MOBSUITE (MOBSUITE_RECON.out.mobtyper_results
+            CSVTK_CONCAT_MOBTYPER_RESULTS (
+                MOBSUITE_RECON.out.mobtyper_results
                 .filter{cfg, plasmid -> ! plasmid.isEmpty()}
-                .map { cfg, plasmid -> plasmid }.collect().map { files -> tuple([id:"plasmid.mobsuite"], files)}, in_format, out_format ) 
+                .map { cfg, plasmid -> plasmid }
+                .collect()
+                .map { files -> tuple([id:"plasmid.mobtyper_results"], files)}, 
+                in_format, 
+                out_format 
+            ) 
+            
+            //only keep plasmid 
+            CSVTK_FILTER2(MOBSUITE_RECON.out.contig_report)
+            CSVTK_CONCAT_CONTIG_REPORT (
+                CSVTK_FILTER2.out.csv
+                .filter{cfg, pcsv -> pcsv.countLines() > 1}
+                .map { cfg, pcsv -> pcsv }
+                .collect()
+                .map { files -> tuple([id:"plasmid.contig_report.plasmid"], files)}, 
+                in_format, 
+                out_format 
+            ) 
+               
         } 
 
         if(!params.skip_virulome){
