@@ -3,17 +3,17 @@ process POLYPOLISH {
     label 'process_medium'
 
    
-    conda "bioconda::polypolish=0.5.0"
+    conda "bioconda::polypolish=0.6.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/polypolish:0.5.0--hdbdd923_4':
-        'biocontainers/polypolish:0.5.0--hdbdd923_4' }"
+        'https://depot.galaxyproject.org/singularity/polypolish%3A0.6.0--hdbdd923_0':
+        'biocontainers/polypolish:0.6.0--hdbdd923_0' }"
 
     input:
-    tuple val(meta), path(contigs)
+    tuple val(meta), path(draft_contigs)
     tuple val(meta), path(sam1), path(sam2)
 
     output:
-    tuple val(meta), path("*.fa.gz"), emit: contigs
+    tuple val(meta), path("*.fasta.gz"), emit: contigs
     path "versions.yml"             , emit: versions
 
     when:
@@ -21,22 +21,25 @@ process POLYPOLISH {
 
     script:
     def args = task.ext.args ?: ''
+    def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
    
     """
-    polypolish_insert_filter.py \\
-        --in1 $sam1 \\
-        --in2 $sam2 \\
-        --out1 ${prefix}_filtered_1.sam \\
-        --out2 ${prefix}_filtered_2.sam
+    polypolish filter \\
+        ${args} \\
+        --in1 ${sam1} \\
+        --in2 ${sam2} \\
+        --out1 ${prefix}.filtered.R1.sam \\
+        --out2 ${prefix}.filtered.R2.sam
 
-    polypolish \\
-        $contigs \\
-        ${prefix}_filtered_1.sam \\
-        ${prefix}_filtered_2.sam \\
-        >${prefix}.contigs.fa
+    polypolish polish \\
+        ${args2} \\
+        ${draft_contigs} \\
+        ${prefix}.filtered.R1.sam \\
+        ${prefix}.filtered.R2.sam \\
+        > ${prefix}.fasta
 
-    gzip -n ${prefix}.contigs.fa
+    gzip -n ${prefix}.fasta
     
 
     cat <<-END_VERSIONS > versions.yml

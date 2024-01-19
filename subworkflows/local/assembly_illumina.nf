@@ -16,13 +16,13 @@ include {
 
 include {
 
-    FORMATCSV as STATS_UNICYCLER_REFORMAT;
-    FORMATCSV as STATS_SKESA_REFORMAT;
-    FORMATCSV as STATS_MEGAHIT_REFORMAT;
-    FORMATCSV as STATS_SPADES_REFORMAT;
-    FORMATCSV as STATS_SHOVILL_REFORMAT;
+    FORMATASSEMBLYSTATS as STATS_UNICYCLER_FORMATASSEMBLYSTATS;
+    FORMATASSEMBLYSTATS as STATS_SKESA_FORMATASSEMBLYSTATS;
+    FORMATASSEMBLYSTATS as STATS_MEGAHIT_FORMATASSEMBLYSTATS;
+    FORMATASSEMBLYSTATS as STATS_SPADES_FORMATASSEMBLYSTATS;
+    FORMATASSEMBLYSTATS as STATS_SHOVILL_FORMATASSEMBLYSTATS;
 
-} from '../../modules/local/formatcsv'
+} from '../../modules/local/misc'
 
 workflow ASSEMBLE_ILLUMINA {   
 
@@ -51,9 +51,9 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_SPADES.out.stats
             ch_versions = ch_versions.mix(STATS_SPADES.out.versions.first())
 
-            STATS_SPADES_REFORMAT(stats)
-            stats = STATS_SPADES_REFORMAT.out.tsv
-            ch_versions = ch_versions.mix(STATS_SPADES_REFORMAT.out.versions.first())
+            STATS_SPADES_FORMATASSEMBLYSTATS(stats)
+            stats = STATS_SPADES_FORMATASSEMBLYSTATS.out.tsv
+            ch_versions = ch_versions.mix(STATS_SPADES_FORMATASSEMBLYSTATS.out.versions.first())
 
         } 
         //default
@@ -69,9 +69,9 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_SKESA.out.stats
             ch_versions = ch_versions.mix(STATS_SKESA.out.versions.first())
             
-            STATS_SKESA_REFORMAT(stats)
-            stats = STATS_SKESA_REFORMAT.out.tsv
-            ch_versions = ch_versions.mix(STATS_SKESA_REFORMAT.out.versions.first())
+            STATS_SKESA_FORMATASSEMBLYSTATS(stats)
+            stats = STATS_SKESA_FORMATASSEMBLYSTATS.out.tsv
+            ch_versions = ch_versions.mix(STATS_SKESA_FORMATASSEMBLYSTATS.out.versions.first())
 
         }
         else if (params.illumina_reads_assembler == 'unicycler' ) {
@@ -91,9 +91,9 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_UNICYCLER.out.stats
             ch_versions = ch_versions.mix(STATS_UNICYCLER.out.versions.first())
 
-            STATS_UNICYCLER_REFORMAT(stats)
-            stats = STATS_UNICYCLER_REFORMAT.out.tsv
-            ch_versions = ch_versions.mix(STATS_UNICYCLER_REFORMAT.out.versions.first())
+            STATS_UNICYCLER_FORMATASSEMBLYSTATS(stats)
+            stats = STATS_UNICYCLER_FORMATASSEMBLYSTATS.out.tsv
+            ch_versions = ch_versions.mix(STATS_UNICYCLER_FORMATASSEMBLYSTATS.out.versions.first())
         }
         else if (params.illumina_reads_assembler == 'megahit' ) {
             MEGAHIT ( reads )
@@ -107,9 +107,9 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_MEGAHIT.out.stats
             ch_versions = ch_versions.mix(STATS_MEGAHIT.out.versions.first())
 
-            STATS_MEGAHIT_REFORMAT(stats)
-            stats = STATS_MEGAHIT_REFORMAT.out.tsv
-            ch_versions = ch_versions.mix(STATS_MEGAHIT_REFORMAT.out.versions.first())
+            STATS_MEGAHIT_FORMATASSEMBLYSTATS(stats)
+            stats = STATS_MEGAHIT_FORMATASSEMBLYSTATS.out.tsv
+            ch_versions = ch_versions.mix(STATS_MEGAHIT_FORMATASSEMBLYSTATS.out.versions.first())
 
         }
         else if (params.illumina_reads_assembler == 'shovill' ) {
@@ -124,9 +124,9 @@ workflow ASSEMBLE_ILLUMINA {
             stats = STATS_SHOVILL.out.stats
             ch_versions = ch_versions.mix(STATS_SHOVILL.out.versions.first())
 
-            STATS_SHOVILL_REFORMAT(stats)
-            stats = STATS_SHOVILL_REFORMAT.out.tsv
-            ch_versions = ch_versions.mix(STATS_SHOVILL_REFORMAT.out.versions.first())
+            STATS_SHOVILL_FORMATASSEMBLYSTATS(stats)
+            stats = STATS_SHOVILL_FORMATASSEMBLYSTATS.out.tsv
+            ch_versions = ch_versions.mix(STATS_SHOVILL_FORMATASSEMBLYSTATS.out.versions.first())
         }
         
         

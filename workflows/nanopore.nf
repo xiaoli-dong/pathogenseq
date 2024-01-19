@@ -41,6 +41,7 @@ include { ASSEMBLE_NANOPORE             } from '../subworkflows/local/assembly_n
 include { RUN_POLYPOLISH; RUN_POLCA;    } from '../subworkflows/local/polisher_illumina'
 include { DEPTH_ILLUMINA    }       from '../subworkflows/local/depth_illumina'
 include { DEPTH_NANOPORE   }       from '../subworkflows/local/depth_nanopore'
+include { SPECIAL_TOOLS   }       from '../subworkflows/local/special_tools'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -54,7 +55,7 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 include { 
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; 
     CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_NANOPORE;
-    CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;    
+    CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;  
 } from '../modules/nf-core/csvtk/concat/main'
 
 include { KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA } from '../modules/nf-core/kraken2/kraken2/main' 
@@ -67,7 +68,6 @@ include {
     GAMBIT_QUERY as GAMBIT_QUERY;
  }    from '../modules/local/gambit/query/main'
 include { GAMBIT_TREE       }       from '../modules/local/gambit/tree/main'
-
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,8 +103,15 @@ workflow NANOPORE {
     out_format = "tsv"
     contig_file_ext = ".fa.gz"
 
+    //illumina_reads.view()
+    //nanopore_reads.view()
     if(!params.skip_illumina_reads_qc){
-        QC_ILLUMINA(illumina_reads)
+       
+        QC_ILLUMINA(
+            illumina_reads,
+            [],
+            PREPARE_REFERENCES.out.ch_hostile_ref_bowtie2
+        )
         ch_software_versions = ch_software_versions.mix(QC_ILLUMINA.out.versions)
         
         //get rid of zero size contig file and avoid the downstream crash
@@ -120,7 +127,7 @@ workflow NANOPORE {
     }
 
     if(!params.skip_nanopore_reads_qc){
-        QC_NANOPORE(nanopore_reads)
+        QC_NANOPORE(nanopore_reads, PREPARE_REFERENCES.out.ch_hostile_ref_minimap2)
         QC_NANOPORE.out.qc_reads
             .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
             .set { nanopore_reads }
@@ -142,11 +149,11 @@ workflow NANOPORE {
         contig_file_ext = ".fa.gz"
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_NANOPORE.out.versions)
         stats = ASSEMBLE_NANOPORE.out.stats
-       
+        //stats.view()
         if(!params.skip_illumina_reads_polish  && !params.skip_polypolish){
             // 4x iterations are recommended
-            contigs.view()
-            illumina_reads.view()
+            //contigs.view()
+            //illumina_reads.view()
 
             illumina_reads.join(contigs).multiMap{
                 it ->
@@ -155,7 +162,8 @@ workflow NANOPORE {
             }.set{
                 ch_input_polypolish
             }
-
+            //ch_input_polypolish.illumina_reads.view()
+            //ch_input_polypolish.contigs.view()
             RUN_POLYPOLISH(ch_input_polypolish.illumina_reads, ch_input_polypolish.contigs)
             //RUN_POLYPOLISH(illumina_reads, contigs)
             RUN_POLYPOLISH.out.contigs
@@ -179,7 +187,12 @@ workflow NANOPORE {
             }.set{
                 ch_input_polca
             }
+            
+            //ch_input_polca.illumina_reads.view()
+            //ch_input_polca.contigs.view()
             RUN_POLCA(ch_input_polca.illumina_reads, ch_input_polca.contigs)
+            //RUN_POLCA.out.contigs.view()
+
             RUN_POLCA.out.contigs
                 //.filter { meta, contigs -> contigs.size() > 0 }
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
@@ -241,9 +254,19 @@ workflow NANOPORE {
 
         ANNOTATION(contigs, PREPARE_REFERENCES.out.ch_bakta_db, PREPARE_REFERENCES.out.ch_amrfinderplus_db)
     }
+    
+    illumina_reads.join(nanopore_reads).join(contigs).multiMap{
+       
+        it ->
+            illumina_reads: [it[0], it[1]]
+            nanopore_reads: [it[0], it[2]]
+            contigs: [it[0], it[3]]
 
+        }.set{
+            ch_input
+        }
     
-    
+    SPECIAL_TOOLS(ch_input.illumina_reads, ch_input.nanopore_reads, ch_input.contigs)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_software_versions.unique().collectFile(name: 'collated_versions.yml')

@@ -9,7 +9,27 @@ workflow PREPARE_REFERENCES {
 
     ch_versions = Channel.empty()
 
-    
+     //
+    // hostile reference
+    //
+    ch_hostile_ref_minimap2 = Channel.empty()
+    if (params.hostile_human_ref_minimap2) {
+        ch_hostile_ref_minimap2 = Channel.value(file(params.hostile_human_ref_minimap2))
+    }
+    else {
+        log.error "Please specify a valid hostime human reference file for minimap2"
+        System.exit(1)
+    }
+
+    ch_hostile_ref_bowtie2 = Channel.empty()
+    if (params.hostile_human_ref_bowtie2) {
+        ch_hostile_ref_bowtie2 = Channel.value(file(params.hostile_human_ref_bowtie2))
+    }
+    else {
+        log.error "Please specify a valid hostime human reference file from bowtie2"
+        System.exit(1)
+    }
+
     //
     // Prepare kraken db
     //
@@ -83,10 +103,13 @@ workflow PREPARE_REFERENCES {
 
     
     emit:
+        ch_hostile_ref_bowtie2
+        ch_hostile_ref_minimap2 
         ch_kraken2_db                    // path: kraken2_db/
         ch_checkm2_db   //path to checkm2 db
         ch_bakta_db     // path to bakta database 
         ch_amrfinderplus_db // path: path to amrfinderplus_db
         ch_gambit_db // path: path to gambit db
+
         versions             = ch_versions             // channel: [ versions.yml ]
 }

@@ -10,10 +10,10 @@ include {
 
 include {
 
-    FORMATCSV as STATS_MEDAKA_REFORMAT;
-    FORMATCSV as STATS_FLYE_REFORMAT;
+    FORMATASSEMBLYSTATS as STATS_MEDAKA_FORMATASSEMBLYSTATS;
+    FORMATASSEMBLYSTATS as STATS_FLYE_FORMATASSEMBLYSTATS;
     
-} from '../../modules/local/formatcsv'
+} from '../../modules/local/misc'
 
 
 include {RESTARTGENOME } from  '../../modules/local/restartgenome'
@@ -54,8 +54,8 @@ workflow ASSEMBLE_NANOPORE {
             ch_versions = ch_versions.mix(FLYE.out.versions.first())
             //SEQKIT_STATS_FLYE(contigs)
             STATS_FLYE(contigs)
-            STATS_FLYE_REFORMAT(STATS_FLYE.out.stats)
-            stats = STATS_FLYE_REFORMAT.out.tsv
+            STATS_FLYE_FORMATASSEMBLYSTATS(STATS_FLYE.out.stats)
+            stats = STATS_FLYE_FORMATASSEMBLYSTATS.out.tsv
 
             //recenter the genome before medaka hopes to fix the termial errors
             RESTARTGENOME(contigs, txt)
@@ -74,16 +74,18 @@ workflow ASSEMBLE_NANOPORE {
             }.set{
                 ch_input_medaka
             }
-            ch_input_medaka.long_reads_and_assembly.view()
-            ch_input_medaka.modeFlag.view()
+            //ch_input_medaka.long_reads_and_assembly.view()
+            //ch_input_medaka.modeFlag.view()
 
             MEDAKA(ch_input_medaka.long_reads_and_assembly, ch_input_medaka.modeFlag)
 
             contigs = MEDAKA.out.assembly
             //SEQKIT_STATS_MEDAKA(contigs)
             STATS_MEDAKA(contigs)
-            STATS_MEDAKA_REFORMAT(STATS_MEDAKA.out.stats)
-            stats = STATS_MEDAKA_REFORMAT.out.tsv
+            //STATS_MEDAKA.out.stats.view()
+            STATS_MEDAKA_FORMATASSEMBLYSTATS(STATS_MEDAKA.out.stats)
+            //STATS_MEDAKA_FORMATASSEMBLYSTATS.out.tsv.view()
+            stats = STATS_MEDAKA_FORMATASSEMBLYSTATS.out.tsv
             contig_file_ext = ".fa.gz"
         } 
         

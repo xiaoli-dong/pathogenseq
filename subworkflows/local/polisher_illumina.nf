@@ -1,21 +1,19 @@
 include {
-    MINIMAP2_ALIGN as MINIMAP2_ALIGN1;
-    MINIMAP2_ALIGN as MINIMAP2_ALIGN2;
-} from '../../modules/local/minimap2/align/main'
+    BWAMEM2_INDEX
+} from '../../modules/local/bwamem2/index/main'
 
 include {
-    SAMTOOLS_VIEW as SAMTOOLS_VIEW1;
-    SAMTOOLS_VIEW as SAMTOOLS_VIEW2;
-} from '../../modules/nf-core/samtools/view/main'
+    BWAMEM2_MEM as BWAMEM2_MEM_1;
+    BWAMEM2_MEM as BWAMEM2_MEM_2;
+} from '../../modules/local/bwamem2/mem'
 
-include {POLYPOLISH} from '../../modules/local/polypolish'
-include {MASURCA_POLCA} from '../../modules/local/masurca/polca'
 
-include{
-    SAMTOOLS_SORT as SAMTOOLS_SORT1;
-    SAMTOOLS_SORT as SAMTOOLS_SORT2;
-
-} from '../../modules/nf-core/samtools/sort/main'
+include {
+    POLYPOLISH
+} from '../../modules/local/polypolish'
+include {
+    MASURCA_POLCA
+} from '../../modules/local/masurca/polca'
 
 include {
     ASSEMBYSTATS as STATS_POLYPOLISH;
@@ -25,61 +23,40 @@ include {
 
 include {
 
-    FORMATCSV as STATS_POLYPOLISH_REFORMAT;
-    FORMATCSV as STATS_POLCA_REFORMAT;
+    FORMATASSEMBLYSTATS as STATS_POLYPOLISH_FORMATASSEMBLYSTATS;
+    FORMATASSEMBLYSTATS as STATS_POLCA_FORMATASSEMBLYSTATS;
     
-} from '../../modules/local/formatcsv'
+} from '../../modules/local/misc'
 
 
 workflow RUN_POLYPOLISH {   
 
     take:
         reads
-        contigs
+        draft_contigs
     main:
         ch_versions = Channel.empty()
         
+        BWAMEM2_INDEX(draft_contigs)
+
         reads.map { 
             meta, reads -> [ meta, reads[0]] }
-            .set { input1 }
+            .set { read1 }
         
         reads.map { 
             meta, reads -> [ meta, reads[1]] }
-            .set { input2 }
+            .set { read2 }
         
-        contigs.map{
-            meta, contigs -> contigs
-        }.set{ fasta }
+        BWAMEM2_MEM_1(read1, BWAMEM2_INDEX.out.index, false)
+        BWAMEM2_MEM_2(read2, BWAMEM2_INDEX.out.index, false)
 
-        bam_format = true
-        cigar_paf_format = false
-        cigar_bam = false
-
-        MINIMAP2_ALIGN1( input1, fasta, bam_format, cigar_paf_format, cigar_bam)
-        MINIMAP2_ALIGN2( input2, fasta, bam_format, cigar_paf_format, cigar_bam)
-        SAMTOOLS_SORT1(MINIMAP2_ALIGN1.out.bam)
-        SAMTOOLS_SORT2(MINIMAP2_ALIGN2.out.bam)
-        bam1 = SAMTOOLS_SORT1.out.bam
-        bam2 = SAMTOOLS_SORT2.out.bam
-        ch_versions = ch_versions.mix(MINIMAP2_ALIGN1.out.versions.first())
-
-        bam1.map { meta, bam -> [ meta, bam, []] }
-            .set { input1 }
-        bam2.map { meta, bam -> [ meta, bam, []] }
-            .set { input2} 
-
-        SAMTOOLS_VIEW1 ( input1, [[],[]], [] )
-        SAMTOOLS_VIEW2 ( input2, [[],[]], [] )
-        sam1 = SAMTOOLS_VIEW1.out.sam
-        sam2 = SAMTOOLS_VIEW2.out.sam
-        ch_versions = ch_versions.mix(SAMTOOLS_VIEW1.out.versions.first())
-
-        POLYPOLISH(contigs, sam1.join(sam2))
+        POLYPOLISH(draft_contigs, BWAMEM2_MEM_1.out.sam.join(BWAMEM2_MEM_2.out.sam))
+        //POLYPOLISH(draft_contigs, sam1.join(sam2))
         ch_versions = ch_versions.mix(POLYPOLISH.out.versions.first())
         contigs = POLYPOLISH.out.contigs
         STATS_POLYPOLISH(contigs)
-        STATS_POLYPOLISH_REFORMAT(STATS_POLYPOLISH.out.stats)
-        stats = STATS_POLYPOLISH_REFORMAT.out.tsv
+        STATS_POLYPOLISH_FORMATASSEMBLYSTATS(STATS_POLYPOLISH.out.stats)
+        stats = STATS_POLYPOLISH_FORMATASSEMBLYSTATS.out.tsv
 
     emit:
         contigs = POLYPOLISH.out.contigs
@@ -98,8 +75,8 @@ workflow RUN_POLCA{
         MASURCA_POLCA(reads, contigs)
         contigs = MASURCA_POLCA.out.contigs
         STATS_POLCA(contigs)
-        STATS_POLCA_REFORMAT(STATS_POLCA.out.stats)
-        stats = STATS_POLCA_REFORMAT.out.tsv
+        STATS_POLCA_FORMATASSEMBLYSTATS(STATS_POLCA.out.stats)
+        stats = STATS_POLCA_FORMATASSEMBLYSTATS.out.tsv
         ch_versions = ch_versions.mix(MASURCA_POLCA.out.versions.first())
         
     emit:

@@ -13,7 +13,7 @@ process RESTARTGENOME {
     tuple val(meta), path(assembly_info)
 
     output:
-    tuple val(meta), path("*.restart.fasta"), emit: fasta
+    tuple val(meta), path("*.fasta"), emit: fasta
     path "versions.yml"           , emit: versions
 
     when:
@@ -27,7 +27,7 @@ process RESTARTGENOME {
     reset_start_position_for_circular_genome.pl \\
         -f $fasta \\
         -i $assembly_info \\
-        > ${prefix}.restart.fasta
+        > ${prefix}.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

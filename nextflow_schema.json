@@ -99,6 +99,12 @@
                     "description": "Skip illumina read quality control step.",
                     "fa_icon": "fas fa-cut"
                 },
+                "skip_illumina_dehost": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip illumina read quality control step.",
+                    "fa_icon": "fas fa-cut"
+                },
                 "skip_illumina_reads_assembly": {
                     "type": "boolean",
                     "default": false,
@@ -110,6 +116,11 @@
                     "default": false,
                     "description": "Skip kraken2 with illumina reads step.",
                     "fa_icon": "fas fa-cut"
+                },
+                "hostile_human_ref_bowtie2": {
+                    "type": "string",
+                    "description": "hostile human genome index file",
+                    "default": "/nfs/APL_Genomics/db/prod/hostile/bowtie2_indexes/human-t2t-hla"
                 }
             }
         },
@@ -119,6 +130,17 @@
             "fa_icon": "fas fa-terminal",
             "description": "Nanopore reads data analysis options",
             "properties": {
+                "hostile_human_ref_minimap2": {
+                    "type": "string",
+                    "description": "hostile human reference genome for minimap2",
+                    "default": "/nfs/APL_Genomics/db/prod/hostile/minimap2_ref/human-t2t-hla.fa.gz"
+                },
+                "skip_nanopore_dehost": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip illumina read quality control step.",
+                    "fa_icon": "fas fa-cut"
+                },
                 "skip_nanopore_kraken2": {
                     "type": "boolean",
                     "default": true,
@@ -253,6 +275,24 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Skip assembly depth calculation step.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_tbprofiler": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip Mycobacterium tuberculosis lineage and drug resistance analysis.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_emmtyper": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip emm-typing of Streptococcus pyogenes.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_pneumocat": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip capsular typing of Streptococcus pneumoniae using pneumocat.",
                     "fa_icon": "fas fa-cut"
                 }
             }
