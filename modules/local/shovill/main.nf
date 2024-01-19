@@ -12,7 +12,7 @@ process SHOVILL {
 
     output:
     tuple val(meta), path("*contigs.fa.gz")                         , emit: contigs
-    tuple val(meta), path("shovill.corrections")                , emit: corrections
+    tuple val(meta), path("shovill.corrections")                , optional: true, emit: corrections
     tuple val(meta), path("shovill.log")                        , emit: log
     tuple val(meta), path("{skesa,spades,megahit,velvet}.fasta"), emit: raw_contigs
     tuple val(meta), path("*contigs.{fastg,gfa,LastGraph}.gz")      , optional:true, emit: gfa
