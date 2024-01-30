@@ -53,12 +53,18 @@ By default, the pipeline supports both short and long reads:
 - Assembly quality check
   - Rapid assessment of genome assembly completeness and contamination using machine learning approach ([CheckM2](https://github.com/chklovski/CheckM2))
   - Rapid taxonomic identification of microbial pathogens from assemblies and also the assement of the sample relatedness ([gambit](https://github.com/jlumpe/gambit))
+  - Assembly depth prediciton and reproting using ([Minimap2](https://github.com/lh3/minimap2), [samtools](https://github.com/samtools/samtools) and in-house sripts)
 - Genome annotation
   - Gene prediction and annotation ([Bakta](https://github.com/oschwengers/bakta))
   - Identify acquired antimicrobial resistance genes in the assembled contigs ([AMRFinderPlus](https://github.com/ncbi/amr))
   - Scan contig files against traditional PubMLST typing schemes ([mlst](https://github.com/tseemann/mlst))
   - Typing and reconstruction of plasmid sequences from assembled contigs ([MOB-suite](https://github.com/phac-nml/mob-suite))
   - Virulome detection ([abricate](https://github.com/tseemann/abricate) with [VFDB](http://www.mgc.ac.cn/VFs/main.htm))
+- Tools for special organism
+  - Mycobacterium tuberculosis lineage and drug resistance prediciton based on quality controlled illumina and nanopore reads using ([TB-Profiler](https://github.com/jodyphelan/TBProfiler))
+  - Streptococcus pneumoniae capsular typeing based on quality controlled illumina reads using ([PneumoCaT](https://github.com/ukhsa-collaboration/PneumoCaT))
+  - Streptococcus pyogenes emm-typing based on assembled contigs using ([emmtyper](https://github.com/MDU-PHL/emmtyper))
+  - Streptococcus agalactiae, Group B Streptococcus, serotyping based on assembled contigs using ([GBS-SBG](https://github.com/swainechen/GBS-SBG))
 - Summarize and generate the analysis report, software version control reports
 
 ## Pipeline reference databases
@@ -67,6 +73,7 @@ By default, the pipeline supports both short and long reads:
 * [AMRFinderPlus database](https://github.com/ncbi/amr/wiki/AMRFinderPlus-database)
 * [CheckM2 database](https://github.com/chklovski/CheckM2)
 * [gambit database](https://github.com/jlumpe/gambit)
+* [Hostie database](https://github.com/bede/hostile#reference-genomes)
   
 ## Quick Start
 
