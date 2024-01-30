@@ -59,7 +59,8 @@ include {
 }       from '../subworkflows/local/depth_illumina'
 
 include { 
-    SPECIAL_TOOLS   
+    SPECIAL_TOOLS_BASED_ON_READS;
+    SPECIAL_TOOLS_BASED_ON_CONTIGS;
 } from '../subworkflows/local/special_tools'
 
 /*
@@ -85,6 +86,7 @@ include {
 include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; 
     CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;    
+    CSVTK_CONCAT as CSVTK_CONCAT_STATS_NOT_ASSEMBLED;
    
 } from '../modules/nf-core/csvtk/concat/main'
 /* include {
@@ -141,6 +143,7 @@ workflow ILLUMINA {
     out_format = "tsv"
     contig_file_ext = ".fa.gz"
     
+    //illumina_reads.view()
     if(!params.skip_illumina_reads_qc){
 
         QC_ILLUMINA(
@@ -171,9 +174,40 @@ workflow ILLUMINA {
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
     }
 
+    //tools for special organism
+    SPECIAL_TOOLS_BASED_ON_READS(illumina_reads, [])
+    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_READS.out.versions)
+
     // assembly
     if(!params.skip_illumina_reads_assembly){
-    
+        //illumina_reads.view()
+        
+        illumina_reads.join(QC_ILLUMINA.out.qc_stats).map{
+           meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
+        }.map{
+            meta, reads, row -> [meta, reads, row.sum_len[0]]
+        }.branch{
+             pass_for_assembly: it[2].toInteger() >= params.min_tbp_for_assembly_illumina
+             fail_for_assembly:  it[2].toInteger() < params.min_tbp_for_assembly_illumina
+         }.set{  
+            ch_input
+        }
+
+        CSVTK_CONCAT_STATS_NOT_ASSEMBLED(
+            ch_input.fail_for_assembly.map{
+                meta, reads, row -> [meta, reads]
+            }.join(QC_ILLUMINA.out.qc_stats).map{
+                cfg, reads, stats -> stats
+            }.collect().map { files -> tuple([id: "samples_not_assembled"], files)}, 
+            in_format, 
+            out_format 
+        )
+
+        illumina_reads = ch_input.pass_for_assembly.map{
+            meta, reads, row -> [meta, reads]
+        }
+        //illumina_reads.view()
+
         ASSEMBLE_ILLUMINA ( illumina_reads)
         // zero size contig can cause some of the program such as bakta, mobsuite file
         ASSEMBLE_ILLUMINA.out.contigs
@@ -240,21 +274,12 @@ workflow ILLUMINA {
         )
         ch_software_versions = ch_software_versions.mix(ANNOTATION.out.versions)
 
+        SPECIAL_TOOLS_BASED_ON_CONTIGS(contigs)
+        ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_CONTIGS.out.versions)
     }  
 
     
-    illumina_reads.join(contigs).multiMap{
-       
-        it ->
-            illumina_reads: [it[0], it[1]]
-            contigs: [it[0], it[2]]
-
-        }.set{
-            ch_input
-        }
-    SPECIAL_TOOLS(ch_input.illumina_reads, [], ch_input.contigs)
-    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS.out.versions)
-
+    
     
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_software_versions.unique().collectFile(name: 'collated_versions.yml')

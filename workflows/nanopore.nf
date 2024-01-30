@@ -41,7 +41,10 @@ include { ASSEMBLE_NANOPORE             } from '../subworkflows/local/assembly_n
 include { RUN_POLYPOLISH; RUN_POLCA;    } from '../subworkflows/local/polisher_illumina'
 include { DEPTH_ILLUMINA    }       from '../subworkflows/local/depth_illumina'
 include { DEPTH_NANOPORE   }       from '../subworkflows/local/depth_nanopore'
-include { SPECIAL_TOOLS   }       from '../subworkflows/local/special_tools'
+include { 
+    SPECIAL_TOOLS_BASED_ON_READS;
+    SPECIAL_TOOLS_BASED_ON_CONTIGS;
+} from '../subworkflows/local/special_tools'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
@@ -56,6 +59,7 @@ include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM; 
     CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_NANOPORE;
     CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;  
+    CSVTK_CONCAT as CSVTK_CONCAT_STATS_NOT_ASSEMBLED;
 } from '../modules/nf-core/csvtk/concat/main'
 
 include { KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA } from '../modules/nf-core/kraken2/kraken2/main' 
@@ -134,9 +138,40 @@ workflow NANOPORE {
         ch_software_versions = ch_software_versions.mix(QC_NANOPORE.out.versions) 
     }
 
+    //tools for special organism
+    SPECIAL_TOOLS_BASED_ON_READS(illumina_reads, nanopore_reads)
+    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_READS.out.versions)
+
     // assembly
     if(!params.skip_nanopore_reads_assembly){
         
+        nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
+           meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
+        }.map{
+            meta, reads, row -> [meta, reads, row.sum_len[0]]
+        }.branch{
+             pass_for_assembly: it[2].toInteger() >= params.min_tbp_for_assembly_nanopore
+             fail_for_assembly:  it[2].toInteger() < params.min_tbp_for_assembly_nanopore
+         }.set{  
+            ch_input
+        }
+
+        CSVTK_CONCAT_STATS_NOT_ASSEMBLED(
+            ch_input.fail_for_assembly.map{
+                meta, reads, row -> [meta, reads]
+            }.join(QC_NANOPORE.out.qc_stats).map{
+                cfg, reads, stats -> stats
+            }.collect().map { files -> tuple([id: "samples_not_assembled"], files)}, 
+            in_format, 
+            out_format 
+        )
+
+        nanopore_reads = ch_input.pass_for_assembly.map{
+            meta, reads, row -> [meta, reads]
+        }
+        nanopore_reads.view()
+
+
         //flye with 4x iteration and 1x medaka
         ASSEMBLE_NANOPORE ( nanopore_reads)
         ASSEMBLE_NANOPORE.out.contigs
@@ -253,21 +288,11 @@ workflow NANOPORE {
         }
 
         ANNOTATION(contigs, PREPARE_REFERENCES.out.ch_bakta_db, PREPARE_REFERENCES.out.ch_amrfinderplus_db)
+
+         SPECIAL_TOOLS_BASED_ON_CONTIGS(contigs)
+        ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_CONTIGS.out.versions)
     }
     
-    illumina_reads.join(nanopore_reads).join(contigs).multiMap{
-       
-        it ->
-            illumina_reads: [it[0], it[1]]
-            nanopore_reads: [it[0], it[2]]
-            contigs: [it[0], it[3]]
-
-        }.set{
-            ch_input
-        }
-    
-    SPECIAL_TOOLS(ch_input.illumina_reads, ch_input.nanopore_reads, ch_input.contigs)
-
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_software_versions.unique().collectFile(name: 'collated_versions.yml')
     )

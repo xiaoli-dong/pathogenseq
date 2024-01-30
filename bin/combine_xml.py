@@ -21,7 +21,8 @@ def main():
         xml_element_tree = None
         for xml_file in xml_files:
             data = ET.tostring(ET.parse(xml_file).getroot()).decode("utf-8")
-            fout.write(data)    
+            fout.write(data)
+            fout.write('\n')    
     fout.close()
    
 

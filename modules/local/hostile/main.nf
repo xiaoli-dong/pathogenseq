@@ -46,8 +46,8 @@ process HOSTILE {
         then
             mv ${simplename}*.clean.fastq.gz ${prefix}.dehost.fastq.gz
         else
-            mv ${simplename}*.clean_1.fastq.gz ${prefix}.dehost.R1.fastq.gz
-            mv ${simplename}*.clean_2.fastq.gz ${prefix}.dehost.R2.fastq.gz
+            mv *clean_1.fastq.gz ${prefix}.dehost_1.fastq.gz
+            mv *clean_2.fastq.gz ${prefix}.dehost_2.fastq.gz
         fi
 
         cat <<-END_VERSIONS > versions.yml
@@ -71,8 +71,8 @@ process HOSTILE {
         then
             mv ${simplename}*.clean.fastq.gz ${prefix}.dehost.fastq.gz
         else
-            mv ${simplename}*.clean_1.fastq.gz ${prefix}.dehost.R1.fastq.gz
-            mv ${simplename}*.clean_2.fastq.gz ${prefix}.dehost.R2.fastq.gz
+            mv ${simplename}*.clean_1.fastq.gz ${prefix}.dehost_1.fastq.gz
+            mv ${simplename}*.clean_2.fastq.gz ${prefix}.dehost_2.fastq.gz
         fi
 
         cat <<-END_VERSIONS > versions.yml

@@ -1,7 +1,8 @@
 process SHOVILL {
     tag "$meta.id"
     label 'process_medium'
-
+    errorStrategy 'ignore'
+    
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/shovill:1.1.0--0' :

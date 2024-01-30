@@ -93,6 +93,12 @@
                         "shovill"
                     ]
                 },
+                "min_tbp_for_assembly_illumina": {
+                    "type": "integer",
+                    "default": 1000000,
+                    "description": "Required total basepairs of the reads to get into assembly stage.",
+                    "fa_icon": "fas fa-cut"
+                },
                 "skip_illumina_reads_qc": {
                     "type": "boolean",
                     "default": false,
@@ -109,12 +115,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Skip illumina read assembly step.",
-                    "fa_icon": "fas fa-cut"
-                },
-                "skip_illumina_kraken2": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Skip kraken2 with illumina reads step.",
                     "fa_icon": "fas fa-cut"
                 },
                 "hostile_human_ref_bowtie2": {
@@ -141,16 +141,16 @@
                     "description": "Skip illumina read quality control step.",
                     "fa_icon": "fas fa-cut"
                 },
-                "skip_nanopore_kraken2": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Skip kraken2 with nanopore reads step.",
-                    "fa_icon": "fas fa-cut"
-                },
                 "nanopore_reads_assembler": {
                     "type": "string",
                     "default": "flye+medaka",
                     "description": "Specifies the nanopore reads assembly tool to use - available options are 'flye+medaka'.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "min_tbp_for_assembly_nanopore": {
+                    "type": "integer",
+                    "default": 1000000,
+                    "description": "Required total basepairs of the reads to get into assembly stage.",
                     "fa_icon": "fas fa-cut"
                 },
                 "skip_polypolish": {
@@ -190,12 +190,6 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": [
-                "bakta_db",
-                "checkm2_db",
-                "gambit_db",
-                "kraken2_db"
-            ],
             "properties": {
                 "bakta_db": {
                     "type": "string",
@@ -213,28 +207,10 @@
                     "type": "string",
                     "default": null
                 },
-                "kraken2_db": {
-                    "type": "string",
-                    "default": "/nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926",
-                    "description": "Specify path to kraken2 database",
-                    "fa_icon": "fas fa-cut"
-                },
-                "gambit_db": {
-                    "type": "string",
-                    "default": "/nfs/APL_Genomics/db/prod/gambit",
-                    "description": "Path to gambit database.",
-                    "fa_icon": "fas fa-cut"
-                },
                 "skip_checkm2": {
                     "type": "boolean",
                     "default": false,
                     "description": "Skip checkm2 step.",
-                    "fa_icon": "fas fa-cut"
-                },
-                "skip_gambit": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Skip gambit step.",
                     "fa_icon": "fas fa-cut"
                 },
                 "skip_bakta": {
@@ -276,6 +252,63 @@
                     "default": false,
                     "description": "Skip assembly depth calculation step.",
                     "fa_icon": "fas fa-cut"
+                }
+            }
+        },
+        "taxonomic_tool_options": {
+            "title": "taxonomic_tool_options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "required": [
+                "gambit_db",
+                "kraken2_db"
+            ],
+            "properties": {
+                "kraken2_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926",
+                    "description": "Specify path to kraken2 database",
+                    "fa_icon": "fas fa-cut"
+                },
+                "gambit_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/gambit",
+                    "description": "Path to gambit database.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_illumina_kraken2": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip kraken2 with illumina reads step.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_nanopore_kraken2": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip kraken2 with nanopore reads step.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_gambit": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip gambit step.",
+                    "fa_icon": "fas fa-cut"
+                }
+            }
+        },
+        "special_tool_options": {
+            "title": "special_tool_options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "help_text": "By default, those tools are all turned off.",
+            "description": "Define organism specific tools: Mycobacterium tuberculosis,Streptococcus pneumoniae, Streptococcus pyogenes, Streptococcus agalactiae gas.",
+            "properties": {
+                "gbssbg_db": {
+                    "type": "string",
+                    "default": "/nfs/APL_Genomics/db/prod/gbs-sbg/GBS-SBG.fasta",
+                    "description": "Path to GBS-SBG database.",
+                    "fa_icon": "fas fa-cut"
                 },
                 "skip_tbprofiler": {
                     "type": "boolean",
@@ -293,6 +326,12 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Skip capsular typing of Streptococcus pneumoniae using pneumocat.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_gbssbg": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Skip serotyping of Streptococcus agalactiae using GBS-SBG.",
                     "fa_icon": "fas fa-cut"
                 }
             }
@@ -355,7 +394,7 @@
                 "max_cpus": {
                     "type": "integer",
                     "description": "Maximum number of CPUs that can be requested for any single job.",
-                    "default": 16,
+                    "default": 8,
                     "fa_icon": "fas fa-microchip",
                     "hidden": true,
                     "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
@@ -363,7 +402,7 @@
                 "max_memory": {
                     "type": "string",
                     "description": "Maximum amount of memory that can be requested for any single job.",
-                    "default": "128.GB",
+                    "default": "64.GB",
                     "fa_icon": "fas fa-memory",
                     "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
                     "hidden": true,
@@ -495,6 +534,15 @@
         },
         {
             "$ref": "#/definitions/nanopore_options"
+        },
+        {
+            "$ref": "#/definitions/annotation_options"
+        },
+        {
+            "$ref": "#/definitions/taxonomic_tool_options"
+        },
+        {
+            "$ref": "#/definitions/special_tool_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"

@@ -101,7 +101,20 @@ workflow PREPARE_REFERENCES {
         }
     }
 
-    
+    //
+    // Prepare GBS-SBG database
+    //
+    ch_gbssbg_db = Channel.empty()
+    if (!params.skip_gbssbg) {
+        if (params.gbssbg_db) {
+            ch_gbssbg_db = Channel.value(file(params.gbssbg_db))
+        }
+        else {
+            log.error "Please specify a valid  gbs-sbg database."
+            System.exit(1)
+        }
+    }
+
     emit:
         ch_hostile_ref_bowtie2
         ch_hostile_ref_minimap2 
@@ -110,6 +123,6 @@ workflow PREPARE_REFERENCES {
         ch_bakta_db     // path to bakta database 
         ch_amrfinderplus_db // path: path to amrfinderplus_db
         ch_gambit_db // path: path to gambit db
-
+        ch_gbssbg_db // path: path to gbs-sbg database
         versions             = ch_versions             // channel: [ versions.yml ]
 }

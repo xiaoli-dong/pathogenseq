@@ -9,7 +9,7 @@ include {
 
 include {
     PNEUMOCAT
-} from '../../modules/nf-core/pneumocat/main.nf'
+} from '../../modules/local/pneumocat/main.nf'
 include {
     COMBINE_XML as COMBINE_XML_PNEUMOCAT;
 } from '../../modules/local/combine/xml'
@@ -18,16 +18,29 @@ include {
 } from '../../modules/local/emmtyper/main.nf'
 include {
      CSVTK_CONCAT as CSVTK_CONCAT_EMMTYPER;
+    
 } from '../../modules/nf-core/csvtk/concat/main'
+
+include {
+     CSVTK_CONCAT as CSVTK_CONCAT_GBSSBG;
+} from '../../modules/local/csvtk/concat/main'
 
 include {
      REFORMATEMMTYPERCSV;
 } from '../../modules/local/misc'
-workflow SPECIAL_TOOLS {   
+
+include {
+    GBS_SBG;
+} from '../../modules/local/gbs/sbg'
+
+include {
+    PREPARE_REFERENCES
+} from '../../subworkflows/local/prepare_references'
+
+workflow SPECIAL_TOOLS_BASED_ON_READS {   
     take:
         illumina_reads 
         nanopore_reads
-        contigs   
     main:
         
         ch_software_versions = Channel.empty()
@@ -49,15 +62,30 @@ workflow SPECIAL_TOOLS {
                 )
             }
         } 
-    
+
         //capsular type to Streptococcus pneumoniae
         if(! params.skip_pneumocat){
             PNEUMOCAT(illumina_reads)
             ch_software_versions = ch_software_versions.mix(PNEUMOCAT.out.versions)
-            //PNEUMOCAT.out.xml.map{meta, tsv -> tsv }.collect().map { files -> tuple([id:"pneumocat"], files)}.view()
-            COMBINE_XML_PNEUMOCAT(PNEUMOCAT.out.xml.map{meta, tsv -> tsv }.collect().map { files -> tuple([id:"pneumocat"], files)})
+            COMBINE_XML_PNEUMOCAT(PNEUMOCAT.out.results.map{meta, tsv -> tsv }.collect().map { files -> tuple([id:"pneumocat"], files)})
             ch_software_versions = ch_software_versions.mix(COMBINE_XML_PNEUMOCAT.out.versions)
         }   
+       
+    
+    emit:
+        versions = ch_software_versions
+        
+}
+
+workflow SPECIAL_TOOLS_BASED_ON_CONTIGS {   
+    take:
+        contigs   
+    main:
+        
+        ch_software_versions = Channel.empty()
+       
+        PREPARE_REFERENCES ()
+        ch_software_versions = ch_software_versions.mix(PREPARE_REFERENCES.out.versions)
        
         //emm-typing of Streptococcus pyogenes
         if(! params.skip_emmtyper){
@@ -72,9 +100,23 @@ workflow SPECIAL_TOOLS {
             )
             ch_software_versions = ch_software_versions.mix(CSVTK_CONCAT_EMMTYPER.out.versions)
         }  
+
+         // serotyping GBS: Streptococcus agalactiae
+        if(! params.skip_gbssbg){
+            GBS_SBG(contigs, PREPARE_REFERENCES.out.ch_gbssbg_db)
+            ch_software_versions = ch_software_versions.mix(GBS_SBG.out.versions)
+            GBS_SBG.out.tsv.map {meta, tsv -> tsv }.collect().view()
+            CSVTK_CONCAT_GBSSBG(
+                GBS_SBG.out.tsv.map {meta, tsv -> tsv }.collect().map { files -> tuple([id:"gbs-sbg"], files)}, 
+                "tsv", 
+                "tsv" 
+            )
+            ch_software_versions = ch_software_versions.mix(CSVTK_CONCAT_GBSSBG.out.versions)
+        }  
     
     emit:
-        
+        //emm-typing = REFORMATEMMTYPERCSV.out.csv //csv format emmtyper verbose format
         versions = ch_software_versions
         
 }
+
