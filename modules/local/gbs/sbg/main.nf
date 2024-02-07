@@ -31,10 +31,11 @@ process GBS_SBG {
     
     """
     ${cmd_input} | GBS-SBG.pl \\
+        ${args} \\
         -name ${meta.id} \\
         ${cmd_refdb} \\
         > ${prefix}.tsv
-
+        
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         blast: \$(blastn -version 2>&1 | sed 's/^.*blastn: //; s/ .*\$//')
