@@ -101,82 +101,78 @@ nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 
 nextflow run main.nf --help
 N E X T F L O W  ~  version 23.04.1
-Launching `main.nf` [small_mayer] DSL2 - revision: 4ef093f544
+Launching `main.nf` [spontaneous_kowalevski] DSL2 - revision: 4ef093f544
 
 
 ------------------------------------------------------
-                                        ,--./,-.
-        ___     __   __   __   ___     /,-._.--~'
-  |\ | |__  __ /  ` /  \ |__) |__         }  {
-  | \| |       \__, \__/ |  \ |___     \`-._,-`-,
-                                        `._,._,'
-  xiaoli-dong/pathogenseq v1.0.4
+  xiaoli-dong/pathogenseq v1.1.0
 ------------------------------------------------------
 Typical pipeline command:
 
   nextflow run xiaoli-dong/pathogenseq --input samplesheet.csv --outdir results --platform illumina -profile singularity
 
 Input/output options
-  --input                         [string]  Path to comma-separated samplesheet file containing information about the samples in the experiment.
-  --outdir                        [string]  The output directory where the results will be saved. You have to use absolute paths to storage on Cloud 
-                                            infrastructure. 
-  --platform                      [string]  Specifies the platform used to generate the sequences - available options are 'illumina|nanopore'. [default: 
-                                            illumina] 
-  --igenomes_ignore               [boolean] Whether ignore igenome configuration loading.
-  --email                         [string]  Email address for completion summary.
-  --multiqc_title                 [string]  MultiQC report title. Printed as page header, used for filename if not otherwise specified.
+  --input                            [string]  Path to comma-separated samplesheet file containing information about the samples in the experiment.
+  --outdir                           [string]  The output directory where the results will be saved. You have to use absolute paths to storage on Cloud 
+                                               infrastructure. 
+  --platform                         [string]  Specifies the platform used to generate the sequences - available options are 'illumina|nanopore'. [default: 
+                                               illumina] 
+  --igenomes_ignore                  [boolean] Whether ignore igenome configuration loading.
+  --email                            [string]  Email address for completion summary.
+  --multiqc_title                    [string]  MultiQC report title. Printed as page header, used for filename if not otherwise specified.
 
 illumina_options
-  --illumina_reads_qc_tool        [string]  Specifies the reads triming and qc tool to use - available options are 'fastp|bbduk'. [default: fastp]
-  --illumina_reads_assembler      [string]  Specifies the illumina reads assembly tool to use - available options are 
-                                            'megahit|spades|skesa|unicycler|shovill'. [default: unicycler] 
-  --min_tbp_for_assembly_illumina [integer] Required total basepairs of the reads to get into assembly stage. [default: 1000000]
-  --skip_illumina_reads_qc        [boolean] Skip illumina read quality control step. [default: false]
-  --skip_illumina_dehost          [boolean] Skip illumina read quality control step. [default: false]
-  --skip_illumina_reads_assembly  [boolean] Skip illumina read assembly step. [default: false]
-  --hostile_human_ref_bowtie2     [string]  hostile human genome index file [default: /nfs/APL_Genomics/db/prod/hostile/bowtie2_indexes/human-t2t-hla]
+  --illumina_reads_qc_tool           [string]  Specifies the reads triming and qc tool to use - available options are 'fastp|bbduk'. [default: fastp]
+  --illumina_reads_assembler         [string]  Specifies the illumina reads assembly tool to use - available options are 
+                                               'megahit|spades|skesa|unicycler|shovill'. [default: unicycler] 
+  --min_tbp_for_assembly_illumina    [integer] Required total basepairs of the reads to get into assembly stage. [default: 1000000]
+  --skip_illumina_reads_qc           [boolean] Skip illumina read quality control step. [default: false]
+  --skip_illumina_dehost             [boolean] Skip illumina read quality control step. [default: false]
+  --skip_illumina_reads_assembly     [boolean] Skip illumina read assembly step. [default: false]
+  --hostile_human_ref_bowtie2        [string]  hostile human genome index file [default: 
+                                               /nfs/APL_Genomics/db/prod/hostile/bowtie2_indexes/human-t2t-hla-argos985] 
 
 nanopore_options
-  --hostile_human_ref_minimap2    [string]  hostile human reference genome for minimap2 [default: 
-                                            /nfs/APL_Genomics/db/prod/hostile/minimap2_ref/human-t2t-hla.fa.gz] 
-  --skip_nanopore_dehost          [boolean] Skip illumina read quality control step. [default: false]
-  --nanopore_reads_assembler      [string]  Specifies the nanopore reads assembly tool to use - available options are 'flye+medaka'. [default: 
-                                            flye+medaka] 
-  --min_tbp_for_assembly_nanopore [integer] Required total basepairs of the reads to get into assembly stage. [default: 1000000]
-  --skip_polypolish               [boolean] Skip contig polish steps with illumina reads using polypolish tool. [default: false]
-  --skip_polca                    [boolean] Skip contig polish steps with illumina reads using polca tool. [default: false]
-  --skip_nanopore_reads_qc        [boolean] Skip nanopore read quality control step. [default: false]
-  --skip_nanopore_reads_assembly  [boolean] Skip nanopore read assembly step. [default: false]
-  --skip_illumina_reads_polish    [boolean] Skip contig polishing steps with illumina reads. [default: false]
+  --hostile_human_ref_minimap2       [string]  hostile human reference genome for minimap2 [default: 
+                                               /nfs/APL_Genomics/db/prod/hostile/minimap2_ref/human-t2t-hla-argos985.fa.gz] 
+  --skip_nanopore_dehost             [boolean] Skip illumina read quality control step. [default: false]
+  --nanopore_reads_assembler         [string]  Specifies the nanopore reads assembly tool to use - available options are 'flye+medaka'. [default: 
+                                               flye+medaka] 
+  --min_tbp_for_assembly_nanopore    [integer] Required total basepairs of the reads to get into assembly stage. [default: 1000000]
+  --skip_polypolish                  [boolean] Skip contig polish steps with illumina reads using polypolish tool. [default: false]
+  --skip_polca                       [boolean] Skip contig polish steps with illumina reads using polca tool. [default: false]
+  --skip_nanopore_reads_qc           [boolean] Skip nanopore read quality control step. [default: false]
+  --skip_nanopore_reads_assembly     [boolean] Skip nanopore read assembly step. [default: false]
+  --skip_illumina_reads_polish       [boolean] Skip contig polishing steps with illumina reads. [default: false]
 
 annotation_options
-  --bakta_db                      [string]  Path to bakta database. [default: /nfs/APL_Genomics/db/prod/bakta/db]
-  --checkm2_db                    [string]  Path to checkm2 database. [default: /nfs/APL_Genomics/db/prod/CheckM2_database/uniref100.KO.1.dmnd]
-  --amrfinderplus_db              [string]  null
-  --skip_checkm2                  [boolean] Skip checkm2 step. [default: false]
-  --skip_bakta                    [boolean] Skip bakta step. [default: false]
-  --skip_mlst                     [boolean] Skip mlst step. [default: false]
-  --skip_mobsuite                 [boolean] Skip skip_mobsuite step. [default: false]
-  --skip_virulome                 [boolean] Skip virulome step. [default: false]
-  --skip_multiqc                  [boolean] null [default: false]
-  --skip_amr                      [boolean] Skip amr step. [default: false]
-  --skip_depth_and_coverage       [boolean] Skip assembly depth calculation step. [default: false]
+  --bakta_db                         [string]  Path to bakta database. [default: /nfs/APL_Genomics/db/prod/bakta/db]
+  --checkm2_db                       [string]  Path to checkm2 database. [default: /nfs/APL_Genomics/db/prod/CheckM2_database/uniref100.KO.1.dmnd]
+  --amrfinderplus_db                 [string]  null
+  --skip_checkm2                     [boolean] Skip checkm2 step. [default: false]
+  --skip_bakta                       [boolean] Skip bakta step. [default: false]
+  --skip_mlst                        [boolean] Skip mlst step. [default: false]
+  --skip_mobsuite                    [boolean] Skip skip_mobsuite step. [default: false]
+  --skip_virulome                    [boolean] Skip virulome step. [default: false]
+  --skip_multiqc                     [boolean] null [default: false]
+  --skip_amr                         [boolean] Skip amr step. [default: false]
+  --skip_depth_and_coverage          [boolean] Skip assembly depth calculation step. [default: false]
 
 taxonomic_tool_options
-  --kraken2_db                    [string]  Specify path to kraken2 database [default: /nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926]
-  --gambit_db                     [string]  Path to gambit database. [default: /nfs/APL_Genomics/db/prod/gambit]
-  --skip_illumina_kraken2         [boolean] Skip kraken2 with illumina reads step. [default: false]
-  --skip_nanopore_kraken2         [boolean] Skip kraken2 with nanopore reads step. [default: true]
-  --skip_gambit                   [boolean] Skip gambit step. [default: false]
+  --kraken2_db                       [string]  Specify path to kraken2 database [default: /nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926]
+  --gambit_db                        [string]  Path to gambit database. [default: /nfs/APL_Genomics/db/prod/gambit]
+  --skip_illumina_kraken2            [boolean] Skip kraken2 with illumina reads step. [default: false]
+  --skip_nanopore_kraken2            [boolean] Skip kraken2 with nanopore reads step. [default: true]
+  --skip_gambit                      [boolean] Skip gambit step. [default: false]
 
 special_tool_options
-  --gbssbg_db                     [string]  Path to GBS-SBG database. [default: /nfs/APL_Genomics/db/prod/gbs-sbg/GBS-SBG.fasta]
-  --skip_tbprofiler               [boolean] Skip Mycobacterium tuberculosis lineage and drug resistance analysis. [default: true]
-  --skip_emmtyper                 [boolean] Skip emm-typing of Streptococcus pyogenes. [default: true]
-  --skip_pneumocat                [boolean] Skip capsular typing of Streptococcus pneumoniae using pneumocat. [default: true]
-  --skip_gbssbg                   [boolean] Skip serotyping of Streptococcus agalactiae using GBS-SBG. [default: true]
+  --gbssbg_db                        [string]  Path to GBS-SBG database. [default: /nfs/APL_Genomics/db/prod/gbs-sbg/GBS-SBG.fasta]
+  --skip_tbprofiler                  [boolean] Skip Mycobacterium tuberculosis lineage and drug resistance analysis. [default: true]
+  --skip_emmtyper                    [boolean] Skip emm-typing of Streptococcus pyogenes. [default: true]
+  --skip_pneumocat                   [boolean] Skip capsular typing of Streptococcus pneumoniae using pneumocat. [default: true]
+  --skip_gbssbg                      [boolean] Skip serotyping of Streptococcus agalactiae using GBS-SBG. [default: true]
 
-!! Hiding 22 params, use --show_hidden_params to show them !!
+!! Hiding 25 params, use --show_hidden_params to show them !!
 ------------------------------------------------------
 If you use xiaoli-dong/pathogenseq for your analysis please cite:
 
