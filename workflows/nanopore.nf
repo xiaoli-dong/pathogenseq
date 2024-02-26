@@ -42,8 +42,10 @@ include { RUN_POLYPOLISH; RUN_POLCA;    } from '../subworkflows/local/polisher_i
 include { DEPTH_ILLUMINA    }       from '../subworkflows/local/depth_illumina'
 include { DEPTH_NANOPORE   }       from '../subworkflows/local/depth_nanopore'
 include { 
-    SPECIAL_TOOLS_BASED_ON_READS;
+   
     SPECIAL_TOOLS_BASED_ON_CONTIGS;
+    SPECIAL_TOOLS_BASED_ON_ILLUMINA;
+    SPECIAL_TOOLS_BASED_ON_NANOPORE;
 } from '../subworkflows/local/special_tools'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -109,7 +111,9 @@ workflow NANOPORE {
 
     //illumina_reads.view()
     //nanopore_reads.view()
-    if(!params.skip_illumina_reads_qc){
+    
+
+    if(!params.skip_illumina_reads_qc && !illumina_reads.ifEmpty(null)){
        
         QC_ILLUMINA(
             illumina_reads,
@@ -124,11 +128,17 @@ workflow NANOPORE {
             .set { illumina_reads }
     }
     //classify
-    if(!params.skip_illumina_kraken2){
+    if(!params.skip_illumina_kraken2 &&  !illumina_reads.ifEmpty(null)){
         KRAKEN2_KRAKEN2_ILLUMINA (illumina_reads, PREPARE_REFERENCES.out.ch_kraken2_db, false, true)
         KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA ( KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2.report"], it[1]] }.groupTuple())
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
     }
+    //tools for special organism
+    if(!illumina_reads.ifEmpty(null)){
+        SPECIAL_TOOLS_BASED_ON_ILLUMINA(illumina_reads)
+        ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_ILLUMINA.out.versions)
+    }
+    
 
     if(!params.skip_nanopore_reads_qc){
         QC_NANOPORE(nanopore_reads, PREPARE_REFERENCES.out.ch_hostile_ref_minimap2)
@@ -139,9 +149,11 @@ workflow NANOPORE {
     }
 
     //tools for special organism
-    SPECIAL_TOOLS_BASED_ON_READS(illumina_reads, nanopore_reads)
-    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_READS.out.versions)
-
+    if(!nanopore_reads.ifEmpty(null)){
+        SPECIAL_TOOLS_BASED_ON_NANOPORE(nanopore_reads)
+        ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_NANOPORE.out.versions)
+    }
+    
     // assembly
     if(!params.skip_nanopore_reads_assembly){
         
@@ -169,7 +181,7 @@ workflow NANOPORE {
         nanopore_reads = ch_input.pass_for_assembly.map{
             meta, reads, row -> [meta, reads]
         }
-        nanopore_reads.view()
+        //nanopore_reads.view()
 
 
         //flye with 4x iteration and 1x medaka
@@ -185,22 +197,15 @@ workflow NANOPORE {
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_NANOPORE.out.versions)
         stats = ASSEMBLE_NANOPORE.out.stats
         //stats.view()
-        if(!params.skip_illumina_reads_polish  && !params.skip_polypolish){
+
+
+        if(!params.skip_illumina_reads_polish  && !params.skip_polypolish && !illumina_reads.ifEmpty(null)){
             // 4x iterations are recommended
             //contigs.view()
-            //illumina_reads.view()
-
-            illumina_reads.join(contigs).multiMap{
-                it ->
-                illumina_reads: [it[0], it[1]]
-                contigs: [it[0], it[2]]
-            }.set{
-                ch_input_polypolish
-            }
-            //ch_input_polypolish.illumina_reads.view()
-            //ch_input_polypolish.contigs.view()
-            RUN_POLYPOLISH(ch_input_polypolish.illumina_reads, ch_input_polypolish.contigs)
-            //RUN_POLYPOLISH(illumina_reads, contigs)
+           // illumina_reads.view()
+          
+            //RUN_POLYPOLISH(ch_input_polypolish.illumina_reads, ch_input_polypolish.contigs)
+            RUN_POLYPOLISH(illumina_reads, contigs)
             RUN_POLYPOLISH.out.contigs
                 //.filter { meta, contigs -> contigs.size() > 0 }
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
@@ -213,19 +218,10 @@ workflow NANOPORE {
         }
 
         
-        if(!params.skip_illumina_reads_polish  && !params.skip_polca){
+        if(!params.skip_illumina_reads_polish  && !params.skip_polca && !illumina_reads.ifEmpty(null)){
 
-            illumina_reads.join(contigs).multiMap{
-                it ->
-                illumina_reads: [it[0], it[1]]
-                contigs: [it[0], it[2]]
-            }.set{
-                ch_input_polca
-            }
             
-            //ch_input_polca.illumina_reads.view()
-            //ch_input_polca.contigs.view()
-            RUN_POLCA(ch_input_polca.illumina_reads, ch_input_polca.contigs)
+            RUN_POLCA(illumina_reads, contigs)
             //RUN_POLCA.out.contigs.view()
 
             RUN_POLCA.out.contigs
@@ -244,24 +240,27 @@ workflow NANOPORE {
 
         if(! params.skip_depth_and_coverage){
 
-            illumina_reads.join(contigs).multiMap{
-                it ->
-                reads: [it[0], it[1]]
-                contigs: [it[0], it[2]]
-            }.set{
-                ch_input_depth_illumina
+            if( !illumina_reads.ifEmpty(null)){
+                
+               /*  illumina_reads.join(contigs).multiMap{
+                    it ->
+                    reads: [it[0], it[1]]
+                    contigs: [it[0], it[2]]
+                }.set{
+                    ch_input_depth_illumina
+                } */
+                //DEPTH_ILLUMINA(ch_input_depth_illumina.reads, ch_input_depth_illumina.contigs)
+                DEPTH_ILLUMINA(illumina_reads, contigs)
+                CSVTK_CONCAT_DEPTH_ILLUMINA(DEPTH_ILLUMINA.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_illumina"], files)}, in_format, out_format ) 
             }
-            DEPTH_ILLUMINA(ch_input_depth_illumina.reads, ch_input_depth_illumina.contigs)
-            CSVTK_CONCAT_DEPTH_ILLUMINA(DEPTH_ILLUMINA.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_illumina"], files)}, in_format, out_format ) 
-
-            nanopore_reads.join(contigs).multiMap{
+            /* nanopore_reads.join(contigs).multiMap{
                 it ->
                 reads: [it[0], it[1]]
                 contigs: [it[0], it[2]]
             }.set{
                 ch_input_depth_nanopore
-            }
-            DEPTH_NANOPORE(ch_input_depth_nanopore.reads, ch_input_depth_nanopore.contigs)
+            } */
+            DEPTH_NANOPORE(nanopore_reads, contigs)
             CSVTK_CONCAT_DEPTH_NANOPORE(DEPTH_NANOPORE.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_nanopore"], files)}, in_format, out_format ) 
 
 
@@ -289,7 +288,7 @@ workflow NANOPORE {
 
         ANNOTATION(contigs, PREPARE_REFERENCES.out.ch_bakta_db, PREPARE_REFERENCES.out.ch_amrfinderplus_db)
 
-         SPECIAL_TOOLS_BASED_ON_CONTIGS(contigs)
+        SPECIAL_TOOLS_BASED_ON_CONTIGS(contigs)
         ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_CONTIGS.out.versions)
     }
     

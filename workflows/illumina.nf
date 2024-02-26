@@ -59,7 +59,7 @@ include {
 }       from '../subworkflows/local/depth_illumina'
 
 include { 
-    SPECIAL_TOOLS_BASED_ON_READS;
+    SPECIAL_TOOLS_BASED_ON_ILLUMINA;
     SPECIAL_TOOLS_BASED_ON_CONTIGS;
 } from '../subworkflows/local/special_tools'
 
@@ -175,8 +175,8 @@ workflow ILLUMINA {
     }
 
     //tools for special organism
-    SPECIAL_TOOLS_BASED_ON_READS(illumina_reads, [])
-    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_READS.out.versions)
+    SPECIAL_TOOLS_BASED_ON_ILLUMINA(illumina_reads)
+    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_ILLUMINA.out.versions)
 
     // assembly
     if(!params.skip_illumina_reads_assembly){

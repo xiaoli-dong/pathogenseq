@@ -17,20 +17,29 @@ include {
 workflow DEPTH_ILLUMINA {   
 
     take:
-        reads
+        illumina_reads
         contigs
     main:
         ch_versions = Channel.empty()
         
-        contigs.map{
+        illumina_reads.join(contigs).multiMap{
+            it ->
+                reads: [it[0], it[1]]
+                fasta_contigs: it[2]
+        }.set{
+            ch_input
+        }
+
+       /*  contigs.map{
             meta, contigs -> contigs
         }.set{ fasta }
-
+        */
         bam_format = true
         cigar_paf_format = false
         cigar_bam = false
 
-        MINIMAP2_ALIGN_DEPTH_ILLUMINA( reads, fasta, bam_format, cigar_paf_format, cigar_bam)
+        //MINIMAP2_ALIGN_DEPTH_ILLUMINA( reads, fasta, bam_format, cigar_paf_format, cigar_bam)
+        MINIMAP2_ALIGN_DEPTH_ILLUMINA( ch_input.reads, ch_input.fasta_contigs, bam_format, cigar_paf_format, cigar_bam)
         ch_versions = ch_versions.mix(MINIMAP2_ALIGN_DEPTH_ILLUMINA.out.versions.first())
 
         SAMTOOLS_SORT_DEPTH_ILLUMINA(MINIMAP2_ALIGN_DEPTH_ILLUMINA.out.bam)

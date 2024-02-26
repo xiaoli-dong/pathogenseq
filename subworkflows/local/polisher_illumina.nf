@@ -36,21 +36,29 @@ workflow RUN_POLYPOLISH {
         draft_contigs
     main:
         ch_versions = Channel.empty()
-        
+             
         BWAMEM2_INDEX(draft_contigs)
 
-        reads.map { 
-            meta, reads -> [ meta, reads[0]] }
-            .set { read1 }
-        
-        reads.map { 
-            meta, reads -> [ meta, reads[1]] }
-            .set { read2 }
-        
-        BWAMEM2_MEM_1(read1, BWAMEM2_INDEX.out.index, false)
-        BWAMEM2_MEM_2(read2, BWAMEM2_INDEX.out.index, false)
+        reads.join(BWAMEM2_INDEX.out.index).multiMap{
+            it ->
+                read_1: [it[0], it[1][0]]
+                read_2: [it[0], it[1][1]]
+                bwa_index: [it[0], it[2]]   
+        }.set{
+            ch_input
+        }
+       
+        BWAMEM2_MEM_1(ch_input.read_1, ch_input.bwa_index, false)
+        BWAMEM2_MEM_2(ch_input.read_2, ch_input.bwa_index, false)
 
-        POLYPOLISH(draft_contigs, BWAMEM2_MEM_1.out.sam.join(BWAMEM2_MEM_2.out.sam))
+        draft_contigs.join(BWAMEM2_MEM_1.out.sam).join(BWAMEM2_MEM_2.out.sam).multiMap{
+            it ->
+                contigs: [it[0], it[1]]
+                sam: [it[0], it[2], it[3]]
+        }.set{
+            ch_input
+        }
+        POLYPOLISH(ch_input.contigs, ch_input.sam)
         //POLYPOLISH(draft_contigs, sam1.join(sam2))
         ch_versions = ch_versions.mix(POLYPOLISH.out.versions.first())
         contigs = POLYPOLISH.out.contigs
@@ -72,7 +80,16 @@ workflow RUN_POLCA{
         contigs
     main:
         ch_versions = Channel.empty()
-        MASURCA_POLCA(reads, contigs)
+
+         reads.join(contigs).multiMap{
+            it ->
+                reads: [it[0], it[1]]
+                contigs: [it[0], it[2]]
+        }.set{
+            ch_input
+        }
+            
+        MASURCA_POLCA(ch_input.reads, ch_input.contigs)
         contigs = MASURCA_POLCA.out.contigs
         STATS_POLCA(contigs)
         STATS_POLCA_FORMATASSEMBLYSTATS(STATS_POLCA.out.stats)

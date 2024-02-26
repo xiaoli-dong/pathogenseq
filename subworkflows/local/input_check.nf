@@ -18,8 +18,8 @@ workflow INPUT_CHECK {
     //reads.view()
 
     reads.map { 
-        meta, reads, long_fastq -> [ meta, reads ] }
-        .filter{ meta, reads -> reads[0] != 'NA' && reads[1] != 'NA' }
+        meta, reads, long_fastq -> [ meta, reads ] }//.view()
+        .filter{ meta, reads -> !reads[0].equals('NA') && !reads[1].equals('NA') }
         .set { shortreads }
     
     //shortreads.view() 
@@ -27,7 +27,7 @@ workflow INPUT_CHECK {
 
     reads.map {
         meta, reads, long_fastq -> [ meta, long_fastq ] }
-        .filter{ meta, long_fastq -> long_fastq != 'NA' }
+        .filter{ meta, long_fastq -> !long_fastq.equals('NA') }
         .set { longreads }
        
     //longreads.view()
@@ -148,7 +148,7 @@ def create_read_channels(LinkedHashMap row) {
      */
     // prepare output // currently does not allow single end data!
     if ( meta.single_end ) {
-        array = [ meta, fastq_1 , long_fastq]
+        array = [ meta, [fastq_1, fastq_2] , long_fastq]
     } else {
         array = [ meta, [ fastq_1, fastq_2 ], long_fastq]
     } 

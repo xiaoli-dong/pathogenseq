@@ -6,20 +6,27 @@ include { MAPPINGREPORT as MAPPINGREPORT_NANOPORE } from '../../modules/local/ma
 workflow DEPTH_NANOPORE {   
 
     take:
-        reads
+        nanopore_reads
         contigs
     main:
         ch_versions = Channel.empty()
         
-        contigs.map{
+       /*  contigs.map{
             meta, contigs -> contigs
-        }.set{ fasta }
+        }.set{ fasta } */
 
+        nanopore_reads.join(contigs).multiMap{
+            it ->
+                reads: [it[0], it[1]]
+                fasta_contigs: it[2]
+        }.set{
+            ch_input
+        }
         bam_format = true
         cigar_paf_format = false
         cigar_bam = false
 
-        MINIMAP2_ALIGN_DEPTH_NANOPORE( reads, fasta, bam_format, cigar_paf_format, cigar_bam)
+        MINIMAP2_ALIGN_DEPTH_NANOPORE(ch_input.reads, ch_input.fasta_contigs, bam_format, cigar_paf_format, cigar_bam)
         ch_versions = ch_versions.mix(MINIMAP2_ALIGN_DEPTH_NANOPORE.out.versions.first())
 
         SAMTOOLS_SORT_DEPTH_NANOPORE(MINIMAP2_ALIGN_DEPTH_NANOPORE.out.bam)
