@@ -3,10 +3,10 @@ process SKESA {
     label 'process_medium'
 
    
-    conda "bioconda::skesa=2.4.0"
+    conda "bioconda::skesa=2.5.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/skesa:2.4.0--he1c1bb9_0':
-        'biocontainers/skesa:2.4.0--he1c1bb9_0' }"
+        'https://depot.galaxyproject.org/singularity/skesa:2.5.1--hdcf5f25_0':
+        'biocontainers/skesa:2.5.1--hdcf5f25_0' }"
 
     input:
     tuple val(meta), path(reads)

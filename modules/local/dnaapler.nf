@@ -3,10 +3,10 @@ process DNAAPLER {
     label 'process_medium'
     errorStrategy 'ignore'
 
-    conda "bioconda::dnaapler=0.1.0"
+    conda "bioconda::dnaapler=0.7.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/dnaapler:0.1.0--pyhdfd78af_0':
-        'biocontainers/dnaapler:0.1.0--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/dnaapler:0.7.0--pyhdfd78af_0':
+        'biocontainers/dnaapler:0.7.0--pyhdfd78af_0' }"
 
     input:
     

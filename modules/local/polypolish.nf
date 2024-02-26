@@ -5,7 +5,7 @@ process POLYPOLISH {
    
     conda "bioconda::polypolish=0.6.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/polypolish%3A0.6.0--hdbdd923_0':
+        'https://depot.galaxyproject.org/singularity/polypolish:0.6.0--hdbdd923_0':
         'biocontainers/polypolish:0.6.0--hdbdd923_0' }"
 
     input:
