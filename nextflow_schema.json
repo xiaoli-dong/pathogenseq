@@ -18,7 +18,6 @@
                 "input": {
                     "type": "string",
                     "format": "file-path",
-                    "default": ".",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "schema": "assets/schema_input.json",
@@ -29,7 +28,6 @@
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
-                    "default": "./results",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
@@ -506,7 +504,7 @@
                 "tracedir": {
                     "type": "string",
                     "description": "Directory to keep pipeline Nextflow logs and reports.",
-                    "default": "${params.outdir}/pipeline_info",
+                    "default": "./results/pipeline_info",
                     "fa_icon": "fas fa-cogs",
                     "hidden": true
                 },
