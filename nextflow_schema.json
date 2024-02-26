@@ -18,6 +18,7 @@
                 "input": {
                     "type": "string",
                     "format": "file-path",
+                    "default": ".",
                     "mimetype": "text/csv",
                     "pattern": "^\\S+\\.csv$",
                     "schema": "assets/schema_input.json",
@@ -28,6 +29,7 @@
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
+                    "default": "./results",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
@@ -120,7 +122,7 @@
                 "hostile_human_ref_bowtie2": {
                     "type": "string",
                     "description": "hostile human genome index file",
-                    "default": "/nfs/APL_Genomics/db/prod/hostile/bowtie2_indexes/human-t2t-hla"
+                    "default": "/nfs/APL_Genomics/db/prod/hostile/bowtie2_indexes/human-t2t-hla-argos985"
                 }
             }
         },
@@ -133,7 +135,7 @@
                 "hostile_human_ref_minimap2": {
                     "type": "string",
                     "description": "hostile human reference genome for minimap2",
-                    "default": "/nfs/APL_Genomics/db/prod/hostile/minimap2_ref/human-t2t-hla.fa.gz"
+                    "default": "/nfs/APL_Genomics/db/prod/hostile/minimap2_ref/human-t2t-hla-argos985.fa.gz"
                 },
                 "skip_nanopore_dehost": {
                     "type": "boolean",
