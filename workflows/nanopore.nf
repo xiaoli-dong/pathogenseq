@@ -157,13 +157,20 @@ workflow NANOPORE {
     // assembly
     if(!params.skip_nanopore_reads_assembly){
         
+        nanopore_reads.join(QC_NANOPORE.out.qc_stats).view()
+        nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
+           meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
+        }.map{
+            meta, reads, row -> [meta, reads, row.sum_len[0]]
+        }.view()
+
         nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
            meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
         }.map{
             meta, reads, row -> [meta, reads, row.sum_len[0]]
         }.branch{
-             pass_for_assembly: it[2].toInteger() >= params.min_tbp_for_assembly_nanopore
-             fail_for_assembly:  it[2].toInteger() < params.min_tbp_for_assembly_nanopore
+             pass_for_assembly: it[2].toBigInteger() >= params.min_tbp_for_assembly_nanopore
+             fail_for_assembly:  it[2].toBigInteger() < params.min_tbp_for_assembly_nanopore
          }.set{  
             ch_input
         }

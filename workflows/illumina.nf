@@ -187,8 +187,8 @@ workflow ILLUMINA {
         }.map{
             meta, reads, row -> [meta, reads, row.sum_len[0]]
         }.branch{
-             pass_for_assembly: it[2].toInteger() >= params.min_tbp_for_assembly_illumina
-             fail_for_assembly:  it[2].toInteger() < params.min_tbp_for_assembly_illumina
+             pass_for_assembly: it[2].toBigInteger() >= params.min_tbp_for_assembly_illumina
+             fail_for_assembly:  it[2].toBigInteger() < params.min_tbp_for_assembly_illumina
          }.set{  
             ch_input
         }
