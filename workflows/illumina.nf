@@ -7,7 +7,6 @@ def valid_params = [
     illumina_reads_assembler : ['unicycler', 'spades', 'skesa','megahit', 'shovill']
 ]
 
-
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
  
 //print(params)
@@ -192,7 +191,7 @@ workflow ILLUMINA {
          }.set{  
             ch_input
         }
-
+       
         CSVTK_CONCAT_STATS_NOT_ASSEMBLED(
             ch_input.fail_for_assembly.map{
                 meta, reads, row -> [meta, reads]
@@ -202,7 +201,6 @@ workflow ILLUMINA {
             in_format, 
             out_format 
         )
-
         illumina_reads = ch_input.pass_for_assembly.map{
             meta, reads, row -> [meta, reads]
         }
@@ -277,10 +275,6 @@ workflow ILLUMINA {
         SPECIAL_TOOLS_BASED_ON_CONTIGS(contigs)
         ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_CONTIGS.out.versions)
     }  
-
-    
-    
-    
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_software_versions.unique().collectFile(name: 'collated_versions.yml')
     )

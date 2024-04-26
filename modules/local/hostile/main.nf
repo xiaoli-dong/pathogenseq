@@ -23,7 +23,6 @@ process HOSTILE {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    //def input = meta.single_end ? "--fastq1 ${reads[0]}" : "--fastq1 ${reads[0]} --fastq2 ${reads[1]}"
     def single_end = reads.flatten().size() == 1 ? true : false
     def input = single_end ? "--fastq1 ${reads[0]}" : "--fastq1 ${reads[0]} --fastq2 ${reads[1]}"
     def simplename = reads[0].getSimpleName()

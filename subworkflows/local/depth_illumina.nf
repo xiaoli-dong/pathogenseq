@@ -21,11 +21,38 @@ workflow DEPTH_ILLUMINA {
         contigs
     main:
         ch_versions = Channel.empty()
-        
-        illumina_reads.join(contigs).multiMap{
+
+        illumina_reads.map{
+            meta, reads ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, reads ] 
+
+        }.set{
+            ch_input_reads
+        }
+        //ch_input_reads.view()
+        contigs.map{
+            meta, contigs ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, contigs ] 
+        }.set{
+            ch_input_contigs
+        }
+        //ch_input_contigs.view()
+        /* illumina_reads.join(contigs).multiMap{
             it ->
                 reads: [it[0], it[1]]
                 fasta_contigs: it[2]
+        }.set{
+            ch_input
+        } */
+        //ch_input_reads.join(ch_input_contigs, by: [0]).view()
+        ch_input_reads.join(ch_input_contigs).multiMap{
+            it ->
+                reads: [it[1], it[2]]
+                fasta_contigs: it[4]
         }.set{
             ch_input
         }

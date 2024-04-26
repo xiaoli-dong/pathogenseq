@@ -64,8 +64,14 @@ include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_NOT_ASSEMBLED;
 } from '../modules/nf-core/csvtk/concat/main'
 
-include { KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA } from '../modules/nf-core/kraken2/kraken2/main' 
-include { KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA } from '../modules/nf-core/krakentools/combinekreports/main.nf'
+include { 
+    KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA;
+    KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_NANOPORE;
+} from '../modules/nf-core/kraken2/kraken2/main' 
+include { 
+    KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA;
+    KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_NANOPORE;
+} from '../modules/nf-core/krakentools/combinekreports/main.nf'
 
 //MODULES: local modules
 include {CHECKM2_PREDICT} from '../modules/local/checkm2/predict.nf'
@@ -109,14 +115,12 @@ workflow NANOPORE {
     out_format = "tsv"
     contig_file_ext = ".fa.gz"
 
-    //illumina_reads.view()
-    //nanopore_reads.view()
+   
     
-
-    if(!params.skip_illumina_reads_qc && !illumina_reads.ifEmpty(null)){
-       
+    if(!params.skip_illumina_reads_qc){
+      
         QC_ILLUMINA(
-            illumina_reads,
+            illumina_reads.filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0},
             [],
             PREPARE_REFERENCES.out.ch_hostile_ref_bowtie2
         )
@@ -128,16 +132,17 @@ workflow NANOPORE {
             .set { illumina_reads }
     }
     //classify
-    if(!params.skip_illumina_kraken2 &&  !illumina_reads.ifEmpty(null)){
+    if(!params.skip_illumina_kraken2){
+    //if(!params.skip_illumina_kraken2){   
         KRAKEN2_KRAKEN2_ILLUMINA (illumina_reads, PREPARE_REFERENCES.out.ch_kraken2_db, false, true)
         KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA ( KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2.report"], it[1]] }.groupTuple())
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
     }
     //tools for special organism
-    if(!illumina_reads.ifEmpty(null)){
-        SPECIAL_TOOLS_BASED_ON_ILLUMINA(illumina_reads)
-        ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_ILLUMINA.out.versions)
-    }
+    
+    SPECIAL_TOOLS_BASED_ON_ILLUMINA(illumina_reads)
+    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_ILLUMINA.out.versions)
+    
     
 
     if(!params.skip_nanopore_reads_qc){
@@ -148,21 +153,35 @@ workflow NANOPORE {
         ch_software_versions = ch_software_versions.mix(QC_NANOPORE.out.versions) 
     }
 
-    //tools for special organism
-    if(!nanopore_reads.ifEmpty(null)){
-        SPECIAL_TOOLS_BASED_ON_NANOPORE(nanopore_reads)
-        ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_NANOPORE.out.versions)
+    //classify
+    if(!params.skip_nanopore_kraken2){
+        KRAKEN2_KRAKEN2_NANOPORE(
+            nanopore_reads, 
+            PREPARE_REFERENCES.out.ch_kraken2_db, 
+            false, 
+            true
+        )
+        KRAKENTOOLS_COMBINEKREPORTS_NANOPORE(
+            KRAKEN2_KRAKEN2_NANOPORE.out.report.map{ [[id:"kraken2_nanopore"], it[1]] }.groupTuple()
+        )
+        ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_NANOPORE.out.versions)
     }
+
+    //tools for special organism
+    
+    SPECIAL_TOOLS_BASED_ON_NANOPORE(nanopore_reads)
+    ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_NANOPORE.out.versions)
+    
     
     // assembly
     if(!params.skip_nanopore_reads_assembly){
         
-        nanopore_reads.join(QC_NANOPORE.out.qc_stats).view()
+        nanopore_reads.join(QC_NANOPORE.out.qc_stats)//.view()
         nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
            meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
         }.map{
             meta, reads, row -> [meta, reads, row.sum_len[0]]
-        }.view()
+        }//.view()
 
         nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
            meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
@@ -174,7 +193,7 @@ workflow NANOPORE {
          }.set{  
             ch_input
         }
-
+        
         CSVTK_CONCAT_STATS_NOT_ASSEMBLED(
             ch_input.fail_for_assembly.map{
                 meta, reads, row -> [meta, reads]
@@ -184,7 +203,7 @@ workflow NANOPORE {
             in_format, 
             out_format 
         )
-
+        
         nanopore_reads = ch_input.pass_for_assembly.map{
             meta, reads, row -> [meta, reads]
         }
@@ -203,96 +222,130 @@ workflow NANOPORE {
         contig_file_ext = ".fa.gz"
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_NANOPORE.out.versions)
         stats = ASSEMBLE_NANOPORE.out.stats
-        //stats.view()
+        
+        contigs.view()
 
-
-        if(!params.skip_illumina_reads_polish  && !params.skip_polypolish && !illumina_reads.ifEmpty(null)){
-            // 4x iterations are recommended
-            //contigs.view()
-           // illumina_reads.view()
-          
-            //RUN_POLYPOLISH(ch_input_polypolish.illumina_reads, ch_input_polypolish.contigs)
+        //if(!params.skip_illumina_reads_polish  && params.skip_polypolish && illumina_reads.ifEmpty(null)){
+        if(!params.skip_illumina_reads_polish  && !params.skip_polypolish){
+               
+            
             RUN_POLYPOLISH(illumina_reads, contigs)
-            RUN_POLYPOLISH.out.contigs
-                //.filter { meta, contigs -> contigs.size() > 0 }
-                .filter { meta, contigs -> contigs.countFasta() > 0 }
-                .set { contigs }
+            contigs = contigs.merge( RUN_POLYPOLISH.out.contigs.ifEmpty([])).map{
+                it -> 
+                if(it.size() == 4){
+                    [it[2], it[3]]
+                }
+                else{
+                    [it[0], it[1]]
+                }
+            }.view()
+            //print(RUN_POLYPOLISH.out.contigs.getClass())
+            //print(RUN_POLYPOLISH.out.contigs.ifEmpty(contigs).getClass())
+            
+            stats = stats.merge( RUN_POLYPOLISH.out.stats.ifEmpty([])).map{
+                it -> 
+                if(it.size() == 4){
+                    [it[2], it[3]]
+                }
+                else{
+                    [it[0], it[1]]
+                }
+            }.view()
 
-            //contigs = RUN_POLYPOLISH.out.contigs
-            stats = RUN_POLYPOLISH.out.stats
             ch_software_versions = ch_software_versions.mix(RUN_POLYPOLISH.out.versions)
             contig_file_ext = ".fa.gz"
+             
         }
-
+       
         
-        if(!params.skip_illumina_reads_polish  && !params.skip_polca && !illumina_reads.ifEmpty(null)){
-
+        if(!params.skip_illumina_reads_polish  && !params.skip_polca){
             
             RUN_POLCA(illumina_reads, contigs)
             //RUN_POLCA.out.contigs.view()
+            contigs = contigs.merge( RUN_POLCA.out.contigs.ifEmpty([])).map{
+                    it -> 
+                    if(it.size() == 4){
+                        [it[2], it[3]]
+                    }
+                    else{
+                        [it[0], it[1]]
+                    }
+                }.view()
+            
+             stats = stats.merge( RUN_POLCA.out.stats.ifEmpty([])).map{
+                    it -> 
+                    if(it.size() == 4){
+                        [it[2], it[3]]
+                    }
+                    else{
+                        [it[0], it[1]]
+                    }
+                }.view()
 
-            RUN_POLCA.out.contigs
-                //.filter { meta, contigs -> contigs.size() > 0 }
-                .filter { meta, contigs -> contigs.countFasta() > 0 }
-                .set { contigs }
-
-            //contigs = RUN_POLCA.out.contigs
-            stats = RUN_POLCA.out.stats
+    
             contig_file_ext = ".fa.gz"
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
-        
-       CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, in_format, out_format ) 
+       
+        CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect()
+            .map { 
+                files -> tuple([id:"assembly_stats"], files)
+            }, 
+            in_format, 
+            out_format 
+        ) 
         // analysis
 
         if(! params.skip_depth_and_coverage){
-
-            if( !illumina_reads.ifEmpty(null)){
-                
-               /*  illumina_reads.join(contigs).multiMap{
-                    it ->
-                    reads: [it[0], it[1]]
-                    contigs: [it[0], it[2]]
-                }.set{
-                    ch_input_depth_illumina
-                } */
-                //DEPTH_ILLUMINA(ch_input_depth_illumina.reads, ch_input_depth_illumina.contigs)
-                DEPTH_ILLUMINA(illumina_reads, contigs)
-                CSVTK_CONCAT_DEPTH_ILLUMINA(DEPTH_ILLUMINA.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_illumina"], files)}, in_format, out_format ) 
-            }
-            /* nanopore_reads.join(contigs).multiMap{
-                it ->
-                reads: [it[0], it[1]]
-                contigs: [it[0], it[2]]
-            }.set{
-                ch_input_depth_nanopore
-            } */
+           
+            //contigs.view()
+            DEPTH_ILLUMINA(illumina_reads, contigs)
+            CSVTK_CONCAT_DEPTH_ILLUMINA(
+                DEPTH_ILLUMINA.out.sample_coverage.map { 
+                    cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_illumina"], files)}, 
+                in_format, 
+                out_format 
+            ) 
             DEPTH_NANOPORE(nanopore_reads, contigs)
-            CSVTK_CONCAT_DEPTH_NANOPORE(DEPTH_NANOPORE.out.sample_coverage.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly.depth_nanopore"], files)}, in_format, out_format ) 
-
-
+            CSVTK_CONCAT_DEPTH_NANOPORE(
+                DEPTH_NANOPORE.out.sample_coverage.map { cfg, stats -> stats }.collect().map 
+                    { files -> tuple([id:"assembly.depth_nanopore"], files)}, 
+                in_format, 
+                out_format 
+            ) 
         }
 
         if(! params.skip_checkm2){
-            ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}//.view()
+            ch_input_checkm2 = contigs.map { 
+                cfg, contigs -> contigs 
+            }.collect().map{
+                files -> tuple([id:"checkm2"], files)
+            }//.view()
             CHECKM2_PREDICT(ch_input_checkm2, contig_file_ext, PREPARE_REFERENCES.out.ch_checkm2_db) 
         
         }
 
-        if(! params.skip_gambit){
+        
+        if(!params.skip_gambit){
+
             GAMBIT_QUERY(contigs, PREPARE_REFERENCES.out.ch_gambit_db)
             
-            ch_input_gambit_query_collect = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gambit_query"], files)}//.view()
-            GAMBIT_QUERY_COLLECT(ch_input_gambit_query_collect, PREPARE_REFERENCES.out.ch_gambit_db)
+            ch_input_gambit_query = contigs.map { 
+                cfg, contigs -> contigs 
+            }.collect().map{
+                files -> tuple([id:"gambit_query"], files)
+            }
+
+            GAMBIT_QUERY_COLLECT(ch_input_gambit_query, PREPARE_REFERENCES.out.ch_gambit_db)
             
             ch_input_gambit_tree = contigs.map { cfg, contigs -> contigs }.collect()
                  .filter{contigs -> contigs.size() >= 3}
                  .map{files -> tuple([id:"gambit_tree"], files)}//.view()
-           
-            GAMBIT_TREE(ch_input_gambit_tree)  
-        
-        }
 
+            GAMBIT_TREE(ch_input_gambit_tree)  
+            
+        }
+        
         ANNOTATION(contigs, PREPARE_REFERENCES.out.ch_bakta_db, PREPARE_REFERENCES.out.ch_amrfinderplus_db)
 
         SPECIAL_TOOLS_BASED_ON_CONTIGS(contigs)

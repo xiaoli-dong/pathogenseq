@@ -36,11 +36,16 @@ workflow QC_ILLUMINA {
         adapter_fasta
         hostile_human_ref
     main:
+        
         ch_versions = Channel.empty()
         in_format = "tsv"
         out_format = "tsv"
         trimmed_reads = reads
         qc_reads = reads
+        
+        reads
+            .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
+            .set { reads}
 
         FASTQC_INPUT(reads)
         ch_versions = ch_versions.mix(FASTQC_INPUT.out.versions.first())

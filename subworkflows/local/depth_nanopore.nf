@@ -14,14 +14,39 @@ workflow DEPTH_NANOPORE {
        /*  contigs.map{
             meta, contigs -> contigs
         }.set{ fasta } */
+        
+        nanopore_reads.map{
+            meta, reads ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, reads ] 
 
-        nanopore_reads.join(contigs).multiMap{
+        }.set{
+            ch_input_reads
+        }
+        contigs.map{
+            meta, contigs ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, contigs ] 
+        }.set{
+            ch_input_contigs
+        }
+
+        ch_input_reads.join(ch_input_contigs).multiMap{
+            it ->
+                reads: [it[1], it[2]]
+                fasta_contigs: it[4]
+        }.set{
+            ch_input
+        }
+        /* nanopore_reads.join(contigs).multiMap{
             it ->
                 reads: [it[0], it[1]]
                 fasta_contigs: it[2]
         }.set{
             ch_input
-        }
+        } */
         bam_format = true
         cigar_paf_format = false
         cigar_bam = false

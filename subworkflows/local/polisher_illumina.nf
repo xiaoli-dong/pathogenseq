@@ -32,14 +32,42 @@ include {
 workflow RUN_POLYPOLISH {   
 
     take:
-        reads
+        illumina_reads
         draft_contigs
     main:
         ch_versions = Channel.empty()
-             
-        BWAMEM2_INDEX(draft_contigs)
+        
+        //draft_contigs.view()
+        illumina_reads.map{
+            meta, reads ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, reads ] 
 
-        reads.join(BWAMEM2_INDEX.out.index).multiMap{
+        }.set{
+            ch_input_reads
+        }
+
+        draft_contigs.map{
+            meta, contigs ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, contigs ] 
+        }.set{
+            ch_input_contigs
+        }
+        
+        ch_input_reads.join(ch_input_contigs).multiMap{
+            it ->
+                reads: [it[1], it[2]]
+                draft_contigs: [it[1], it[4]]
+        }.set{
+            ch_input_all
+        }
+
+        BWAMEM2_INDEX(ch_input_all.draft_contigs)
+
+        ch_input_all.reads.join(BWAMEM2_INDEX.out.index).multiMap{
             it ->
                 read_1: [it[0], it[1][0]]
                 read_2: [it[0], it[1][1]]
@@ -51,7 +79,7 @@ workflow RUN_POLYPOLISH {
         BWAMEM2_MEM_1(ch_input.read_1, ch_input.bwa_index, false)
         BWAMEM2_MEM_2(ch_input.read_2, ch_input.bwa_index, false)
 
-        draft_contigs.join(BWAMEM2_MEM_1.out.sam).join(BWAMEM2_MEM_2.out.sam).multiMap{
+        ch_input_all.draft_contigs.join(BWAMEM2_MEM_1.out.sam).join(BWAMEM2_MEM_2.out.sam).multiMap{
             it ->
                 contigs: [it[0], it[1]]
                 sam: [it[0], it[2], it[3]]
@@ -76,20 +104,48 @@ workflow RUN_POLYPOLISH {
 workflow RUN_POLCA{   
 
     take:
-        reads
-        contigs
+        illumina_reads
+        draft_contigs
     main:
         ch_versions = Channel.empty()
 
-         reads.join(contigs).multiMap{
+        //draft_contigs.view()
+        illumina_reads.map{
+            meta, reads ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, reads ] 
+
+        }.set{
+            ch_input_reads
+        }
+
+        draft_contigs.map{
+            meta, contigs ->
+                def new_meta = [:]
+                new_meta.id = meta.id
+                [ new_meta, meta, contigs ] 
+        }.set{
+            ch_input_contigs
+        }
+        
+        ch_input_reads.join(ch_input_contigs).multiMap{
             it ->
-                reads: [it[0], it[1]]
-                contigs: [it[0], it[2]]
+                reads: [it[1], it[2]]
+                draft_contigs: [it[1], it[4]]
         }.set{
             ch_input
         }
+
+         /* illumina_reads.join(contigs).multiMap{
+            it ->
+                illumina_reads: [it[0], it[1]]
+                contigs: [it[0], it[2]]
+        }.set{
+            ch_input
+        } */
             
-        MASURCA_POLCA(ch_input.reads, ch_input.contigs)
+        MASURCA_POLCA(ch_input.reads, ch_input.draft_contigs)
         contigs = MASURCA_POLCA.out.contigs
         STATS_POLCA(contigs)
         STATS_POLCA_FORMATASSEMBLYSTATS(STATS_POLCA.out.stats)

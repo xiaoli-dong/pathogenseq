@@ -3,7 +3,6 @@
 //
 
 include { SAMPLESHEETCHECK } from '../../modules/local/samplesheetcheck'
-
 workflow INPUT_CHECK {
     take:
     samplesheet // file: /path/to/samplesheet.csv
@@ -26,9 +25,15 @@ workflow INPUT_CHECK {
     
 
     reads.map {
-        meta, reads, long_fastq -> [ meta, long_fastq ] }
-        .filter{ meta, long_fastq -> !long_fastq.equals('NA') }
-        .set { longreads }
+        meta, reads, long_fastq -> 
+        def new_meta = [:]
+        new_meta.id = meta.id
+        new_meta.single_end =true
+        new_meta.basecaller_mode = meta.basecaller_mode
+        [ new_meta, long_fastq ] 
+    }
+    .filter{ new_meta, long_fastq -> !long_fastq.equals('NA') }
+    .set { longreads }
        
     //longreads.view()
     
