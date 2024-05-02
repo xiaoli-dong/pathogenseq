@@ -46,17 +46,18 @@ workflow SPECIAL_TOOLS_BASED_ON_ILLUMINA {
         // ******* tools for special organisms ************
         //tb-profiler for Mycobacterium tuberculosis
         if(! params.skip_tbprofiler){
-            if(!illumina_reads.ifEmpty(null)){
+            //if(!illumina_reads.ifEmpty(null)){
                 TBPROFILER_PROFILE_ILLUMINA(illumina_reads)
                 ch_software_versions = ch_software_versions.mix(TBPROFILER_PROFILE_ILLUMINA.out.versions)
                 TBPROFILER_COLLATE_ILLUMINA(
                     TBPROFILER_PROFILE_ILLUMINA.out.json.map {meta,json -> json }.collect().map{files -> tuple([id:"tbprofiler"], files)}
                 )
-            }
+            //}
         } 
 
         //capsular type to Streptococcus pneumoniae
-        if(! params.skip_pneumocat &&  !illumina_reads.ifEmpty(null)){
+        //if(! params.skip_pneumocat &&  !illumina_reads.ifEmpty(null)){
+        if(! params.skip_pneumocat){
             PNEUMOCAT(illumina_reads)
             ch_software_versions = ch_software_versions.mix(PNEUMOCAT.out.versions)
             COMBINE_XML_PNEUMOCAT(PNEUMOCAT.out.results.map{meta, tsv -> tsv }.collect().map { files -> tuple([id:"pneumocat"], files)})
@@ -79,54 +80,14 @@ workflow SPECIAL_TOOLS_BASED_ON_NANOPORE {
         //tb-profiler for Mycobacterium tuberculosis
         if(! params.skip_tbprofiler){
             
-            if(!nanopore_reads.ifEmpty(null)){
+            //if(!nanopore_reads.ifEmpty(null)){
                 TBPROFILER_PROFILE_NANOPORE(nanopore_reads)
                 ch_software_versions = ch_software_versions.mix(TBPROFILER_PROFILE_NANOPORE.out.versions)
                 TBPROFILER_COLLATE_NANOPORE(
                     TBPROFILER_PROFILE_NANOPORE.out.json.map {meta,json -> json }.collect().map{files -> tuple([id:"tbprofiler_nanopore"], files)}
                 )
             }
-        } 
-    
-    emit:
-        versions = ch_software_versions
-        
-}
-
-workflow SPECIAL_TOOLS_BASED_ON_READS {   
-    take:
-        illumina_reads 
-        nanopore_reads
-    main:
-        
-        ch_software_versions = Channel.empty()
-        // ******* tools for special organisms ************
-        //tb-profiler for Mycobacterium tuberculosis
-        if(! params.skip_tbprofiler){
-            if(!illumina_reads.ifEmpty(null)){
-                TBPROFILER_PROFILE_ILLUMINA(illumina_reads)
-                ch_software_versions = ch_software_versions.mix(TBPROFILER_PROFILE_ILLUMINA.out.versions)
-                TBPROFILER_COLLATE_ILLUMINA(
-                    TBPROFILER_PROFILE_ILLUMINA.out.json.map {meta,json -> json }.collect().map{files -> tuple([id:"tbprofiler"], files)}
-                )
-            }
-            if(!nanopore_reads.ifEmpty(null)){
-                TBPROFILER_PROFILE_NANOPORE(nanopore_reads)
-                ch_software_versions = ch_software_versions.mix(TBPROFILER_PROFILE_NANOPORE.out.versions)
-                TBPROFILER_COLLATE_NANOPORE(
-                    TBPROFILER_PROFILE_NANOPORE.out.json.map {meta,json -> json }.collect().map{files -> tuple([id:"tbprofiler_nanopore"], files)}
-                )
-            }
-        } 
-
-        //capsular type to Streptococcus pneumoniae
-        if(! params.skip_pneumocat &&  !illumina_reads.ifEmpty(null)){
-            PNEUMOCAT(illumina_reads)
-            ch_software_versions = ch_software_versions.mix(PNEUMOCAT.out.versions)
-            COMBINE_XML_PNEUMOCAT(PNEUMOCAT.out.results.map{meta, tsv -> tsv }.collect().map { files -> tuple([id:"pneumocat"], files)})
-            ch_software_versions = ch_software_versions.mix(COMBINE_XML_PNEUMOCAT.out.versions)
-        }   
-       
+        //} 
     
     emit:
         versions = ch_software_versions
