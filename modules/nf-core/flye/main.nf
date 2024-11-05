@@ -12,7 +12,8 @@ process FLYE {
     val mode
 
     output:
-    tuple val(meta), path("*.fasta.gz"), emit: fasta
+    //tuple val(meta), path("*.fasta.gz"), emit: fasta
+    tuple val(meta), path("*.fasta"), emit: fasta
     tuple val(meta), path("*.gfa.gz")  , emit: gfa
     tuple val(meta), path("*.gv.gz")   , emit: gv
     tuple val(meta), path("*.txt")     , emit: txt
@@ -37,7 +38,8 @@ process FLYE {
         $task.cpus \\
         $args
 
-    gzip -c assembly.fasta > ${prefix}.assembly.fasta.gz
+    #gzip -c assembly.fasta > ${prefix}.assembly.fasta.gz
+    mv assembly.fasta  ${prefix}.assembly.fasta 
     gzip -c assembly_graph.gfa > ${prefix}.assembly_graph.gfa.gz
     gzip -c assembly_graph.gv > ${prefix}.assembly_graph.gv.gz
     mv assembly_info.txt ${prefix}.assembly_info.txt
@@ -53,12 +55,12 @@ process FLYE {
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    echo stub | gzip -c > ${prefix}.assembly.fasta.gz
-    echo stub | gzip -c > ${prefix}.assembly_graph.gfa.gz
-    echo stub | gzip -c > ${prefix}.assembly_graph.gv.gz
-    echo contig_1 > ${prefix}.assembly_info.txt
-    echo stub > ${prefix}.flye.log
-    echo stub > ${prefix}.params.json
+    # echo stub | gzip -c > ${prefix}.assembly.fasta.gz
+    # echo stub | gzip -c > ${prefix}.assembly_graph.gfa.gz
+    # echo stub | gzip -c > ${prefix}.assembly_graph.gv.gz
+    # echo contig_1 > ${prefix}.assembly_info.txt
+    # echo stub > ${prefix}.flye.log
+    # echo stub > ${prefix}.params.json
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

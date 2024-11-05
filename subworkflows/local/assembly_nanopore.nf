@@ -58,13 +58,14 @@ workflow ASSEMBLE_NANOPORE {
             stats = STATS_FLYE_FORMATASSEMBLYSTATS.out.tsv
 
             //recenter the genome before medaka hopes to fix the termial errors
-            RESTARTGENOME(contigs, txt)
-            ch_versions = ch_versions.mix(RESTARTGENOME.out.versions.first())
+            if(!params.skip_recenter_genome){
+                RESTARTGENOME(contigs, txt)
+                ch_versions = ch_versions.mix(RESTARTGENOME.out.versions.first())
 
-            RESTARTGENOME.out.fasta
-                .filter { meta, fasta -> fasta.countFasta() > 0 }
-                .set { contigs }
-            
+                RESTARTGENOME.out.fasta
+                    .filter { meta, fasta -> fasta.countFasta() > 0 }
+                    .set { contigs }
+            }
             //input = nanopore_reads.join(contigs)
             //nanopore_reads.join(contigs).view()
             nanopore_reads.join(contigs).multiMap{
