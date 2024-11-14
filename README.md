@@ -98,14 +98,13 @@ You can clone or download the pathogenseq from github to local computer or you c
 nextflow run xiaoli-dong/pathogenseq -r revision_number(e.g:8657a20) --help
 
 # download the pipeine and run the program from the local computer
-
 nextflow run main.nf --help
 N E X T F L O W  ~  version 23.04.1
-Launching `main.nf` [spontaneous_kowalevski] DSL2 - revision: 4ef093f544
+Launching `main.nf` [focused_goldstine] DSL2 - revision: 4ef093f544
 
 
 ------------------------------------------------------
-  xiaoli-dong/pathogenseq v1.1.0
+  xiaoli-dong/pathogenseq v1.1.3
 ------------------------------------------------------
 Typical pipeline command:
 
@@ -148,7 +147,7 @@ nanopore_options
 annotation_options
   --bakta_db                         [string]  Path to bakta database. [default: /nfs/APL_Genomics/db/prod/bakta/db]
   --checkm2_db                       [string]  Path to checkm2 database. [default: /nfs/APL_Genomics/db/prod/CheckM2_database/uniref100.KO.1.dmnd]
-  --amrfinderplus_db                 [string]  null
+  --amrfinderplus_db                 [string]  null [default: /nfs/APL_Genomics/db/prod/AMRFinderPlus/latest]
   --skip_checkm2                     [boolean] Skip checkm2 step. [default: false]
   --skip_bakta                       [boolean] Skip bakta step. [default: false]
   --skip_mlst                        [boolean] Skip mlst step. [default: false]
@@ -156,7 +155,8 @@ annotation_options
   --skip_virulome                    [boolean] Skip virulome step. [default: false]
   --skip_multiqc                     [boolean] null [default: false]
   --skip_amr                         [boolean] Skip amr step. [default: false]
-  --skip_depth_and_coverage          [boolean] Skip assembly depth calculation step. [default: false]
+  --skip_depth_and_coverage_illumina [boolean] Skip assembly depth calculation step with illumina reads. [default: false]
+  --skip_depth_and_coverage_nanopore [boolean] Skip assembly depth calculation step with nanopore reads. [default: false]
 
 taxonomic_tool_options
   --kraken2_db                       [string]  Specify path to kraken2 database [default: /nfs/APL_Genomics/db/prod/kraken2/k2_standard_08gb_20220926]
