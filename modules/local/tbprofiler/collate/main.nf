@@ -4,19 +4,20 @@ process TBPROFILER_COLLATE {
     errorStrategy 'ignore'
     
     conda "${moduleDir}/environment.yml"
-    conda "bioconda::tb-profiler=5.0.1"
+    conda "bioconda::tb-profiler=6.2.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tb-profiler%3A5.0.1--pyhdfd78af_1' :
-        'biocontainers/tb-profiler%3A5.0.1--pyhdfd78af_1' }"
+        'https://depot.galaxyproject.org/singularity/tb-profiler%3A6.2.1--pyhdfd78af_0' :
+        'biocontainers/tb-profiler%3A6.2.1--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(json)
 
+
     output:
-    tuple val(meta), path("${prefix}.txt") , emit: tsv, optional: true
+    tuple val(meta), path("${prefix}.txt") , emit: txt
     tuple val(meta), path("${prefix}.json"), emit: json
-    tuple val(meta), path("*.variants.txt") , emit: variants, optional: true
-    tuple val(meta), path("*.itol.txt"), emit: itol
+    tuple val(meta), path("${prefix}.variants.txt") , emit: variants_txt
+    tuple val(meta), path("*.itol.txt"), emit: itol, optional: true
     path "versions.yml"                    , emit: versions
 
     when:

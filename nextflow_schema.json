@@ -205,7 +205,7 @@
                 },
                 "amrfinderplus_db": {
                     "type": "string",
-                    "default": null
+                    "default": "/nfs/APL_Genomics/db/prod/AMRFinderPlus/latest"
                 },
                 "skip_checkm2": {
                     "type": "boolean",
@@ -247,10 +247,16 @@
                     "description": "Skip amr step.",
                     "fa_icon": "fas fa-cut"
                 },
-                "skip_depth_and_coverage": {
+                "skip_depth_and_coverage_illumina": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Skip assembly depth calculation step.",
+                    "description": "Skip assembly depth calculation step with illumina reads.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "skip_depth_and_coverage_nanopore": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Skip assembly depth calculation step with nanopore reads.",
                     "fa_icon": "fas fa-cut"
                 }
             }

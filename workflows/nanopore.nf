@@ -107,16 +107,16 @@ workflow NANOPORE {
         ch_input
     )
     ch_software_versions = ch_software_versions.mix(INPUT_CHECK.out.versions)
-
     reads = INPUT_CHECK.out.reads
+   
     illumina_reads = INPUT_CHECK.out.shortreads
     nanopore_reads = INPUT_CHECK.out.longreads
+    
+
     in_format = "tsv"
     out_format = "tsv"
     contig_file_ext = ".fa.gz"
 
-   
-    
     if(!params.skip_illumina_reads_qc){
       
         QC_ILLUMINA(
@@ -222,9 +222,7 @@ workflow NANOPORE {
         contig_file_ext = ".fa.gz"
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_NANOPORE.out.versions)
         stats = ASSEMBLE_NANOPORE.out.stats
-        
-        contigs.view()
-
+       
         //if(!params.skip_illumina_reads_polish  && params.skip_polypolish && illumina_reads.ifEmpty(null)){
         if(!params.skip_illumina_reads_polish  && !params.skip_polypolish){
                
@@ -287,16 +285,14 @@ workflow NANOPORE {
             ch_software_versions = ch_software_versions.mix(RUN_POLCA.out.versions)
         }
        
-        CSVTK_CONCAT_STATS_ASM(stats.map { cfg, stats -> stats }.collect()
-            .map { 
-                files -> tuple([id:"assembly_stats"], files)
-            }, 
+       CSVTK_CONCAT_STATS_ASM(
+            stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"assembly_stats"], files)}, 
             in_format, 
             out_format 
-        ) 
+        )
         // analysis
 
-        if(! params.skip_depth_and_coverage){
+        if(! params.skip_depth_and_coverage_illumina){
            
             //contigs.view()
             DEPTH_ILLUMINA(illumina_reads, contigs)
@@ -306,6 +302,8 @@ workflow NANOPORE {
                 in_format, 
                 out_format 
             ) 
+        }
+        if(! params.skip_depth_and_coverage_nanopore){
             DEPTH_NANOPORE(nanopore_reads, contigs)
             CSVTK_CONCAT_DEPTH_NANOPORE(
                 DEPTH_NANOPORE.out.sample_coverage.map { cfg, stats -> stats }.collect().map 

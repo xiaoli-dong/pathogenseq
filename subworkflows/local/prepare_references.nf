@@ -78,7 +78,10 @@ workflow PREPARE_REFERENCES {
     ch_amrfinderplus_db = Channel.empty()
     if (!params.skip_amr) {
         if (params.amrfinderplus_db) {
-            ch_checkm2_db = Channel.value(file(params.checkm2_db))
+            //ch_amrfinderplus_db = Channel.value(file(params.amrfinderplus_db))
+            ch_amrfinderplus_db = Channel
+                .fromPath( params.amrfinderplus_db )
+                .first()
         }
         else {
             AMRFINDERPLUS_UPDATE()
@@ -88,7 +91,7 @@ workflow PREPARE_REFERENCES {
     }
 
     //
-    // Prepare amrfinderplus database
+    // Prepare gambit database
     //
     ch_gambit_db = Channel.empty()
     if (!params.skip_gambit) {

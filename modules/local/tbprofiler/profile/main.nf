@@ -3,10 +3,10 @@ process TBPROFILER_PROFILE {
     label 'process_medium'
     errorStrategy 'ignore'
     conda "${moduleDir}/environment.yml"
-    conda "bioconda::tb-profiler=5.0.1"
+    conda "bioconda::tb-profiler=6.2.1"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tb-profiler%3A5.0.1--pyhdfd78af_1' :
-        'biocontainers/tb-profiler%3A5.0.1--pyhdfd78af_1' }"
+        'https://depot.galaxyproject.org/singularity/tb-profiler%3A6.2.1--pyhdfd78af_0' :
+        'biocontainers/tb-profiler%3A6.2.1--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(reads)

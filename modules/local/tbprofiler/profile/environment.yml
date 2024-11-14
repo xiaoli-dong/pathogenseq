@@ -4,4 +4,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - bioconda::tb-profiler=3.0.8
+  - bioconda::tb-profiler=6.2.1

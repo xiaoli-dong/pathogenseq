@@ -221,7 +221,7 @@ workflow ILLUMINA {
         ) 
        
         illumina_reads.join(contigs)//.view()
-        if(! params.skip_depth_and_coverage){
+        if(! params.skip_depth_and_coverage_illumina){
             illumina_reads.join(contigs).multiMap{
                 it ->
                 reads: [it[0], it[1]]

@@ -67,7 +67,10 @@ workflow ANNOTATION {
         }
         
         //ARG(contigs, ffn, faa)
+        contigs.view()
+        amrfinderplus_db.view()
         if(!params.skip_amr ){
+            
             AMRFINDERPLUS_RUN(contigs, amrfinderplus_db)
             ch_software_versions = ch_software_versions.mix(AMRFINDERPLUS_RUN.out.versions)
             CSVTK_CONCAT_AMR(AMRFINDERPLUS_RUN.out.report.map { cfg, amr -> amr }.collect().map { files -> tuple([id:"amr.amrfinderplus"], files)}, in_format, out_format ) 
