@@ -15,7 +15,7 @@ process TBPROFILER_COLLATE {
 
     output:
     tuple val(meta), path("${prefix}.txt") , emit: txt
-    tuple val(meta), path("${prefix}.json"), emit: json
+    //tuple val(meta), path("${prefix}.json"), emit: json
     tuple val(meta), path("${prefix}.variants.txt") , emit: variants_txt
     tuple val(meta), path("*.itol.txt"), emit: itol, optional: true
     path "versions.yml"                    , emit: versions
