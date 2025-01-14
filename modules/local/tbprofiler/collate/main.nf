@@ -4,10 +4,10 @@ process TBPROFILER_COLLATE {
     errorStrategy 'ignore'
     
     conda "${moduleDir}/environment.yml"
-    conda "bioconda::tb-profiler=6.2.1"
+    conda "bioconda::tb-profiler=6.5.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/tb-profiler%3A6.2.1--pyhdfd78af_0' :
-        'biocontainers/tb-profiler%3A6.2.1--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/tb-profiler%3A6.5.0--pyhdfd78af_0' :
+        'biocontainers/tb-profiler%3A6.5.0--pyhdfd78af_0' }"
 
     input:
     tuple val(meta), path(json)
