@@ -63,11 +63,10 @@ workflow QC_ILLUMINA {
             BBMAP_BBDUK(reads, adapter_fasta)
             ch_versions = ch_versions.mix(BBMAP_BBDUK.out.versions.first())
             //get rid of zero size contig file and avoid the downstream crash
-            /* BBMAP_BBDUK.out.reads
-                .filter { meta, reads -> reads.countFastq() > 0 }
-                .set { qc_reads } */
-            //qc_reads = BBMAP_BBDUK.out.reads
-            trimmed_reads = BBMAP_BBDUK.out.reads
+            BBMAP_BBDUK.out.reads
+                .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
+                .set { trimmed_reads }
+            
             FASTQC_TRIMMED_BBDUK(trimmed_reads)
             SEQKIT_STATS_TRIMMED_BBDUK(trimmed_reads)
 
@@ -106,9 +105,12 @@ workflow QC_ILLUMINA {
         if(! params.skip_illumina_dehost){
             HOSTILE_ILLUMINA(trimmed_reads, "bowtie2", hostile_human_ref)
             ch_versions = ch_versions.mix(HOSTILE_ILLUMINA.out.versions.first())
+            HOSTILE_NANOPORE.out.reads
+                .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
+                .set { qc_reads }
 
-            FASTQC_HOSTILE(HOSTILE_ILLUMINA.out.reads)
-            SEQKIT_STATS_HOSTILE_ILLUMINA(HOSTILE_ILLUMINA.out.reads)
+            FASTQC_HOSTILE(qc_reads)
+            SEQKIT_STATS_HOSTILE_ILLUMINA(qc_reads)
             CSVTK_CONCAT_STATS_HOSTILE_ILLUMINA(
                 SEQKIT_STATS_HOSTILE_ILLUMINA.out.stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id: "reads_illumina.dehost_seqstats"], files)}, 
                 in_format, 

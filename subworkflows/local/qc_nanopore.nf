@@ -50,17 +50,25 @@ workflow QC_NANOPORE {
         // QC
         PORECHOP_PORECHOP(reads)
         ch_versions = ch_versions.mix(PORECHOP_PORECHOP.out.versions.first())
-        SEQKIT_STATS_PORECHOP(PORECHOP_PORECHOP.out.reads)
+        PORECHOP_PORECHOP.out.reads
+            .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+            .set { nanopore_reads }
+
+        SEQKIT_STATS_PORECHOP(nanopore_reads)
         CSVTK_CONCAT_STATS_PORECHOP(
             SEQKIT_STATS_PORECHOP.out.stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"reads_nanopore.porechop_seqstats"], files)}, 
             in_format, 
             out_format 
         ) 
 
-        CHOPPER(PORECHOP_PORECHOP.out.reads)
+        CHOPPER(nanopore_reads)
         ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
-        qc_reads = CHOPPER.out.fastq //gzip compressed
-        SEQKIT_STATS_CHOPPER(CHOPPER.out.fastq)
+        
+        CHOPPER.out.fastq
+            .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+            .set { qc_reads }
+        //qc_reads = CHOPPER.out.fastq //gzip compressed
+        SEQKIT_STATS_CHOPPER(qc_reads)
         qc_stats = SEQKIT_STATS_CHOPPER.out.stats
         CSVTK_CONCAT_STATS_CHOPPER(
             qc_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"reads_nanopore.chopper_seqstats"], files)}, 
@@ -70,11 +78,15 @@ workflow QC_NANOPORE {
 
 
         if(! params.skip_nanopore_dehost){
-            HOSTILE_NANOPORE(CHOPPER.out.fastq, "minimap2", hostile_human_ref)
+            HOSTILE_NANOPORE(qc_reads, "minimap2", hostile_human_ref)
             ch_versions = ch_versions.mix(HOSTILE_NANOPORE.out.versions.first())
-            SEQKIT_STATS_HOSTILE_NANOPORE(HOSTILE_NANOPORE.out.reads)
+            HOSTILE_NANOPORE.out.reads
+                .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+                .set { qc_reads }
 
-            qc_reads = HOSTILE_NANOPORE.out.reads //gzip compressed
+            SEQKIT_STATS_HOSTILE_NANOPORE(qc_reads)
+
+            //qc_reads = HOSTILE_NANOPORE.out.reads //gzip compressed
             qc_stats = SEQKIT_STATS_HOSTILE_NANOPORE.out.stats
             CSVTK_CONCAT_STATS_HOSTILE_NANOPORE(
                 qc_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"reads_nanopore.dehost_seqstats"], files)}, 
