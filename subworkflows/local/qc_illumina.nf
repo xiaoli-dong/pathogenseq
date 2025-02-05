@@ -105,7 +105,7 @@ workflow QC_ILLUMINA {
         if(! params.skip_illumina_dehost){
             HOSTILE_ILLUMINA(trimmed_reads, "bowtie2", hostile_human_ref)
             ch_versions = ch_versions.mix(HOSTILE_ILLUMINA.out.versions.first())
-            HOSTILE_NANOPORE.out.reads
+            HOSTILE_ILLUMINA.out.reads
                 .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
                 .set { qc_reads }
 
@@ -116,7 +116,7 @@ workflow QC_ILLUMINA {
                 in_format, 
                 out_format 
             )
-            qc_reads = HOSTILE_ILLUMINA.out.reads
+            //qc_reads = HOSTILE_ILLUMINA.out.reads
             qc_stats = SEQKIT_STATS_HOSTILE_ILLUMINA.out.stats
         }
 
