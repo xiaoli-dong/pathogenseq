@@ -75,18 +75,7 @@ By default, the pipeline supports both short and long reads:
   
 ## Quick Start
 
-The workflow uses nextflow to manage compute and software resources, as such nextflow will need to be installed before attempting to run the workflow.
-The workflow can currently be run using either singularity or conda to provide isolation of the required software. Both methods are automated out-of-the-box provided either docker or singularity is installed.
-It is not required to clone or download the git repository in order to run the workflow. 
-
-  > **Note**
-  > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-  > to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-  > with `-profile test` before running the workflow on actual data.
- 
-  > Install any of [`Docker`](https://docs.docker.com/engine/installation/), [`Singularity`](https://www.sylabs.io/guides/3.0/user-guide/), [`Podman`](https://podman.io/), [`Shifter`](https://nersc.gitlab.io/development/shifter/how-to-use/) or [`Charliecloud`](https://hpc.github.io/charliecloud/) for full pipeline reproducibility _(please only use [`Conda`](https://conda.io/miniconda.html) as a last resort; see [docs](https://nf-co.re/usage/configuration#basic-configuration-profiles))_
-
-
+>If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with -profile test before running the workflow on actual data.
 
 ### Check workflow options
 You can clone or download the pathogenseq from github to local computer or you can directly run the pipeline from github. To check the pipeline command line options:
@@ -119,12 +108,13 @@ The csv format samplesheet has five required columns:
 
 
 > medaka model, (default: r1041_e82_400bps_sup_v4.2.0).
->> Choices: r103_fast_g507 r103_hac_g507 r103_min_high_g345 r103_min_high_g360 r103_prom_high_g360 r103_sup_g507 r1041_e82_260bps_fast_g632 r1041_e82_260bps_hac_g632 r1041_e82_260bps_hac_v4.0.0 r1041_e82_260bps_hac_v4.1.0 r1041_e82_260bps_sup_g632 r1041_e82_260bps_sup_v4.0.0 r1041_e82_260bps_sup_v4.1.0 r1041_e82_400bps_fast_g615 r1041_e82_400bps_fast_g632 r1041_e82_400bps_hac_g615 r1041_e82_400bps_hac_g632 r1041_e82_400bps_hac_v4.0.0 r1041_e82_400bps_hac_v4.1.0 r1041_e82_400bps_hac_v4.2.0 r1041_e82_400bps_sup_g615 r1041_e82_400bps_sup_v4.0.0 r1041_e82_400bps_sup_v4.1.0 r1041_e82_400bps_sup_v4.2.0 r104_e81_fast_g5015 r104_e81_hac_g5015 r104_e81_sup_g5015 r104_e81_sup_g610 r10_min_high_g303 r10_min_high_g340 r941_e81_fast_g514 r941_e81_hac_g514 r941_e81_sup_g514 r941_min_fast_g303 r941_min_fast_g507 r941_min_hac_g507 r941_min_high_g303 r941_min_high_g330 r941_min_high_g340_rle r941_min_high_g344 r941_min_high_g351 r941_min_high_g360 r941_min_sup_g507 r941_prom_fast_g303 r941_prom_fast_g507 r941_prom_hac_g507 r941_prom_high_g303 r941_prom_high_g330 r941_prom_high_g344 r941_prom_high_g360 r941_prom_high_g4011 r941_prom_sup_g507 r941_sup_plant_g610
+> Choices: r103_fast_g507 r103_hac_g507 r103_min_high_g345 r103_min_high_g360 r103_prom_high_g360 r103_sup_g507 r1041_e82_260bps_fast_g632 r1041_e82_260bps_hac_g632 r1041_e82_260bps_hac_v4.0.0 r1041_e82_260bps_hac_v4.1.0 r1041_e82_260bps_sup_g632 r1041_e82_260bps_sup_v4.0.0 r1041_e82_260bps_sup_v4.1.0 r1041_e82_400bps_fast_g615 r1041_e82_400bps_fast_g632 r1041_e82_400bps_hac_g615 r1041_e82_400bps_hac_g632 r1041_e82_400bps_hac_v4.0.0 r1041_e82_400bps_hac_v4.1.0 r1041_e82_400bps_hac_v4.2.0 r1041_e82_400bps_sup_g615 r1041_e82_400bps_sup_v4.0.0 r1041_e82_400bps_sup_v4.1.0 r1041_e82_400bps_sup_v4.2.0 r104_e81_fast_g5015 r104_e81_hac_g5015 r104_e81_sup_g5015 r104_e81_sup_g610 r10_min_high_g303 r10_min_high_g340 r941_e81_fast_g514 r941_e81_hac_g514 r941_e81_sup_g514 r941_min_fast_g303 r941_min_fast_g507 r941_min_hac_g507 r941_min_high_g303 r941_min_high_g330 r941_min_high_g340_rle r941_min_high_g344 r941_min_high_g351 r941_min_high_g360 r941_min_sup_g507 r941_prom_fast_g303 r941_prom_fast_g507 r941_prom_hac_g507 r941_prom_high_g303 r941_prom_high_g330 r941_prom_high_g344 r941_prom_high_g360 r941_prom_high_g4011 r941_prom_sup_g507 r941_sup_plant_g610
 
 ### Run the pipeline:
+<!--
 > * If you are using `singularity` then the pipeline will auto-detect this and attempt to download the Singularity images directly as opposed to performing a conversion from Docker images. If you are persistently observing issues downloading Singularity images directly due to timeout or network issues then please use the `--singularity_pull_docker_container` parameter to pull and convert the Docker image instead. Alternatively, it is highly recommended to use the [`nf-core download`](https://nf-co.re/tools/#downloading-pipelines-for-offline-use) command to pre-download all of the required containers before running the pipeline and to set the [`NXF_SINGULARITY_CACHEDIR` or `singularity.cacheDir`](https://www.nextflow.io/docs/latest/singularity.html?#singularity-docker-hub) Nextflow options to be able to store and re-use the images from a central location for future pipeline runs.
 > * If you are using `conda`, it is highly recommended to use the [`NXF_CONDA_CACHEDIR` or `conda.cacheDir`](https://www.nextflow.io/docs/latest/conda.html) settings to store the environments in a central location for future pipeline runs.
-
+-->
 ```
 # Runing the pipeline from remote github
 nextflow run xiaoli-dong/pathogenseq \
