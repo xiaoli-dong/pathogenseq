@@ -5,15 +5,21 @@ include {
 } from '../../modules/nf-core/nanoplot/main' 
 
 include {PORECHOP_PORECHOP}  from '../../modules/nf-core/porechop/porechop/main.nf'  
+include {FASTPLONG}  from '../../modules/local/fastplong/main.nf'  
 include {CHOPPER}  from '../../modules/local/chopper/main.nf'  
 include {
-    HOSTILE as HOSTILE_NANOPORE;
-} from '../../modules/local/hostile/main'
+    HOSTILE_CLEAN as HOSTILE_NANOPORE;
+} from '../../modules/local/hostile/clean/main'
+include {
+    REPLACEFASTQHEADER
+} from '../../modules/local/replacefastqheader.nf'
+
 include {
     SEQKIT_STATS as SEQKIT_STATS_INPUT_NANOPORE
     SEQKIT_STATS as SEQKIT_STATS_PORECHOP;
     SEQKIT_STATS as SEQKIT_STATS_CHOPPER;
     SEQKIT_STATS as SEQKIT_STATS_HOSTILE_NANOPORE;
+    SEQKIT_STATS as SEQKIT_STATS_TRIMMED_FASTPLONG;
 } from '../../modules/local/seqkit/stats/main'
 
 include {
@@ -27,6 +33,7 @@ workflow QC_NANOPORE {
 
     take:
         reads
+        adapter_fasta
         hostile_human_ref
     main:
 
@@ -46,44 +53,71 @@ workflow QC_NANOPORE {
             in_format, 
             out_format 
         )
-
+        reads.view()
         // QC
-        PORECHOP_PORECHOP(reads)
-        ch_versions = ch_versions.mix(PORECHOP_PORECHOP.out.versions.first())
-        PORECHOP_PORECHOP.out.reads
-            .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
-            .set { nanopore_reads }
+        if ( params.nanopore_reads_qc_tool == 'fastplong'){
+            save_trimmed_fail = false
+            save_merged       = false
+            FASTPLONG( reads, adapter_fasta, save_trimmed_fail)
+            ch_versions = ch_versions.mix(FASTPLONG.out.versions.first())
+            //get rid of zero size contig file and avoid the downstream crash
+            
+            FASTPLONG.out.reads
+                .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+                .set { trimmed_reads }
 
-        SEQKIT_STATS_PORECHOP(nanopore_reads)
-        CSVTK_CONCAT_STATS_PORECHOP(
-            SEQKIT_STATS_PORECHOP.out.stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"reads_nanopore.porechop_seqstats"], files)}, 
-            in_format, 
-            out_format 
-        ) 
+            //qc_reads = FASTP.out.reads
+            SEQKIT_STATS_TRIMMED_FASTPLONG(trimmed_reads)
 
-        CHOPPER(nanopore_reads)
-        ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
-        
-        CHOPPER.out.fastq
-            .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
-            .set { qc_reads }
-        //qc_reads = CHOPPER.out.fastq //gzip compressed
-        SEQKIT_STATS_CHOPPER(qc_reads)
-        qc_stats = SEQKIT_STATS_CHOPPER.out.stats
+            qc_reads = trimmed_reads
+            qc_stats = SEQKIT_STATS_TRIMMED_FASTPLONG.out.stats
+
+        }
+        else{
+            PORECHOP_PORECHOP(reads)
+            ch_versions = ch_versions.mix(PORECHOP_PORECHOP.out.versions.first())
+            PORECHOP_PORECHOP.out.reads
+                .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+                .set { nanopore_reads }
+
+            SEQKIT_STATS_PORECHOP(nanopore_reads)
+            porechop_stats = SEQKIT_STATS_PORECHOP.out.stats
+            CSVTK_CONCAT_STATS_PORECHOP(
+                SEQKIT_STATS_PORECHOP.out.stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"reads_nanopore.porechop_seqstats"], files)}, 
+                in_format, 
+                out_format 
+            ) 
+
+            CHOPPER(nanopore_reads)
+            ch_versions = ch_versions.mix(CHOPPER.out.versions.first())
+            
+            CHOPPER.out.fastq
+                .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+                .set { qc_reads }
+            //qc_reads = CHOPPER.out.fastq //gzip compressed
+            SEQKIT_STATS_CHOPPER(qc_reads)
+            qc_stats = SEQKIT_STATS_CHOPPER.out.stats
+        }
         CSVTK_CONCAT_STATS_CHOPPER(
             qc_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"reads_nanopore.chopper_seqstats"], files)}, 
             in_format, 
             out_format 
         ) 
 
-
+        qc_reads.view()
         if(! params.skip_nanopore_dehost){
-            HOSTILE_NANOPORE(qc_reads, "minimap2", hostile_human_ref)
+            //HOSTILE_NANOPORE(qc_reads, "minimap2", hostile_human_ref)
+            HOSTILE_NANOPORE(qc_reads, [params.hostile_ref_name_nanopore, params.hostile_ref_dir])
             ch_versions = ch_versions.mix(HOSTILE_NANOPORE.out.versions.first())
-            HOSTILE_NANOPORE.out.reads
-                .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
-                .set { qc_reads }
 
+           
+
+            HOSTILE_NANOPORE.out.fastq
+                .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
+                .set { dehosted_reads }
+
+            REPLACEFASTQHEADER(qc_reads.join(dehosted_reads))
+            qc_reads = REPLACEFASTQHEADER.out.reads
             SEQKIT_STATS_HOSTILE_NANOPORE(qc_reads)
 
             //qc_reads = HOSTILE_NANOPORE.out.reads //gzip compressed
@@ -101,7 +135,7 @@ workflow QC_NANOPORE {
     emit:
         qc_reads
         input_stats = SEQKIT_STATS_INPUT_NANOPORE.out.stats
-        porechop_stats = SEQKIT_STATS_PORECHOP.out.stats
+        //porechop_stats
         qc_stats 
         versions = ch_versions
 

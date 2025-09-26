@@ -1,11 +1,13 @@
 process HOSTILE {
     tag "$meta.id"
     label 'process_medium'
-
-    conda "bioconda::hostile=0.4.0"
+    conda "bioconda::hostile=2.0.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/hostile%3A0.4.0--pyhdfd78af_0':
-        'biocontainers/hostile%3A0.4.0--pyhdfd78af_0' }"
+        'https://depot.galaxyproject.org/singularity/hostile:2.0.2--pyhdfd78af_0':
+        'biocontainers/hostile:2.0.2--pyhdfd78af_0' }"
+
+
+    
 
     input:
     tuple val(meta), path(reads)
@@ -13,7 +15,7 @@ process HOSTILE {
     path(ref) //directory, index has same prefix as the directory name
 
     output:
-    tuple val(meta), path('*.dehost*fastq.gz'), emit: reads
+    tuple val(meta), path('*clean*fastq.gz'), emit: reads
     tuple val(meta), path('*.log')     , emit: log
     path "versions.yml"                , emit: versions
 
@@ -34,21 +36,14 @@ process HOSTILE {
         """
         hostile clean \\
             --aligner ${aligner} \\
-            --out-dir ./ \\
+            --output ./ \\
             --index ${ref}/${ref} \\
             --threads $task.cpus \\
             ${input} \\
             $args \\
             >& ${prefix}.hostile_${aligner}.log
 
-        if [[ ${single_end} = true ]]
-        then
-            mv ${simplename}*.clean.fastq.gz ${prefix}.dehost.fastq.gz
-        else
-            mv *clean_1.fastq.gz ${prefix}.dehost_1.fastq.gz
-            mv *clean_2.fastq.gz ${prefix}.dehost_2.fastq.gz
-        fi
-
+        
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":
             hostile: \$(hostile --version)
@@ -59,20 +54,13 @@ process HOSTILE {
         """
         hostile clean \\
             --aligner ${aligner} \\
-            --out-dir ./ \\
+            --output ./ \\
             --index ${ref} \\
             --threads $task.cpus \\
             ${input} \\
             $args \\
             >& ${prefix}.hostile_${aligner}.log
         
-        if [[ ${single_end} = true ]]
-        then
-            mv ${simplename}*.clean.fastq.gz ${prefix}.dehost.fastq.gz
-        else
-            mv ${simplename}*.clean_1.fastq.gz ${prefix}.dehost_1.fastq.gz
-            mv ${simplename}*.clean_2.fastq.gz ${prefix}.dehost_2.fastq.gz
-        fi
 
         cat <<-END_VERSIONS > versions.yml
         "${task.process}":

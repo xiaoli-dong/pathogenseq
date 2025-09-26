@@ -1,17 +1,15 @@
-process MEDAKA {
+process MEDAKA_TOOLS_LISTMODELS {
     tag "$meta.id"
     label 'process_high'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/medaka:1.4.4--py38h130def0_0' :
-        'biocontainers/medaka:1.4.4--py38h130def0_0' }"
+        'https://depot.galaxyproject.org/singularity/medaka:2.1.0--py38ha0c3a46_0' :
+        'biocontainers/medaka:2.1.0--py38ha0c3a46_0' }"
 
-    input:
-    tuple val(meta), path(reads), path(assembly)
-
+    
     output:
-    tuple val(meta), path("*.fa.gz"), emit: assembly
+    path("medaka_tools_list_models.txt"), emit: models
     path "versions.yml"             , emit: versions
 
     when:
@@ -20,17 +18,9 @@ process MEDAKA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+    def m_option = mode != "NA" ? "-m ${mode}" : ''
     """
-    medaka_consensus \\
-        -t $task.cpus \\
-        $args \\
-        -i $reads \\
-        -d $assembly \\
-        -o ./
-
-    mv consensus.fasta ${prefix}.fa
-
-    gzip -n ${prefix}.fa
+    medaka tools list_models > medaka_tools_list_models.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

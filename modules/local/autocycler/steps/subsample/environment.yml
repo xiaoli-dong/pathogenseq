@@ -1,0 +1,7 @@
+name: autocycler
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bioconda::autocycler=0.5.0

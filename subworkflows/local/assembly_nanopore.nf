@@ -1,6 +1,6 @@
 
 include {FLYE} from  '../../modules/nf-core/flye/main'
-include {MEDAKA} from  '../../modules/local/medaka/main'
+
 
 include {
     ASSEMBYSTATS as STATS_MEDAKA;
@@ -12,40 +12,53 @@ include {
 
     FORMATASSEMBLYSTATS as STATS_MEDAKA_FORMATASSEMBLYSTATS;
     FORMATASSEMBLYSTATS as STATS_FLYE_FORMATASSEMBLYSTATS;
-    
-} from '../../modules/local/misc'
 
+} from '../../modules/local/misc'
 
 include {RESTARTGENOME } from  '../../modules/local/restartgenome'
 
-workflow ASSEMBLE_NANOPORE {   
+include { POLISHER_NANOPORE } from './polisher_nanopore'
+
+workflow ASSEMBLE_NANOPORE {
 
     take:
         nanopore_reads
     main:
         ch_versions = Channel.empty()
-       
-        
+
+
         //Flye to be the best-performing bacterial genome assembler in many metrics
         if ( params.nanopore_reads_assembler == 'flye+medaka'){
-            
-          
+
+
+           /*  nanopore_reads.multiMap{
+                it ->
+                nanopore_reads: [it[0], it[1]]
+                modeFlag: modeFlag = (
+                    it[0].basecaller_mode =~ '_sup_'
+                    || it[0].basecaller_mode =~ '_hac_'
+                ) ? "--nano-hq" : "--nano-raw"
+            }.set{
+                input
+            }
+            */
             nanopore_reads.multiMap{
                 it ->
                 nanopore_reads: [it[0], it[1]]
                 modeFlag: modeFlag = (
-                    it[0].basecaller_mode =~ '_sup_' 
-                    || it[0].basecaller_mode =~ '_hac_' 
-                ) ? "--nano-hq" : "--nano-raw" 
+                    it[0].basecaller_mode =~ 'r941'
+                ) ? "--nano-raw" : "--nano-hq"
             }.set{
                 input
             }
+            contig_file_ext = ".fasta"
+
             //input.modeFlag.view()
             FLYE(input.nanopore_reads, input.modeFlag)
             FLYE.out.fasta
                 .filter { meta, fasta -> fasta.countFasta() > 0 }
                 .set { contigs }
-            
+
             FLYE.out.txt
                 .filter { meta, txt -> txt.countLines() > 0 }
                 .set { txt }
@@ -65,32 +78,20 @@ workflow ASSEMBLE_NANOPORE {
                 RESTARTGENOME.out.fasta
                     .filter { meta, fasta -> fasta.countFasta() > 0 }
                     .set { contigs }
+                contig_file_ext = ".fasta"
             }
-            //input = nanopore_reads.join(contigs)
-            //nanopore_reads.join(contigs).view()
-            nanopore_reads.join(contigs).multiMap{
-                it ->
-                long_reads_and_assembly: [it[0], it[1], it[2]]
-                modeFlag: it[0].basecaller_mode 
-            }.set{
-                ch_input_medaka
-            }
-            //ch_input_medaka.long_reads_and_assembly.view()
-            //ch_input_medaka.modeFlag.view()
+           
+            POLISHER_NANOPORE(nanopore_reads, contigs, contig_file_ext)
 
-            MEDAKA(ch_input_medaka.long_reads_and_assembly, ch_input_medaka.modeFlag)
+           
+            contigs = POLISHER_NANOPORE.out.contigs
+            STATS = POLISHER_NANOPORE.out.stats
+            contig_file_ext = POLISHER_NANOPORE.out.contig_file_ext
+            versions = POLISHER_NANOPORE.out.versions
+        }
 
-            contigs = MEDAKA.out.assembly
-            //SEQKIT_STATS_MEDAKA(contigs)
-            STATS_MEDAKA(contigs)
-            //STATS_MEDAKA.out.stats.view()
-            STATS_MEDAKA_FORMATASSEMBLYSTATS(STATS_MEDAKA.out.stats)
-            //STATS_MEDAKA_FORMATASSEMBLYSTATS.out.tsv.view()
-            stats = STATS_MEDAKA_FORMATASSEMBLYSTATS.out.tsv
-            contig_file_ext = ".fa.gz"
-        } 
-        
-        
+
+
     emit:
         contigs
         contig_file_ext

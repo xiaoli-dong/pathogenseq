@@ -12,6 +12,7 @@ process SAMPLESHEETCHECK {
 
     output:
     path '*.csv'       , emit: csv
+    tuple val(true), path('stdout.log'), path('stderr.log'), emit: logs
     path "versions.yml", emit: versions
 
     when:
@@ -19,9 +20,7 @@ process SAMPLESHEETCHECK {
 
     script: // This script is bundled with the pipeline, in nf-core/rnaseq/bin/
     """
-    check_samplesheet.py \\
-        $samplesheet \\
-        samplesheet.valid.csv
+    check_samplesheet.py $samplesheet samplesheet.valid.csv > stdout.log 2> stderr.log || true
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

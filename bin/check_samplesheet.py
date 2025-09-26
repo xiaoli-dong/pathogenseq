@@ -37,6 +37,12 @@ def print_error(error, context="Line", context_str=""):
     print(error_str)
     sys.exit(1)
 
+def print_warning(message, context="Line", context_str=""):
+    warning_msg = f"WARNING: Please check samplesheet -> {message}"
+    if context and context_str:
+        warning_msg += f" | Context: {context.strip()} = {context_str.strip()}"
+        
+    print(warning_msg, file=sys.stderr)
 
 # TODO nf-core: Update the check_samplesheet function
 def check_samplesheet(file_in, file_out):
@@ -48,13 +54,63 @@ def check_samplesheet(file_in, file_out):
     For an example see:
     https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/samplesheet/samplesheet_test_illumina_amplicon.csv
     """
-    medaka_current_models = [
+    """  medaka_current_models = [
        
          # r1041 e82 (kit14) consensus
         'r1041_e82_400bps_hac_v4.2.0',
         'r1041_e82_400bps_sup_v4.2.0',
+    ] """
+
+    # the models were for medaka 2.1.0
+    medaka_current_models = [
+       
+         # Default consensus:
+        'r1041_e82_400bps_sup_v5.2.0',
+        # Default variant: 
+        'r1041_e82_400bps_sup_variant_v5.0.0'
     ]
     medaka_archived_models = [
+        "r103_fast_g507", "r103_fast_snp_g507", "r103_fast_variant_g507",
+        "r103_hac_g507", "r103_hac_snp_g507", "r103_hac_variant_g507",
+        "r103_sup_g507", "r103_sup_snp_g507", "r103_sup_variant_g507",
+        "r1041_e82_260bps_fast_g632", "r1041_e82_260bps_fast_variant_g632",
+        "r1041_e82_260bps_hac_g632", "r1041_e82_260bps_hac_v4.0.0",
+        "r1041_e82_260bps_hac_v4.1.0", "r1041_e82_260bps_hac_variant_g632",
+        "r1041_e82_260bps_hac_variant_v4.1.0", "r1041_e82_260bps_joint_apk_ulk_v5.0.0",
+        "r1041_e82_260bps_sup_g632", "r1041_e82_260bps_sup_v4.0.0", "r1041_e82_260bps_sup_v4.1.0",
+        "r1041_e82_260bps_sup_variant_g632", "r1041_e82_260bps_sup_variant_v4.1.0",
+        "r1041_e82_400bps_bacterial_methylation", "r1041_e82_400bps_fast_g615",
+        "r1041_e82_400bps_fast_g632", "r1041_e82_400bps_fast_variant_g615",
+        "r1041_e82_400bps_fast_variant_g632", "r1041_e82_400bps_hac_g615",
+        "r1041_e82_400bps_hac_g632", "r1041_e82_400bps_hac_v4.0.0", "r1041_e82_400bps_hac_v4.1.0",
+        "r1041_e82_400bps_hac_v4.2.0", "r1041_e82_400bps_hac_v4.3.0", "r1041_e82_400bps_hac_v5.0.0",
+        "r1041_e82_400bps_hac_v5.0.0_rl_lstm384_dwells", "r1041_e82_400bps_hac_v5.0.0_rl_lstm384_no_dwells",
+        "r1041_e82_400bps_hac_v5.2.0", "r1041_e82_400bps_hac_v5.2.0_rl_lstm384_dwells",
+        "r1041_e82_400bps_hac_v5.2.0_rl_lstm384_no_dwells", "r1041_e82_400bps_hac_variant_g615",
+        "r1041_e82_400bps_hac_variant_g632", "r1041_e82_400bps_hac_variant_v4.1.0",
+        "r1041_e82_400bps_hac_variant_v4.2.0", "r1041_e82_400bps_hac_variant_v4.3.0",
+        "r1041_e82_400bps_hac_variant_v5.0.0", "r1041_e82_400bps_sup_g615",
+        "r1041_e82_400bps_sup_v4.0.0", "r1041_e82_400bps_sup_v4.1.0", "r1041_e82_400bps_sup_v4.2.0",
+        "r1041_e82_400bps_sup_v4.3.0", "r1041_e82_400bps_sup_v5.0.0",
+        "r1041_e82_400bps_sup_v5.0.0_rl_lstm384_dwells", "r1041_e82_400bps_sup_v5.0.0_rl_lstm384_no_dwells",
+        "r1041_e82_400bps_sup_v5.2.0", "r1041_e82_400bps_sup_v5.2.0_rl_lstm384_dwells",
+        "r1041_e82_400bps_sup_v5.2.0_rl_lstm384_no_dwells", "r1041_e82_400bps_sup_variant_g615",
+        "r1041_e82_400bps_sup_variant_v4.1.0", "r1041_e82_400bps_sup_variant_v4.2.0",
+        "r1041_e82_400bps_sup_variant_v4.3.0", "r1041_e82_400bps_sup_variant_v5.0.0",
+        "r104_e81_fast_g5015", "r104_e81_fast_variant_g5015", "r104_e81_hac_g5015",
+        "r104_e81_hac_variant_g5015", "r104_e81_sup_g5015", "r104_e81_sup_g610",
+        "r104_e81_sup_variant_g610", "r941_e81_fast_g514", "r941_e81_fast_variant_g514",
+        "r941_e81_hac_g514", "r941_e81_hac_variant_g514", "r941_e81_sup_g514",
+        "r941_e81_sup_variant_g514", "r941_min_fast_g507", "r941_min_fast_snp_g507",
+        "r941_min_fast_variant_g507", "r941_min_hac_g507", "r941_min_hac_snp_g507",
+        "r941_min_hac_variant_g507", "r941_min_sup_g507", "r941_min_sup_snp_g507",
+        "r941_min_sup_variant_g507", "r941_prom_fast_g507", "r941_prom_fast_snp_g507",
+        "r941_prom_fast_variant_g507", "r941_prom_hac_g507", "r941_prom_hac_snp_g507",
+        "r941_prom_hac_variant_g507", "r941_prom_sup_g507", "r941_prom_sup_snp_g507",
+        "r941_prom_sup_variant_g507", "r941_sup_plant_g610", "r941_sup_plant_variant_g610"
+    ]
+
+    """ medaka_archived_models = [
         # r9 consensus
         'r941_sup_plant_g610',
         'r941_min_fast_g507', 'r941_prom_fast_g507',
@@ -90,7 +146,7 @@ def check_samplesheet(file_in, file_out):
         'r941_e81_fast_g514', 'r941_e81_hac_g514', 'r941_e81_sup_g514'
        
     ]
-    
+     """
     medaka_allowed_models = sorted(medaka_current_models + medaka_archived_models)
 
     sample_mapping_dict = {}
@@ -153,13 +209,19 @@ def check_samplesheet(file_in, file_out):
             ## Check basecalling mode
             if basecaller_mode:
                 #if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in ["fast", "hac", "sup"]:
-                if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in medaka_allowed_models:
+               if basecaller_mode.upper() != 'NA' and basecaller_mode.lower() not in medaka_allowed_models:
                     modelStr = ' '.join(medaka_allowed_models)
-                    print_error(
+                    """  print_error(
                         f"Long read bascaling mode is not valid, it can only be one of: {modelStr}",
                         "Line",
                         line,
+                    ) """
+                    print_warning(
+                        f"Long read bascaling mode is not valid, it can only be one of: {modelStr}\n, change the model to NA",
+                        "Line",
+                        line,
                     )
+                    basecaller_mode = "NA"
             
             ## Auto-detect paired-end/single-end
             sample_info = []  ## [single_end, fastq_1, fastq_2]

@@ -26,8 +26,8 @@ include {
 } from '../../modules/nf-core/csvtk/concat/main'
 
 include {
-    HOSTILE as HOSTILE_ILLUMINA;
-} from '../../modules/local/hostile/main'
+    HOSTILE_CLEAN as HOSTILE_ILLUMINA;
+} from '../../modules/local/hostile/clean/main'
 
 workflow QC_ILLUMINA {   
 
@@ -103,9 +103,10 @@ workflow QC_ILLUMINA {
        
         //FASTQC_QC(qc_reads)
         if(! params.skip_illumina_dehost){
-            HOSTILE_ILLUMINA(trimmed_reads, "bowtie2", hostile_human_ref)
+            //HOSTILE_ILLUMINA(trimmed_reads, "bowtie2", hostile_human_ref)
+            HOSTILE_ILLUMINA(trimmed_reads, [params.hostile_ref_name_illumina, params.hostile_ref_dir])
             ch_versions = ch_versions.mix(HOSTILE_ILLUMINA.out.versions.first())
-            HOSTILE_ILLUMINA.out.reads
+            HOSTILE_ILLUMINA.out.fastq
                 .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
                 .set { qc_reads }
 

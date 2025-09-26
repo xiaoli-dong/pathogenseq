@@ -1,7 +1,7 @@
-name: medaka
+name: fastplong
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
-  - bioconda::medaka=1.4.4
+  - bioconda::fastplong=0.3.0

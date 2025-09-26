@@ -30,6 +30,7 @@ process FLYE {
     def valid_mode = ["--pacbio-raw", "--pacbio-corr", "--pacbio-hifi", "--nano-raw", "--nano-corr", "--nano-hq"]
     if ( !valid_mode.contains(mode) )  { error "Unrecognised mode to run Flye. Options: ${valid_mode.join(', ')}" }
     """
+    # genome size is no longer required since the version 2.8
     flye \\
         $mode \\
         $reads \\

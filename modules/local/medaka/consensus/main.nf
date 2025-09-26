@@ -1,18 +1,18 @@
-process MEDAKA {
+process MEDAKA_CONSENSUS {
     tag "$meta.id"
     label 'process_high'
 
-    conda "bioconda::medaka=1.8.0"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/medaka%3A1.8.0--py39h771796b_0' :
-        'biocontainers/medaka%3A1.8.0--py39h771796b_0' }"
+        'https://depot.galaxyproject.org/singularity/medaka:2.1.0--py38ha0c3a46_0' :
+        'biocontainers/medaka:2.1.0--py38ha0c3a46_0' }"
 
     input:
     tuple val(meta), path(reads), path(assembly)
     val mode
-    
+
     output:
-    tuple val(meta), path("*.fa.gz"), emit: assembly
+    tuple val(meta), path("medaka/*.fasta.gz"), emit: assembly
     path "versions.yml"             , emit: versions
 
     when:
@@ -28,12 +28,11 @@ process MEDAKA {
         $args \\
         ${m_option} \\
         -i $reads \\
-        -d $assembly \\
-        -o ./
+        -d $assembly
 
-    mv consensus.fasta ${prefix}.fa
+    mv medaka/consensus.fasta medaka/${prefix}.fasta
 
-    gzip -n ${prefix}.fa
+    gzip -n medaka/${prefix}.fasta
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

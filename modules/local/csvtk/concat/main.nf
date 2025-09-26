@@ -1,10 +1,10 @@
 process CSVTK_CONCAT {
     tag "$meta.id"
     label 'process_low'
-   
+
     conda "bioconda::csvtk=0.23.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/csvtk:0.23.0--h9ee0642_0' :
+        'https://depot.galaxyproject.org/singularity/csvtk:0.31.0--h9ee0642_0' :
         'biocontainers/csvtk:0.23.0--h9ee0642_0' }"
 
     input:
@@ -22,7 +22,7 @@ process CSVTK_CONCAT {
     script:
     def args = task.ext.args   ?: ''
     prefix   = task.ext.prefix ?: "${meta.id}"
-    
+
     out_extension = out_format == "tsv" ? 'tsv' : 'csv'
     """
     csvtk \\
