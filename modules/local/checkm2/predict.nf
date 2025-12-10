@@ -1,6 +1,6 @@
 process CHECKM2_PREDICT {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_medium'
 
 
     conda "bioconda::checkm2=1.1.0"
@@ -10,7 +10,6 @@ process CHECKM2_PREDICT {
 
     input:
     tuple val(meta), path(contigs, stageAs: "input_dir/*")
-    val fasta_ext
     path db
 
     output:
@@ -25,12 +24,31 @@ process CHECKM2_PREDICT {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
 
+    def contigFiles = contigs instanceof List ? contigs : [contigs]
+    def firstFileName = contigFiles[0].getName()
+
+    // Extract extension
+    def extension = firstFileName.endsWith('.gz')
+        ? '.' + firstFileName.tokenize('.')[-2] + '.gz'
+        : '.' + firstFileName.tokenize('.')[-1]
+
+    // Log it (optional)
+    log.info "Detected extension for ${firstFileName}: ${extension}"
+
+    // Validate against allowed extensions (with leading dots)
+    def allowed = ['.fna', '.fna.gz', '.fasta', '.fasta.gz', '.fa', '.fa.gz']
+    if (!(extension in allowed)) {
+        error "Unsupported contig file extension: ${extension}"
+    }
+
+
+
     """
     checkm2 \\
         predict \\
+        -x ${extension} \\
         $args \\
         --input input_dir \\
-        -x $fasta_ext \\
         --output-directory ./output \\
         --database_path $db \\
         -t $task.cpus

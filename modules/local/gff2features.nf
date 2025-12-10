@@ -1,9 +1,9 @@
 process GFF2FEATURES{
 
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_single'
 
-   
+
     conda "conda-forge::perl=5.26.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/perl:5.26.2':
@@ -30,5 +30,5 @@ process GFF2FEATURES{
         perl: \$(echo \$(perl -v 2>&1) | sed -n \'2 p\' | sed 's/^.*?(v//g; s/^).*//g;' ))
     END_VERSIONS
     """
-   
+
 }

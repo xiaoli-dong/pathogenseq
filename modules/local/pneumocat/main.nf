@@ -1,7 +1,7 @@
 VERSION = '1.2.1' // WARN: Version information not provided by tool on CLI. Please update this string when bumping container versions.
 process PNEUMOCAT {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_single'
     errorStrategy 'ignore'
     
     conda "${moduleDir}/environment.yml"

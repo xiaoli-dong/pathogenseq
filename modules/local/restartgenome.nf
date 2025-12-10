@@ -1,8 +1,8 @@
 process RESTARTGENOME {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_single'
 
-   
+
     conda "conda-forge::perl=5.26.2"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/perl:5.26.2':
@@ -22,7 +22,7 @@ process RESTARTGENOME {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    
+
     """
     reset_start_position_for_circular_genome.pl \\
         -f $fasta \\

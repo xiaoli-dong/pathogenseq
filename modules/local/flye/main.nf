@@ -1,6 +1,6 @@
 process FLYE {
     tag "$meta.id"
-    label 'process_high'
+    label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -40,7 +40,7 @@ process FLYE {
         $args
 
     #gzip -c assembly.fasta > ${prefix}.assembly.fasta.gz
-    mv assembly.fasta  ${prefix}.assembly.fasta 
+    mv assembly.fasta  ${prefix}.assembly.fasta
     gzip -c assembly_graph.gfa > ${prefix}.assembly_graph.gfa.gz
     gzip -c assembly_graph.gv > ${prefix}.assembly_graph.gv.gz
     mv assembly_info.txt ${prefix}.assembly_info.txt

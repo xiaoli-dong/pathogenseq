@@ -67,16 +67,33 @@ include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_NOT_ASSEMBLED;
     CSVTK_CONCAT as CSVTK_CONCAT_GTDBTK_ANI_SUMMARY;
     CSVTK_CONCAT as CSVTK_CONCAT_GTDBTK_ANI_CLOSEST;
+    CSVTK_CONCAT as CSVTK_CONCAT_TOPMATCHES_ILLUMINA;
+    CSVTK_CONCAT as CSVTK_CONCAT_TOPMATCHES_NANOPORE;
 } from '../modules/nf-core/csvtk/concat/main'
 
 include {
     KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA;
     KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_NANOPORE;
 } from '../modules/nf-core/kraken2/kraken2/main'
+
 include {
+    BRACKEN_BRACKEN as  BRACKEN_BRACKEN_ILLUMINA;
+    BRACKEN_BRACKEN as  BRACKEN_BRACKEN_NANOPORE;
+} from '../modules/nf-core/bracken/bracken/main'
+
+include {
+    BRACKEN_COMBINEBRACKENOUTPUTS as BRACKEN_COMBINEBRACKENOUTPUTS_ILLUMINA;
+    BRACKEN_COMBINEBRACKENOUTPUTS as BRACKEN_COMBINEBRACKENOUTPUTS_NANOPORE;
+} from '../modules/nf-core/bracken/combinebrackenoutputs/main'
+include {
+    BRACKEN_GETTOPMATCHES as BRACKEN_GETTOPMATCHES_ILLUMINA;
+    BRACKEN_GETTOPMATCHES as BRACKEN_GETTOPMATCHES_NANOPORE;
+} from '../modules/local/bracken/gettopmatches/main'
+
+/* include {
     KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA;
     KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_NANOPORE;
-} from '../modules/nf-core/krakentools/combinekreports/main.nf'
+} from '../modules/nf-core/krakentools/combinekreports/main.nf' */
 
 //MODULES: local modules
 include {CHECKM2_PREDICT} from '../modules/local/checkm2/predict.nf'
@@ -102,7 +119,7 @@ def multiqc_report = []
 workflow NANOPORE {
 
     ch_software_versions = Channel.empty()
-   
+
     //
     // SUBWORKFLOW: prepare reference databases ...
     //
@@ -124,14 +141,13 @@ workflow NANOPORE {
 
     in_format = "tsv"
     out_format = "tsv"
-    contig_file_ext = ".fa.gz"
 
     if(!params.skip_illumina_reads_qc){
 
         QC_ILLUMINA(
             illumina_reads.filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0},
-            [],
-            PREPARE_REFERENCES.out.ch_hostile_ref_bowtie2
+            //[],
+            //PREPARE_REFERENCES.out.ch_hostile_ref_bowtie2
         )
         ch_software_versions = ch_software_versions.mix(QC_ILLUMINA.out.versions)
 
@@ -144,8 +160,29 @@ workflow NANOPORE {
     if(!params.skip_illumina_kraken2){
     //if(!params.skip_illumina_kraken2){
         KRAKEN2_KRAKEN2_ILLUMINA (illumina_reads, PREPARE_REFERENCES.out.ch_kraken2_db, false, true)
-        KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA ( KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2.report"], it[1]] }.groupTuple())
+        //KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA ( KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2.report"], it[1]] }.groupTuple())
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
+
+        BRACKEN_BRACKEN_ILLUMINA(KRAKEN2_KRAKEN2_ILLUMINA.out.report, params.kraken2_db)
+        BRACKEN_GETTOPMATCHES_ILLUMINA(BRACKEN_BRACKEN_ILLUMINA.out.reports)
+        CSVTK_CONCAT_TOPMATCHES_ILLUMINA(
+            BRACKEN_GETTOPMATCHES_ILLUMINA.out.csv
+                .map { meta, csv -> csv }
+                .collect()
+                .map { csvs -> tuple([id: "reads_illumina.topmatches"], csvs)
+            }, 'csv', 'csv'
+        )
+
+        ch_to_combine_bracken_report = BRACKEN_BRACKEN_ILLUMINA.out.reports
+            .map{
+                meta, report -> report
+            }
+            .collect()
+            .map{
+                reports -> tuple([id:"reads_illumina_bracken_report"], reports)
+            }
+        BRACKEN_COMBINEBRACKENOUTPUTS_ILLUMINA(ch_to_combine_bracken_report)
+
     }
     //tools for special organism
 
@@ -155,7 +192,8 @@ workflow NANOPORE {
 
 
     if(!params.skip_nanopore_reads_qc){
-        QC_NANOPORE(nanopore_reads, [], PREPARE_REFERENCES.out.ch_hostile_ref_minimap2)
+        //QC_NANOPORE(nanopore_reads, [], PREPARE_REFERENCES.out.ch_hostile_ref_minimap2)
+        QC_NANOPORE(nanopore_reads, [])
         QC_NANOPORE.out.qc_reads
             .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
             .set { nanopore_reads }
@@ -170,10 +208,30 @@ workflow NANOPORE {
             false,
             true
         )
-        KRAKENTOOLS_COMBINEKREPORTS_NANOPORE(
+        /* KRAKENTOOLS_COMBINEKREPORTS_NANOPORE(
             KRAKEN2_KRAKEN2_NANOPORE.out.report.map{ [[id:"kraken2_nanopore"], it[1]] }.groupTuple()
-        )
+        ) */
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_NANOPORE.out.versions)
+
+        BRACKEN_BRACKEN_NANOPORE(KRAKEN2_KRAKEN2_NANOPORE.out.report, params.kraken2_db)
+        BRACKEN_GETTOPMATCHES_NANOPORE(BRACKEN_BRACKEN_NANOPORE.out.reports)
+        CSVTK_CONCAT_TOPMATCHES_NANOPORE(
+            BRACKEN_GETTOPMATCHES_NANOPORE.out.csv
+                .map { meta, csv -> csv }
+                .collect()
+                .map { csvs -> tuple([id: "reads_nanopore.topmatches"], csvs)
+            }, 'csv', 'csv'
+        )
+
+        ch_to_combine_bracken_report = BRACKEN_BRACKEN_NANOPORE.out.reports
+            .map{
+                meta, report -> report
+            }
+            .collect()
+            .map{
+                reports -> tuple([id:"reads_nanopore_bracken_report"], reports)
+            }
+        BRACKEN_COMBINEBRACKENOUTPUTS_NANOPORE(ch_to_combine_bracken_report)
     }
 
     //tools for special organism
@@ -234,7 +292,6 @@ workflow NANOPORE {
                 .set { contigs }
 
         //contigs = ASSEMBLE_NANOPORE.out.contigs
-        contig_file_ext = ASSEMBLE_NANOPORE.out.contig_file_ext
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_NANOPORE.out.versions)
         stats = ASSEMBLE_NANOPORE.out.stats
 
@@ -266,7 +323,6 @@ workflow NANOPORE {
             }.view()
 
             ch_software_versions = ch_software_versions.mix(RUN_POLYPOLISH.out.versions)
-            contig_file_ext = RUN_POLYPOLISH.out.contig_file_ext
 
         }
 
@@ -296,7 +352,6 @@ workflow NANOPORE {
                 }.view()
 
 
-            contig_file_ext = RUN_PYPOLCA.out.contig_file_ext
             ch_software_versions = ch_software_versions.mix(RUN_PYPOLCA.out.versions)
         }
 
@@ -327,12 +382,11 @@ workflow NANOPORE {
                 out_format
             )
         }
-
+/*
         if(! params.skip_gtdbtk){
             //ch_input_gtdbtk = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gtdbtk"], files)}//.view()
             GTDBTK_ANIREP(
                 contigs,
-                contig_file_ext,
                 PREPARE_REFERENCES.out.ch_gtdbtk_db
             )
             ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
@@ -356,26 +410,32 @@ workflow NANOPORE {
                 out_format
             )
 
-        }
-
-        if(! params.skip_checkm2){
-            ch_input_checkm2 = contigs.map {
-                cfg, contigs -> contigs
-            }.collect().map{
-                files -> tuple([id:"checkm2"], files)
-            }//.view()
-            CHECKM2_PREDICT(ch_input_checkm2, contig_file_ext, PREPARE_REFERENCES.out.ch_checkm2_db)
-
-        }
-        /* if(! params.skip_gtdbtk){
-            ch_input_gtdbtk = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gtdbtk"], files)}//.view()
-            GTDBTK_ANIREP(
-                ch_input_gtdbtk,
-                contig_file_ext,
-                PREPARE_REFERENCES.out.ch_gtdbtk_db
-            )
-            ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
         } */
+        if (!params.skip_gtdbtk) {
+        //To run GTDB-Tk ANI REP once on ALL genomes together
+            contigs
+                .map { meta, fasta -> fasta }
+                .collect()
+                .map { list -> tuple([id: "gtdbtk"], list) }
+                .set { ch_all_genomes }
+            ch_all_genomes.view()
+            GTDBTK_ANIREP(
+                ch_all_genomes,
+                params.gtdbtk_db
+            )
+
+            ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
+        }
+
+        if (!params.skip_checkm2) {
+            ch_input_checkm2 = contigs.map { _meta, mycontigs -> mycontigs }.collect()
+                .map {
+                    files -> tuple([id: "checkm2"], files)
+                }
+            //.view()
+            CHECKM2_PREDICT(ch_input_checkm2, params.checkm2_db)
+            ch_software_versions = ch_software_versions.mix(CHECKM2_PREDICT.out.versions)
+        }
 
         if(!params.skip_gambit){
 

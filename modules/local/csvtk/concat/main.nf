@@ -1,6 +1,6 @@
 process CSVTK_CONCAT {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_single'
 
     conda "bioconda::csvtk=0.23.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

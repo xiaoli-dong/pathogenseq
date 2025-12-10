@@ -1,7 +1,7 @@
 
 process MOBSUITE_RECON {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
    conda "bioconda::mob_suite=3.1.4"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -38,9 +38,9 @@ process MOBSUITE_RECON {
         --num_threads $task.cpus \\
         --outdir results \\
         --prefix $prefix
-    
+
     mv results/* .
-    
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

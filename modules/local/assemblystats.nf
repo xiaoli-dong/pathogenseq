@@ -28,12 +28,12 @@ process ASSEMBYSTATS {
         $args \\
         $cmd \\
         > ${prefix}.txt
-        
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         assembly-stats: \$(echo \$(assembly-stats -v 2>&1) | sed 's/Version: //' ))
     END_VERSIONS
     """
 
-    
+
 }

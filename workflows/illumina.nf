@@ -79,15 +79,22 @@ include {
 include {
     KRAKEN2_KRAKEN2 as KRAKEN2_KRAKEN2_ILLUMINA;
 } from '../modules/nf-core/kraken2/kraken2/main'
-include {
-    KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA;
-} from '../modules/nf-core/krakentools/combinekreports/main'
+// include {
+//     KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA;
+// } from '../modules/nf-core/krakentools/combinekreports/main'
+
+include { BRACKEN_BRACKEN } from '../modules/nf-core/bracken/bracken/main'
+include { BRACKEN_COMBINEBRACKENOUTPUTS } from '../modules/nf-core/bracken/combinebrackenoutputs/main'
+include { BRACKEN_GETTOPMATCHES } from '../modules/local/bracken/gettopmatches/main'
+
 include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_ASM;
     CSVTK_CONCAT as CSVTK_CONCAT_DEPTH_ILLUMINA;
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_NOT_ASSEMBLED;
     CSVTK_CONCAT as CSVTK_CONCAT_GTDBTK_ANI_SUMMARY;
     CSVTK_CONCAT as CSVTK_CONCAT_GTDBTK_ANI_CLOSEST;
+    CSVTK_CONCAT as CSVTK_CONCAT_REPORT;
+    CSVTK_CONCAT as CSVTK_CONCAT_TOPMATCHES;
 
 } from '../modules/nf-core/csvtk/concat/main'
 /* include {
@@ -98,9 +105,7 @@ include {
 //
 // MODULE: local modules
 //
-include {
-    CHECKM2_PREDICT
-} from '../modules/local/checkm2/predict.nf'
+include { CHECKM2_PREDICT } from '../modules/local/checkm2/predict.nf'
 
 include{
     GTDBTK_ANIREP
@@ -147,18 +152,12 @@ workflow ILLUMINA {
     //illumina_reads.view()
     in_format = "tsv"
     out_format = "tsv"
-    contig_file_ext = ".fa.gz"
 
     //illumina_reads.view()
     if(!params.skip_illumina_reads_qc){
 
-        QC_ILLUMINA(
-            illumina_reads,
-            [],
-            PREPARE_REFERENCES.out.ch_hostile_ref_bowtie2
-        )
+        QC_ILLUMINA(illumina_reads)
         ch_software_versions = ch_software_versions.mix(QC_ILLUMINA.out.versions)
-        //QC_ILLUMINA.out.qc_reads.view()
 
         //get rid of zero size contig file and avoid the downstream crash
         QC_ILLUMINA.out.qc_reads
@@ -174,10 +173,34 @@ workflow ILLUMINA {
             false,
             true
         )
-        KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA(
+
+
+        /* KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA(
             KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2_illumina"], it[1]] }.groupTuple()
-        )
+        ) */
+
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
+         BRACKEN_BRACKEN(KRAKEN2_KRAKEN2_ILLUMINA.out.report, params.kraken2_db)
+        BRACKEN_GETTOPMATCHES(BRACKEN_BRACKEN.out.reports)
+        CSVTK_CONCAT_TOPMATCHES(
+            BRACKEN_GETTOPMATCHES.out.csv
+                .map { meta, csv -> csv }
+                .collect()
+                .map { csvs -> tuple([id: "reads.topmatches"], csvs)
+            }, 'csv', 'csv'
+        )
+
+        ch_to_combine_bracken_report = BRACKEN_BRACKEN.out.reports
+            .map{
+                meta, report -> report
+            }
+            .collect()
+            .map{
+                reports -> tuple([id:"reads_illumina_bracken_report"], reports)
+            }
+        BRACKEN_COMBINEBRACKENOUTPUTS(ch_to_combine_bracken_report)
+
+
     }
 
     //tools for special organism
@@ -218,7 +241,6 @@ workflow ILLUMINA {
         ASSEMBLE_ILLUMINA.out.contigs
                 .filter { meta, contigs -> contigs.countFasta() > 0 }
                 .set { contigs }
-        contig_file_ext = ASSEMBLE_ILLUMINA.out.contig_file_ext
         ch_software_versions = ch_software_versions.mix(ASSEMBLE_ILLUMINA.out.versions)
         stats = ASSEMBLE_ILLUMINA.out.stats
         CSVTK_CONCAT_STATS_ASM(
@@ -227,7 +249,7 @@ workflow ILLUMINA {
             out_format
         )
 
-        illumina_reads.join(contigs)//.view()
+        //illumina_reads.join(contigs)//.view()
         if(! params.skip_depth_and_coverage_illumina){
             illumina_reads.join(contigs).multiMap{
                 it ->
@@ -247,11 +269,10 @@ workflow ILLUMINA {
                 out_format
             )
         }
-        if(! params.skip_gtdbtk){
+        /* if(! params.skip_gtdbtk){
             //ch_input_gtdbtk = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gtdbtk"], files)}//.view()
             GTDBTK_ANIREP(
                 contigs,
-                contig_file_ext,
                 PREPARE_REFERENCES.out.ch_gtdbtk_db
             )
             ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
@@ -275,15 +296,30 @@ workflow ILLUMINA {
                     out_format
             )
 
+        } */
+        if (!params.skip_gtdbtk) {
+        //To run GTDB-Tk ANI REP once on ALL genomes together
+            contigs
+                .map { meta, fasta -> fasta }
+                .collect()
+                .map { list -> tuple([id: "gtdbtk"], list) }
+                .set { ch_all_genomes }
+            ch_all_genomes.view()
+            GTDBTK_ANIREP(
+                ch_all_genomes,
+                params.gtdbtk_db
+            )
+
+            ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
         }
 
-        if(! params.skip_checkm2){
-            ch_input_checkm2 = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"checkm2"], files)}//.view()
-            CHECKM2_PREDICT(
-                ch_input_checkm2,
-                contig_file_ext,
-                PREPARE_REFERENCES.out.ch_checkm2_db
-            )
+        if (!params.skip_checkm2) {
+            ch_input_checkm2 = contigs.map { _meta, mycontigs -> mycontigs }.collect()
+                .map {
+                    files -> tuple([id: "checkm2"], files)
+                }
+            //.view()
+            CHECKM2_PREDICT(ch_input_checkm2, params.checkm2_db)
             ch_software_versions = ch_software_versions.mix(CHECKM2_PREDICT.out.versions)
         }
 

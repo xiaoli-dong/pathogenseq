@@ -1,6 +1,6 @@
 process SAMPLESHEETCHECK {
     tag "$samplesheet"
-    label 'process_medium'
+    label 'process_low'
 
     conda "conda-forge::python=3.9.5"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

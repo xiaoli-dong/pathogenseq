@@ -1,5 +1,5 @@
 
-include {FLYE} from  '../../modules/nf-core/flye/main'
+include {FLYE} from  '../../modules/local/flye/main'
 
 
 include {
@@ -26,9 +26,8 @@ workflow ASSEMBLE_NANOPORE {
     main:
         ch_versions = Channel.empty()
 
-
         //Flye to be the best-performing bacterial genome assembler in many metrics
-        if ( params.nanopore_reads_assembler == 'flye+medaka'){
+        if ( params.nanopore_reads_assembler == 'flye_medaka'){
 
 
            /*  nanopore_reads.multiMap{
@@ -51,7 +50,6 @@ workflow ASSEMBLE_NANOPORE {
             }.set{
                 input
             }
-            contig_file_ext = ".fasta"
 
             //input.modeFlag.view()
             FLYE(input.nanopore_reads, input.modeFlag)
@@ -78,15 +76,13 @@ workflow ASSEMBLE_NANOPORE {
                 RESTARTGENOME.out.fasta
                     .filter { meta, fasta -> fasta.countFasta() > 0 }
                     .set { contigs }
-                contig_file_ext = ".fasta"
             }
-           
-            POLISHER_NANOPORE(nanopore_reads, contigs, contig_file_ext)
 
-           
+            POLISHER_NANOPORE(nanopore_reads, contigs)
+
+
             contigs = POLISHER_NANOPORE.out.contigs
             STATS = POLISHER_NANOPORE.out.stats
-            contig_file_ext = POLISHER_NANOPORE.out.contig_file_ext
             versions = POLISHER_NANOPORE.out.versions
         }
 
@@ -94,7 +90,6 @@ workflow ASSEMBLE_NANOPORE {
 
     emit:
         contigs
-        contig_file_ext
         versions = ch_versions
         stats
 }

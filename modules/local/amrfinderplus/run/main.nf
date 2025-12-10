@@ -1,6 +1,6 @@
 process AMRFINDERPLUS_RUN {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
     conda "bioconda::ncbi-amrfinderplus=3.12.8"
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

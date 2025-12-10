@@ -1,6 +1,6 @@
 process GAMBIT_QUERY {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
     conda "bioconda::gambit=1.0.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -20,13 +20,13 @@ process GAMBIT_QUERY {
 
     script:
     def args   = task.ext.args   ?: ''
-    
+
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    
+
     """
     gambit -d ${db_directory} query ${args} -o ${prefix}.csv -c ${task.cpus} ${contigs}
-       
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

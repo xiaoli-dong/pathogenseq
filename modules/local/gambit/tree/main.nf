@@ -1,6 +1,6 @@
 process GAMBIT_TREE {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
     conda "bioconda::gambit=1.0.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
@@ -9,7 +9,7 @@ process GAMBIT_TREE {
 
     input:
     tuple val(meta), path(contigs)
-  
+
 
     output:
     tuple val(meta), path("*.newick") , emit: newick //tree
@@ -20,16 +20,16 @@ process GAMBIT_TREE {
 
     script:
     def args   = task.ext.args   ?: ''
-    
+
     def prefix = task.ext.prefix ?: "${meta.id}"
 
-    
+
     """
     gambit tree \\
         ${args} \\
         -c ${task.cpus} \\
         ${contigs} > ${prefix}.newick
-       
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -84,11 +84,9 @@ workflow RUN_POLYPOLISH {
         STATS_POLYPOLISH(contigs)
         STATS_POLYPOLISH_FORMATASSEMBLYSTATS(STATS_POLYPOLISH.out.stats)
         stats = STATS_POLYPOLISH_FORMATASSEMBLYSTATS.out.tsv
-        contig_file_ext = ".fasta.gz"
 
     emit:
         contigs = POLYPOLISH.out.contigs
-        contig_file_ext
         versions = ch_versions
         stats
 
@@ -203,11 +201,9 @@ workflow RUN_PYPOLCA{
         STATS_PYPOLCA_FORMATASSEMBLYSTATS(STATS_PYPOLCA.out.stats)
         stats = STATS_PYPOLCA_FORMATASSEMBLYSTATS.out.tsv
         ch_versions = ch_versions.mix(PYPOLCA.out.versions.first())
-        contig_file_ext = ".fasta.gz"
 
     emit:
         contigs = PYPOLCA.out.corrected_contigs
-        contig_file_ext = ".fasta.gz"
         stats
         versions = ch_versions
 }

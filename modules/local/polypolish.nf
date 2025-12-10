@@ -1,8 +1,8 @@
 process POLYPOLISH {
     tag "$meta.id"
-    label 'process_medium'
+    label 'process_low'
 
-   
+
     conda "bioconda::polypolish=0.6.0"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/polypolish:0.6.0--hdbdd923_0':
@@ -23,7 +23,7 @@ process POLYPOLISH {
     def args = task.ext.args ?: ''
     def args2 = task.ext.args2 ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-   
+
     """
     polypolish filter \\
         ${args} \\
@@ -40,7 +40,7 @@ process POLYPOLISH {
         > ${prefix}.fasta
 
     gzip -n ${prefix}.fasta
-    
+
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

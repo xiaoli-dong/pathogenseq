@@ -10,7 +10,7 @@ workflow INPUT_CHECK {
     main:
     SAMPLESHEETCHECK ( samplesheet )
         .csv
-        .splitCsv ( header:true, sep:',' )
+        .splitCsv ( header:true, sep:',')
         .map { create_read_channels(it) }
         .set { reads }
 
