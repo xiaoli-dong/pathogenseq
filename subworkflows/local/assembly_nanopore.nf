@@ -27,7 +27,7 @@ workflow ASSEMBLE_NANOPORE {
         ch_versions = Channel.empty()
 
         //Flye to be the best-performing bacterial genome assembler in many metrics
-        if ( params.nanopore_reads_assembler == 'flye_medaka'){
+        if ( params.nanopore_reads_assembler == 'flye+medaka'){
 
 
            /*  nanopore_reads.multiMap{
