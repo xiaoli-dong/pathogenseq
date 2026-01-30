@@ -2,13 +2,13 @@ process AMRFINDERPLUS_RUN {
     tag "$meta.id"
     label 'process_low'
 
-    conda "bioconda::ncbi-amrfinderplus=3.12.8"
+    conda "bioconda::ncbi-amrfinderplus=4.2.5"
     // container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
     //     'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.11.18--h283d18e_0':
     //     'biocontainers/ncbi-amrfinderplus:3.11.18--h283d18e_0' }"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:3.12.8--h283d18e_0':
-        'biocontainers/ncbi-amrfinderplus:3.12.8--h283d18e_0' }"
+        'https://depot.galaxyproject.org/singularity/ncbi-amrfinderplus:4.2.5--hf69ffd2_0':
+        'biocontainers/ncbi-amrfinderplus:4.2.5--hf69ffd2_0' }"
     input:
     tuple val(meta), path(fasta)
     path db

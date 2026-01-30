@@ -1,1 +1,9 @@
 repository_type: pipeline
+name: pathogenseq 
+description: Existing local Nextflow pipeline
+author: Xiaoli Dong
+
+repos:
+  nf-core/modules:
+    url: https://github.com/nf-core/modules.git
+    branch: master

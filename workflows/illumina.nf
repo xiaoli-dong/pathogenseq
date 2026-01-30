@@ -97,11 +97,7 @@ include {
     CSVTK_CONCAT as CSVTK_CONCAT_TOPMATCHES;
 
 } from '../modules/nf-core/csvtk/concat/main'
-/* include {
-    PNEUMOCAT
-} from '../modules/nf-core/pneumocat/main.nf'
 
- */
 //
 // MODULE: local modules
 //
@@ -115,6 +111,7 @@ include {
     GAMBIT_QUERY as GAMBIT_QUERY_COLLECT;
     GAMBIT_QUERY as GAMBIT_QUERY;
  } from '../modules/local/gambit/query/main'
+
 include {
     GAMBIT_TREE
 } from '../modules/local/gambit/tree/main'
@@ -174,11 +171,6 @@ workflow ILLUMINA {
             true
         )
 
-
-        /* KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA(
-            KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2_illumina"], it[1]] }.groupTuple()
-        ) */
-
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
          BRACKEN_BRACKEN(KRAKEN2_KRAKEN2_ILLUMINA.out.report, params.kraken2_db)
         BRACKEN_GETTOPMATCHES(BRACKEN_BRACKEN.out.reports)
@@ -210,17 +202,41 @@ workflow ILLUMINA {
     // assembly
     if(!params.skip_illumina_reads_assembly){
         //illumina_reads.view()
+        illumina_reads.join(QC_ILLUMINA.out.qc_stats).view()
 
-        illumina_reads.join(QC_ILLUMINA.out.qc_stats).map{
-           meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
-        }.map{
-            meta, reads, row -> [meta, reads, row.sum_len[0]]
-        }.branch{
-             pass_for_assembly: it[2].toBigInteger() >= params.min_tbp_for_assembly_illumina
-             fail_for_assembly:  it[2].toBigInteger() < params.min_tbp_for_assembly_illumina
-         }.set{
-            ch_input
+       illumina_reads.join(QC_ILLUMINA.out.qc_stats)
+        .map { meta, reads, stats ->
+
+            BigInteger sumLen = 0
+            def lines = stats.text.readLines()
+            if (lines.size() >= 2) {
+                def header = lines[0].trim().split(/\s+/)
+                def values = lines[1].trim().split(/\s+/)
+
+                def idx = header.findIndexOf { it == 'sum_len' }
+
+                if (idx >= 0 && idx < values.size()) {
+                    sumLen = values[idx]
+                        .replaceAll(',', '')
+                        .toBigInteger()
+                } else {
+                    log.warn "sum_len column not found for sample: ${meta.id}"
+                }
+            } else {
+                log.warn "QC TSV empty or header-only for sample: ${meta.id}"
+            }
+
+            log.info "QC ${meta.id}: sum_len=${sumLen}"
+
+            [meta, reads, sumLen]
         }
+        .branch {
+            pass_for_assembly: it[2] >= params.min_tbp_for_assembly_illumina
+            fail_for_assembly: it[2] <  params.min_tbp_for_assembly_illumina
+        }
+        .set { ch_input }
+        ch_input.pass_for_assembly.view()
+
 
         CSVTK_CONCAT_STATS_NOT_ASSEMBLED(
             ch_input.fail_for_assembly.map{
@@ -269,34 +285,7 @@ workflow ILLUMINA {
                 out_format
             )
         }
-        /* if(! params.skip_gtdbtk){
-            //ch_input_gtdbtk = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gtdbtk"], files)}//.view()
-            GTDBTK_ANIREP(
-                contigs,
-                PREPARE_REFERENCES.out.ch_gtdbtk_db
-            )
-            ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
 
-            CSVTK_CONCAT_GTDBTK_ANI_CLOSEST(
-                GTDBTK_ANIREP.out.closest.map {
-                    cfg, closest -> closest
-                }.collect().map {
-                    files -> tuple([id:"gtdbtk.ani_closest"], files)
-                    },
-                in_format,
-                out_format
-            )
-            CSVTK_CONCAT_GTDBTK_ANI_SUMMARY(
-                    GTDBTK_ANIREP.out.summary.map {
-                        cfg, summary -> summary
-                    }.collect().map {
-                        files -> tuple([id:"gtdbtk.ani_summary"], files)
-                        },
-                    in_format,
-                    out_format
-            )
-
-        } */
         if (!params.skip_gtdbtk) {
         //To run GTDB-Tk ANI REP once on ALL genomes together
             contigs

@@ -3,7 +3,6 @@ include {
     FASTQC as FASTQC_INPUT;
     FASTQC as FASTQC_TRIMMED_BBDUK;
     FASTQC as FASTQC_TRIMMED_FASTP;
-    FASTQC as FASTQC_HOSTILE;
 } from     '../../modules/nf-core/fastqc/main'
 
 include {
@@ -16,18 +15,17 @@ include {
     SEQKIT_STATS as SEQKIT_STATS_INPUT_ILLUMINA;
     SEQKIT_STATS as SEQKIT_STATS_TRIMMED_FASTP;
     SEQKIT_STATS as SEQKIT_STATS_TRIMMED_BBDUK;
-    SEQKIT_STATS as SEQKIT_STATS_HOSTILE_ILLUMINA;
+    SEQKIT_STATS as SEQKIT_STATS_DEHOST
 } from '../../modules/local/seqkit/stats/main'
 
 include {
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_INPUT_ILLUMINA;
     CSVTK_CONCAT as CSVTK_CONCAT_STATS_TRIMMED_ILLUMINA;
-    CSVTK_CONCAT as CSVTK_CONCAT_STATS_HOSTILE_ILLUMINA;
+    CSVTK_CONCAT as CSVTK_CONCAT_STATS_DEHOST_ILLUMINA;
 } from '../../modules/nf-core/csvtk/concat/main'
 
-include {
-    HOSTILE_CLEAN as HOSTILE_ILLUMINA;
-} from '../../modules/local/hostile/clean/main'
+
+include { DEACON_FILTER as  DEACON_FILTER_ILLUMINA } from '../../modules/local/deacon/filter/main'
 
 workflow QC_ILLUMINA {
 
@@ -101,21 +99,25 @@ workflow QC_ILLUMINA {
 
         //FASTQC_QC(qc_reads)
         if(! params.skip_illumina_dehost){
-            HOSTILE_ILLUMINA(trimmed_reads, [params.hostile_ref_name_illumina, params.hostile_ref_dir])
-            ch_versions = ch_versions.mix(HOSTILE_ILLUMINA.out.versions.first())
-            HOSTILE_ILLUMINA.out.fastq
-                .filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
-                .set { qc_reads }
 
-            FASTQC_HOSTILE(qc_reads)
-            SEQKIT_STATS_HOSTILE_ILLUMINA(qc_reads)
-            CSVTK_CONCAT_STATS_HOSTILE_ILLUMINA(
-                SEQKIT_STATS_HOSTILE_ILLUMINA.out.stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id: "reads_illumina.dehost_seqstats"], files)},
+            DEACON_FILTER_ILLUMINA(
+                qc_reads.map { meta, my_qc_reads -> [meta, params.deacon_refdb, my_qc_reads] }
+            )
+            ch_versions = ch_versions.mix(DEACON_FILTER_ILLUMINA.out.versions.first())
+
+            qc_reads = DEACON_FILTER_ILLUMINA.out.fastq_filtered.filter { meta, reads ->
+                def readsList = reads instanceof List ? reads : [reads]
+                readsList.size() > 0 && readsList.every { it != null && it.exists() && it.size() > 0 }
+            }
+            SEQKIT_STATS_DEHOST(qc_reads)
+            qc_stats = SEQKIT_STATS_DEHOST.out.stats
+
+            CSVTK_CONCAT_STATS_DEHOST_ILLUMINA(
+                qc_stats.map { cfg, stats -> stats }.collect().map { files -> tuple([id: "reads_illumina.dehost_seqstats"], files)},
                 in_format,
                 out_format
             )
-            //qc_reads = HOSTILE_ILLUMINA.out.reads
-            qc_stats = SEQKIT_STATS_HOSTILE_ILLUMINA.out.stats
+
         }
 
     emit:

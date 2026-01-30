@@ -1,9 +1,9 @@
 include {
     BAKTA_BAKTA
-} from '../../modules/nf-core/bakta/bakta/main'
+} from '../../modules/local/bakta/bakta/main'
 include {
     AMRFINDERPLUS_UPDATE;
-} from '../../modules/nf-core/amrfinderplus/update/main'
+} from '../../modules/local/amrfinderplus/update/main'
 include {
     ABRITAMR_RUN
 } from '../../modules/nf-core/abritamr/run/main'
@@ -22,7 +22,6 @@ include {
     CSVTK_CONCAT as CSVTK_CONCAT_CONTIG_REPORT;
     CSVTK_CONCAT as CSVTK_CONCAT_AMR;
     CSVTK_CONCAT as CSVTK_CONCAT_MLST;
-    //CSVTK_CONCAT as CSVTK_CONCAT_EMMTYPER;
 } from '../../modules/nf-core/csvtk/concat/main'
 
 
@@ -38,10 +37,7 @@ include {
 include {
     CSVTK_FILTER2
 } from '../../modules/local/csvtk/filter2/main'
-/* include {
-    EMMTYPER
-} from '../../modules/local/emmtyper/main.nf'
- */
+
 workflow ANNOTATION {
 
     take:
@@ -57,7 +53,7 @@ workflow ANNOTATION {
         out_format = "tsv"
 
         if(!params.skip_bakta){
-            BAKTA_BAKTA(contigs, bakta_db, [], [])
+            BAKTA_BAKTA(contigs, bakta_db, [], [],[], [])
             GFF2FEATURES_BAKTA(BAKTA_BAKTA.out.gff)
             ch_software_versions = ch_software_versions.mix(BAKTA_BAKTA.out.versions)
             CSVTK_CONCAT_STATS_BAKTA(GFF2FEATURES_BAKTA.out.tsv.map { cfg, stats -> stats }.collect().map { files -> tuple([id:"annotation.bakta"], files)}, in_format, out_format )
@@ -123,18 +119,6 @@ workflow ANNOTATION {
                 ABRICATE_RUN_VF.out.report.collect{ meta, report -> report }.map{ report -> [[ id: "virulome"], report]}
             )
         }
-
-        //emm-typing of Streptococcus pyogenes
-       /*  if(! params.skip_emmtyper){
-            EMMTYPER(contigs)
-            ch_software_versions = ch_software_versions.mix(EMMTYPER.out.versions)
-            CSVTK_CONCAT_EMMTYPER(
-                EMMTYPER.out.tsv.map {meta, tsv -> tsv }.collect().map { files -> tuple([id:"emmtyper"], files)},
-                in_format,
-                out_format
-            )
-            ch_software_versions = ch_software_versions.mix(CSVTK_CONCAT_EMMTYPER.out.versions)
-        }   */
 
     emit:
 

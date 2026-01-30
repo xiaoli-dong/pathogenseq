@@ -90,10 +90,6 @@ include {
     BRACKEN_GETTOPMATCHES as BRACKEN_GETTOPMATCHES_NANOPORE;
 } from '../modules/local/bracken/gettopmatches/main'
 
-/* include {
-    KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA;
-    KRAKENTOOLS_COMBINEKREPORTS as KRAKENTOOLS_COMBINEKREPORTS_NANOPORE;
-} from '../modules/nf-core/krakentools/combinekreports/main.nf' */
 
 //MODULES: local modules
 include {CHECKM2_PREDICT} from '../modules/local/checkm2/predict.nf'
@@ -145,9 +141,7 @@ workflow NANOPORE {
     if(!params.skip_illumina_reads_qc){
 
         QC_ILLUMINA(
-            illumina_reads.filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0},
-            //[],
-            //PREPARE_REFERENCES.out.ch_hostile_ref_bowtie2
+            illumina_reads.filter {meta, reads -> reads[0].size() > 0 && reads[0].countFastq() > 0}
         )
         ch_software_versions = ch_software_versions.mix(QC_ILLUMINA.out.versions)
 
@@ -158,9 +152,9 @@ workflow NANOPORE {
     }
     //classify
     if(!params.skip_illumina_kraken2){
-    //if(!params.skip_illumina_kraken2){
+
         KRAKEN2_KRAKEN2_ILLUMINA (illumina_reads, PREPARE_REFERENCES.out.ch_kraken2_db, false, true)
-        //KRAKENTOOLS_COMBINEKREPORTS_ILLUMINA ( KRAKEN2_KRAKEN2_ILLUMINA.out.report.map{ [[id:"kraken2.report"], it[1]] }.groupTuple())
+
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_ILLUMINA.out.versions)
 
         BRACKEN_BRACKEN_ILLUMINA(KRAKEN2_KRAKEN2_ILLUMINA.out.report, params.kraken2_db)
@@ -192,7 +186,6 @@ workflow NANOPORE {
 
 
     if(!params.skip_nanopore_reads_qc){
-        //QC_NANOPORE(nanopore_reads, [], PREPARE_REFERENCES.out.ch_hostile_ref_minimap2)
         QC_NANOPORE(nanopore_reads, [])
         QC_NANOPORE.out.qc_reads
             .filter {meta, reads -> reads.size() > 0 && reads.countFastq() > 0}
@@ -208,9 +201,7 @@ workflow NANOPORE {
             false,
             true
         )
-        /* KRAKENTOOLS_COMBINEKREPORTS_NANOPORE(
-            KRAKEN2_KRAKEN2_NANOPORE.out.report.map{ [[id:"kraken2_nanopore"], it[1]] }.groupTuple()
-        ) */
+
         ch_software_versions = ch_software_versions.mix(KRAKEN2_KRAKEN2_NANOPORE.out.versions)
 
         BRACKEN_BRACKEN_NANOPORE(KRAKEN2_KRAKEN2_NANOPORE.out.report, params.kraken2_db)
@@ -239,29 +230,46 @@ workflow NANOPORE {
     SPECIAL_TOOLS_BASED_ON_NANOPORE(nanopore_reads)
     ch_software_versions = ch_software_versions.mix(SPECIAL_TOOLS_BASED_ON_NANOPORE.out.versions)
 
-    //GENOMESIZE_NANOPORE(nanopore_reads)
-   // GENOMESIZE_NANOPORE.out.genome_size.view()
-
     // assembly
     if(!params.skip_nanopore_reads_assembly){
 
-        nanopore_reads.join(QC_NANOPORE.out.qc_stats)//.view()
-        nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
-           meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
-        }.map{
-            meta, reads, row -> [meta, reads, row.sum_len[0]]
-        }//.view()
+        nanopore_reads.view()
+        nanopore_reads.join(QC_NANOPORE.out.qc_stats).view()
 
-        nanopore_reads.join(QC_NANOPORE.out.qc_stats).map{
-           meta, reads, stats -> [meta, reads, stats.splitCsv(header: true, sep:'\t', strip:true)]
-        }.map{
-            meta, reads, row -> [meta, reads, row.sum_len[0]]
-        }.branch{
-             pass_for_assembly: it[2].toBigInteger() >= params.min_tbp_for_assembly_nanopore
-             fail_for_assembly:  it[2].toBigInteger() < params.min_tbp_for_assembly_nanopore
-         }.set{
-            ch_input
-        }
+        nanopore_reads.join(QC_NANOPORE.out.qc_stats)
+            .map { meta, reads, stats ->
+
+                BigInteger sumLen = 0
+                def lines = stats.text.readLines()
+                if (lines.size() >= 2) {
+                    def header = lines[0].trim().split(/\s+/)
+                    def values = lines[1].trim().split(/\s+/)
+
+                    def idx = header.findIndexOf { it == 'sum_len' }
+
+                    if (idx >= 0 && idx < values.size()) {
+                        sumLen = values[idx]
+                            .replaceAll(',', '')
+                            .toBigInteger()
+                    } else {
+                        log.warn "sum_len column not found for sample: ${meta.id}"
+                    }
+                } else {
+                    log.warn "QC TSV empty or header-only for sample: ${meta.id}"
+                }
+
+                log.info "QC ${meta.id}: sum_len=${sumLen}"
+
+                [meta, reads, sumLen]
+            }
+            .branch {
+                pass_for_assembly: it[2] >= params.min_tbp_for_assembly_nanopore
+                fail_for_assembly: it[2] <  params.min_tbp_for_assembly_nanopore
+            }
+            .set { ch_input }
+
+        ch_input.pass_for_assembly.view()
+
 
         CSVTK_CONCAT_STATS_NOT_ASSEMBLED(
             ch_input.fail_for_assembly.map{
@@ -330,7 +338,6 @@ workflow NANOPORE {
         if(!params.skip_illumina_reads_polish  && !params.skip_pypolca){
 
             RUN_PYPOLCA(illumina_reads, contigs)
-            //RUN_POLCA.out.contigs.view()
             contigs = contigs.merge( RUN_PYPOLCA.out.contigs.ifEmpty([])).map{
                     it ->
                     if(it.size() == 4){
@@ -382,35 +389,7 @@ workflow NANOPORE {
                 out_format
             )
         }
-/*
-        if(! params.skip_gtdbtk){
-            //ch_input_gtdbtk = contigs.map { cfg, contigs -> contigs }.collect().map{files -> tuple([id:"gtdbtk"], files)}//.view()
-            GTDBTK_ANIREP(
-                contigs,
-                PREPARE_REFERENCES.out.ch_gtdbtk_db
-            )
-            ch_software_versions = ch_software_versions.mix(GTDBTK_ANIREP.out.versions)
 
-            CSVTK_CONCAT_GTDBTK_ANI_CLOSEST(
-                GTDBTK_ANIREP.out.closest.map {
-                    cfg, closest -> closest
-                }.collect().map {
-                    files -> tuple([id:"gtdbtk.ani_closest"], files)
-                    },
-                in_format,
-                out_format
-            )
-            CSVTK_CONCAT_GTDBTK_ANI_SUMMARY(
-                GTDBTK_ANIREP.out.summary.map {
-                    cfg, summary -> summary
-                }.collect().map {
-                    files -> tuple([id:"gtdbtk.ani_summary"], files)
-                    },
-                in_format,
-                out_format
-            )
-
-        } */
         if (!params.skip_gtdbtk) {
         //To run GTDB-Tk ANI REP once on ALL genomes together
             contigs

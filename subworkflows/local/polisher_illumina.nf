@@ -92,67 +92,6 @@ workflow RUN_POLYPOLISH {
 
 }
 
-include { MASURCA_POLCA } from '../../modules/local/masurca/polca'
-include { ASSEMBYSTATS as STATS_POLCA; } from '../../modules/local/assemblystats'
-include { FORMATASSEMBLYSTATS as STATS_POLCA_FORMATASSEMBLYSTATS;} from '../../modules/local/misc'
-
-workflow RUN_POLCA{
-
-    take:
-        illumina_reads
-        draft_contigs
-    main:
-        ch_versions = Channel.empty()
-
-        //draft_contigs.view()
-        illumina_reads.map{
-            meta, reads ->
-                def new_meta = [:]
-                new_meta.id = meta.id
-                [ new_meta, meta, reads ]
-
-        }.set{
-            ch_input_reads
-        }
-
-        draft_contigs.map{
-            meta, contigs ->
-                def new_meta = [:]
-                new_meta.id = meta.id
-                [ new_meta, meta, contigs ]
-        }.set{
-            ch_input_contigs
-        }
-
-        ch_input_reads.join(ch_input_contigs).multiMap{
-            it ->
-                reads: [it[1], it[2]]
-                draft_contigs: [it[1], it[4]]
-        }.set{
-            ch_input
-        }
-
-         /* illumina_reads.join(contigs).multiMap{
-            it ->
-                illumina_reads: [it[0], it[1]]
-                contigs: [it[0], it[2]]
-        }.set{
-            ch_input
-        } */
-
-        MASURCA_POLCA(ch_input.reads, ch_input.draft_contigs)
-        contigs = MASURCA_POLCA.out.contigs
-        STATS_POLCA(contigs)
-        STATS_POLCA_FORMATASSEMBLYSTATS(STATS_POLCA.out.stats)
-        stats = STATS_POLCA_FORMATASSEMBLYSTATS.out.tsv
-        ch_versions = ch_versions.mix(MASURCA_POLCA.out.versions.first())
-
-    emit:
-        contigs = MASURCA_POLCA.out.contigs
-        stats
-        versions = ch_versions
-}
-
 include { PYPOLCA} from '../../modules/local/pypolca'
 include { ASSEMBYSTATS as STATS_PYPOLCA; } from '../../modules/local/assemblystats'
 include {FORMATASSEMBLYSTATS as STATS_PYPOLCA_FORMATASSEMBLYSTATS;} from '../../modules/local/misc'
